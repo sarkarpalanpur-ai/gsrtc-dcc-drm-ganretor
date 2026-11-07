@@ -1,0 +1,6 @@
+{
+  "name": "GSRTC DCC & DRM Generator",
+  "description": "Auto-generate and print official GSRTC Daily Cash Collection (DCC) summaries and Daily Revenue Memos (DRM) from photos with Excel export and calculation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
