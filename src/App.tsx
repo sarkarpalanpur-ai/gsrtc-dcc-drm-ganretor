@@ -60,13 +60,17 @@ export default function App() {
         stateWiseIncomes: extracted.stateWiseIncomes || prev.stateWiseIncomes,
         gstDetails: extracted.gstDetails || prev.gstDetails,
         drmSlip: extracted.drmSlip || prev.drmSlip,
+        ccRefund: extracted.ccRefund !== undefined ? Number(extracted.ccRefund) : (extracted.drmSlip?.ccRefund ?? prev.ccRefund),
+        ccAmount: extracted.ccAmount !== undefined ? Number(extracted.ccAmount) : (extracted.drmSlip?.ccDeposit ?? prev.ccAmount),
+        diwaliExtra: extracted.diwaliExtra !== undefined ? Number(extracted.diwaliExtra) : (extracted.drmSlip?.diwaliExt ?? prev.diwaliExtra),
+        diwaliRefund: extracted.diwaliRefund !== undefined ? Number(extracted.diwaliRefund) : prev.diwaliRefund,
         ruralIncome: extracted.ruralIncome ?? prev.ruralIncome,
         urbanIncome: extracted.urbanIncome ?? prev.urbanIncome,
       };
       // Run automatic cross-mapping to ensure Gujarati heads and DRM are auto-filled!
       return autoMapEnglishToGujaratiAndDRM(merged);
     });
-    showToast('ડેટા સફળતાપૂર્વક અપડેટ થયો (DCC & DRM auto-filled!)');
+    showToast('માત્ર ૧ ફોટોથી DCC Summary, ગુજરાતી પત્રક અને DRM મેમો સંપૂર્ણ ઓટો-ફિલ થઈ ગયા!');
   };
 
   const handleExportExcel = () => {

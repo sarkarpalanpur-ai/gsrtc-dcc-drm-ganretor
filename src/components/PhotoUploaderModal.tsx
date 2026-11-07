@@ -164,12 +164,34 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
 
         {/* Modal Body */}
         <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-5">
+          {/* 1-Photo Guarantee Banner */}
+          <div className="bg-gradient-to-r from-amber-500/10 via-red-500/10 to-amber-500/10 border-2 border-red-500/30 rounded-xl p-3.5 flex items-start gap-3">
+            <div className="w-8 h-8 rounded-lg bg-red-600 text-white flex items-center justify-center font-bold text-base shrink-0 shadow-xs">
+              1
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-xs sm:text-sm font-bold text-slate-900 font-gujarati flex items-center gap-1.5">
+                <span>માત્ર ૧ જ ફોટો અપલોડ કરો (Upload Only 1 Photo)</span>
+                <span className="bg-red-600 text-white text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-sans">100% Auto-Fill</span>
+              </h3>
+              <p className="text-xs text-slate-700 font-gujarati leading-relaxed">
+                ફક્ત <strong>DCC Summary (કમ્પ્યુટર સમરી)</strong> નો ૧ જ ફોટો અપલોડ કરશો એટલે સિસ્ટમ તેની જાતે:
+                <br />
+                <span className="inline-block mt-0.5 font-semibold text-red-900">
+                  ૧. અંગ્રેજી DCC Summary &bull; ૨. પરંપરાગત ગુજરાતી ડી.સી.સી. (૧૦૧ A, ૬૨૦) &bull; ૩. SBI DRM મેમો &bull; ૪. કરન્સી નોટોની ગણતરી
+                </span>
+                <br />
+                બધા જ પેજ <strong>આપોઆપ (Auto-fill)</strong> તૈયાર કરી દેશે!
+              </p>
+            </div>
+          </div>
+
           {/* Preset Sample Photos Bar */}
           <div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
                 <FileText className="w-3.5 h-3.5 text-red-600" />
-                તમે મોકલેલા મૂળ સેમ્પલ ફોટા (Attached Photos)
+                સેમ્પલ ફોટો (DCC Summary Photo 3)
               </span>
               <button
                 type="button"

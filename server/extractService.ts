@@ -26,28 +26,34 @@ export async function extractDCCFromImage(
   });
 
   const prompt = `
-You are an expert OCR and auditing assistant for GSRTC (Gujarat State Road Transport Corporation / ગુજરાત રાજ્ય માર્ગ વાહન વ્યવહાર નિગમ).
-Analyze this photo of an official GSRTC document. It can be:
-1. "DAILY CASH COLLECTION SUMMARY" (Computer printed English sheet with REVENUE, DEDUCTIONS, STATE WISE, GST DETAILS)
-2. "ડી.સી.સી. સમરી સુરત સીટી" (Handwritten or printed Gujarati DCC summary sheet with Account Heads 101 A, 102 C, 620, etc.)
-3. "DAILY REVENUE MEMO" (DRM slip or memo addressed to Divisional Auditor remitted to SBI)
-4. A cashier slip or conductor collection summary
+You are an expert OCR, accounting, and auditing assistant for GSRTC (Gujarat State Road Transport Corporation / ગુજરાત રાજ્ય માર્ગ વાહન વ્યવહાર નિગમ, સુરત વિભાગ).
+Analyze this photo of the official GSRTC "DAILY CASH COLLECTION SUMMARY" (કમ્પ્યુટર પ્રિન્ટ ડી.સી.સી. સમરી) or cashier sheet.
 
-Please extract all details accurately into JSON. Look carefully at:
+FROM THIS SINGLE PHOTO OF THE DCC SUMMARY, YOU MUST EXTRACT AND COMPUTE ALL DETAILS NEEDED TO AUTO-FILL:
+1. The English DCC Summary (14 Revenue heads, 13 Deduction heads, State-wise summary, GST, POS Cash)
+2. The Traditional Gujarati DCC Summary (Account heads 101 A, 102 C, 105, 110 D, 140 K, 102 H, 620, etc.)
+3. The DRM (Daily Revenue Memo - SBI Bank Remittance Memo with Net Cash and Words)
+
+Look carefully at the photo for:
 - Date (DD/MM/YYYY)
-- Division (e.g. SURAT DIVISION)
-- Depot (e.g. SURAT CITY DEPOT / SURAT CITY-2)
+- Division: SURAT DIVISION
+- Depot: SURAT CITY DEPOT / SURAT CITY-2
+- Depot Code: CODE O 72123 (FROM NO A508)
 - Revenue items (Passanger Amount Intra, Sleeper, Inter State, Luggage, Toll Gujarat, Toll Other, Insurance, HR Surcharge, Excess, Dhabha Collection, Misc, GST, Penalties)
 - Deduction items (Police Motor Warrant, Journalist, Award Winner Teacher, Employee Coupon, Other Uncollected Concession / Divyang, Toll Gate, Bus Stand Fee, Refund, Misc Expenses, Short Amount, Uncollected GST, Digital transaction Amount, Uncollected Sleeper)
-- Total Revenue, Total Deduction, Total Cash To Be Deposited
+- Total Revenue, Total Deduction, Total Cash To Be Deposited (P.O.S)
 - Advance Booking Amount
 - State wise breakdown (Gujarat, Delhi, Maharashtra, Union Territory, Madhya Pradesh, Rajasthan)
 - GST details (Collected Cash, Uncollected Cash, Collected Digital, Uncollected Digital)
-- Traditional Gujarati heads if visible:
-  101 A મુસાફર આવક, ડીજીટલ ટ્રાન્સફર, દીવાલી એક્સ્ટ્રા, લગેજ, દિવ્યાંગ, ઇન્ટર સ્ટેટ, ધાબા કલેક્શન, ટોલટેક્ષ
-  કપાત: પોલીસ મોટર વોરંટ, પત્રકાર કુપન, પેસેન્જર એડવાન્સ બુકીંગ રીફંડ, ડીજીટલ ટ્રાન્સફર, દિવ્યાંગ
-  DRM Slip breakdown: P.O.S, DRM, G12, CC DIPODIT, DIWALI EXT, CC REFUND, TOTAL
-- DRM Memo values: Rural Income, Urban Income, Bank Name (SBI), Net Cash remitted
+- Special Adjustments (either printed or handwritten at bottom / notes):
+  * CC REFUND / સી.સી. રીફંડ (e.g. 20,592)
+  * CC AMOUNT / સી.સી. ડિપોઝીટ / CC DIPODIT (e.g. 0)
+  * DIWALI EXTRA / દીવાલી એક્સ્ટ્રા / DIWALI EXT (e.g. 35,100)
+  * DIWALI REFUND / દીવાલી રીફંડ (e.g. 0)
+  * DRM / G12 amounts (if any)
+- Net SBI Remittance Formula:
+  POS + CC Amount + Diwali Extra - CC Refund - Diwali Refund + DRM + G12 = Total Net Cash to SBI
+  (e.g. 4422250 + 0 + 35100 - 20592 = 4436758)
 
 Return ONLY valid JSON matching this structure:
 {
@@ -59,6 +65,10 @@ Return ONLY valid JSON matching this structure:
   "ruralIncome": 4436758,
   "urbanIncome": 0,
   "advanceBookingAmount": 327851,
+  "ccRefund": 20592,
+  "ccAmount": 0,
+  "diwaliExtra": 35100,
+  "diwaliRefund": 0,
   "revenueItems": [
     { "headNo": "101 A", "titleEn": "Passanger Amount Intra", "titleGu": "મુસાફર આવક (ઇન્ટ્રા)", "amount": 4798749 },
     { "headNo": "101 A", "titleEn": "Passanger Income By Sleeper Charge(Coll+Uncoll)", "titleGu": "સ્લીપર ચાર્જ આવક", "amount": 3800 },
