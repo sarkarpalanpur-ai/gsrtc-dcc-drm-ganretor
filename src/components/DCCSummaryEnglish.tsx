@@ -49,13 +49,20 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
   };
 
   const handleSpecialAdjustmentChange = (
-    field: 'ccRefund' | 'ccAmount' | 'diwaliExtra' | 'diwaliRefund',
+    field: 'ccRefund' | 'ccAmount' | 'diwaliExtra' | 'diwaliRefund' | 'g12Amount',
     newAmount: number
   ) => {
     const clean = isNaN(newAmount) ? 0 : newAmount;
     onChange({
       ...record,
       [field]: clean,
+    });
+  };
+
+  const handleG12NumberChange = (val: string) => {
+    onChange({
+      ...record,
+      g12Number: val,
     });
   };
 
@@ -228,7 +235,7 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
           </span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
           {/* 1. CC REFUND */}
           <div className="bg-white border-2 border-slate-300 rounded-lg p-2 hover:border-red-500 transition">
             <div className="flex justify-between items-center text-[11px] font-bold text-slate-700">
@@ -320,6 +327,51 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
               />
             )}
           </div>
+
+          {/* 5. G-12 AMOUNT (અન્ય આવક ૧૪૦) */}
+          <div className="bg-white border-2 border-blue-400 rounded-lg p-2 hover:border-blue-600 transition bg-blue-50/30">
+            <div className="flex justify-between items-center text-[11px] font-bold text-blue-900">
+              <span>G-12 AMOUNT</span>
+              <span className="text-[10px] text-blue-700 bg-blue-100 px-1 rounded font-normal">હેડ ૧૪૦ (+)</span>
+            </div>
+            <p className="text-[10px] text-blue-800 font-gujarati mb-1">G-12 ની રકમ (અન્ય આવક)</p>
+            {isPrintMode ? (
+              <p className="text-right font-mono font-bold text-xs tabular-nums text-blue-900">
+                {formatIndianNumber(record.g12Amount || 0)}
+              </p>
+            ) : (
+              <input
+                type="number"
+                step="any"
+                value={record.g12Amount === 0 ? '' : record.g12Amount}
+                placeholder="0"
+                onChange={(e) => handleSpecialAdjustmentChange('g12Amount', parseFloat(e.target.value))}
+                className="w-full text-right font-mono font-extrabold text-xs bg-blue-50/50 focus:bg-amber-100 rounded px-1.5 py-1 focus:outline-none border border-blue-300 focus:border-blue-600 tabular-nums"
+              />
+            )}
+          </div>
+
+          {/* 6. G-12 NUMBER (G-12 નંબર) */}
+          <div className="bg-white border-2 border-indigo-300 rounded-lg p-2 hover:border-indigo-500 transition bg-indigo-50/20">
+            <div className="flex justify-between items-center text-[11px] font-bold text-indigo-900">
+              <span>G-12 NUMBER</span>
+              <span className="text-[10px] text-indigo-700 bg-indigo-100 px-1 rounded font-normal">નંબર</span>
+            </div>
+            <p className="text-[10px] text-indigo-800 font-gujarati mb-1">G-12 મેમો / ચલણ નં.</p>
+            {isPrintMode ? (
+              <p className="text-right font-mono font-bold text-xs tabular-nums text-indigo-900">
+                {record.g12Number || '-'}
+              </p>
+            ) : (
+              <input
+                type="text"
+                value={record.g12Number || ''}
+                placeholder="દા.ત. 1045"
+                onChange={(e) => handleG12NumberChange(e.target.value)}
+                className="w-full text-right font-mono font-bold text-xs bg-indigo-50/40 focus:bg-amber-100 rounded px-1.5 py-1 focus:outline-none border border-indigo-300 focus:border-indigo-500"
+              />
+            )}
+          </div>
         </div>
 
         {/* Live Calculation Bar */}
@@ -336,6 +388,10 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
             <span>+</span>
             <span className="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-mono">
               દીવાલી ₹{formatIndianNumber(record.diwaliExtra || 0)}
+            </span>
+            <span>+</span>
+            <span className="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-mono">
+              G-12 ₹{formatIndianNumber(record.g12Amount || 0)}
             </span>
             <span>-</span>
             <span className="bg-rose-100 text-rose-800 px-1.5 py-0.5 rounded font-mono">

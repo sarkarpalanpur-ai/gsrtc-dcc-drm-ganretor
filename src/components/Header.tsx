@@ -62,8 +62,19 @@ export const Header: React.FC<HeaderProps> = ({
               type="text"
               value={record.date}
               onChange={(e) => onDateChange(e.target.value)}
-              className="bg-transparent text-white font-mono font-semibold w-24 focus:outline-none focus:ring-1 focus:ring-amber-400 rounded px-1"
+              className="bg-transparent text-white font-mono font-bold w-24 focus:outline-none focus:ring-1 focus:ring-amber-400 rounded px-1 text-center"
               placeholder="DD/MM/YYYY"
+            />
+            <input
+              type="date"
+              className="w-4 h-4 bg-transparent opacity-80 hover:opacity-100 cursor-pointer text-white"
+              title="કેલેન્ડરમાંથી તારીખ પસંદ કરો"
+              onChange={(e) => {
+                if (e.target.value) {
+                  const [y, m, d] = e.target.value.split('-');
+                  onDateChange(`${d}/${m}/${y}`);
+                }
+              }}
             />
           </div>
 

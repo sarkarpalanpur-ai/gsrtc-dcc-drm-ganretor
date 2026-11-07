@@ -69,6 +69,8 @@ Return ONLY valid JSON matching this structure:
   "ccAmount": 0,
   "diwaliExtra": 35100,
   "diwaliRefund": 0,
+  "g12Amount": 0,
+  "g12Number": "",
   "revenueItems": [
     { "headNo": "101 A", "titleEn": "Passanger Amount Intra", "titleGu": "મુસાફર આવક (ઇન્ટ્રા)", "amount": 4798749 },
     { "headNo": "101 A", "titleEn": "Passanger Income By Sleeper Charge(Coll+Uncoll)", "titleGu": "સ્લીપર ચાર્જ આવક", "amount": 3800 },

@@ -134,18 +134,34 @@ export function autoMapEnglishToGujaratiAndDRM(record: DCCRecord): DCCRecord {
     return item;
   });
 
-  // 3. Auto-Map DRM Slip values:
+  // 3. Auto-Map Gujarati Other Incomes (અન્ય આવક - એકાઉન્ટ હેડ ૧૪૦):
+  // User Rule: "g-12 ni je amount ave te any avak ma add thay 140 ma"
+  const g12Amount = Number(record.g12Amount) || 0;
+  const g12Number = record.g12Number ? String(record.g12Number).trim() : '';
+
+  const updatedGujaratiOtherIncomes = record.gujaratiOtherIncomes.map((item) => {
+    if (item.headNo === '140') {
+      const g12Note = g12Number ? ` (G-12 નં. ${g12Number})` : ' (G-12)';
+      return {
+        ...item,
+        amount: g12Amount,
+        titleGu: g12Amount > 0 ? `અન્ય આવક${g12Note}` : 'અન્ય આવક',
+      };
+    }
+    return item;
+  });
+
+  // 4. Auto-Map DRM Slip values:
   // P.O.S matches Total Cash To Be Deposited from English DCC
   const posAmount = engTotals.totalCashDeposited;
   const drm = record.drmSlip.drm || 0;
-  const g12 = record.drmSlip.g12 || 0;
 
   // Total CC refund to deduct
   const totalRefundDeduction = ccRefund + (diwaliRefund > 0 ? diwaliRefund : refund);
 
   // Total Net Cash for DRM:
   // Formula: POS + CC Amount + Diwali Extra - CC Refund - Diwali Refund + DRM + G12
-  const finalRemittance = posAmount + ccAmount + diwaliExtra - totalRefundDeduction + drm + g12;
+  const finalRemittance = posAmount + ccAmount + diwaliExtra - totalRefundDeduction + drm + g12Amount;
 
   const updatedDrmSlip = {
     ...record.drmSlip,
@@ -154,7 +170,7 @@ export function autoMapEnglishToGujaratiAndDRM(record: DCCRecord): DCCRecord {
     diwaliExt: diwaliExtra,
     ccRefund: totalRefundDeduction,
     drm: drm,
-    g12: g12,
+    g12: g12Amount,
     total: finalRemittance,
   };
 
@@ -162,7 +178,10 @@ export function autoMapEnglishToGujaratiAndDRM(record: DCCRecord): DCCRecord {
     ...record,
     gujaratiIncomes: updatedGujaratiIncomes,
     gujaratiDeductions: updatedGujaratiDeductions,
+    gujaratiOtherIncomes: updatedGujaratiOtherIncomes,
     drmSlip: updatedDrmSlip,
+    g12Amount: g12Amount,
+    g12Number: g12Number,
     ruralIncome: finalRemittance,
   };
 }

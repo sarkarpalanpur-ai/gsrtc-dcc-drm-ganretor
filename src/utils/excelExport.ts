@@ -40,6 +40,7 @@ export function exportDCCAndDRMToExcel(record: DCCRecord) {
     ['SPECIAL ADJUSTMENTS (વિશેષ એડજસ્ટમેન્ટ)', 'AMOUNT (RS.)', '', '', ''],
     ['CC AMOUNT (+)', record.ccAmount || 0, '', 'CC REFUND (-)', record.ccRefund || 0],
     ['DIWALI EXTRA (+)', record.diwaliExtra || 0, '', 'DIWALI REFUND (-)', record.diwaliRefund || 0],
+    ['G-12 AMOUNT (+) (HEAD 140)', record.g12Amount || 0, '', 'G-12 NUMBER', record.g12Number || '-'],
     ['FINAL DRM REMITTANCE TO SBI', record.ruralIncome || 0, '', '', ''],
     [],
     ['STATE WISE INCOME SUMMARY', 'AMOUNT (RS.)', '', 'GST DETAILS', 'AMOUNT (RS.)'],

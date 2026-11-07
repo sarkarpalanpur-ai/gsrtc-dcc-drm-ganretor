@@ -59,11 +59,13 @@ export interface DCCRecord {
   gujaratiDeductions: LineItem[];
   gujaratiOtherIncomes: LineItem[];
   
-  // Special adjustments: CC & Diwali
+  // Special adjustments: CC & Diwali & G-12
   ccRefund: number;
   ccAmount: number;
   diwaliExtra: number;
   diwaliRefund: number;
+  g12Amount: number;
+  g12Number: string;
 
   // DRM slip values at bottom of Gujarati sheet
   drmSlip: DRMSlipDetails;

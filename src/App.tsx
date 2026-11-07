@@ -64,6 +64,8 @@ export default function App() {
         ccAmount: extracted.ccAmount !== undefined ? Number(extracted.ccAmount) : (extracted.drmSlip?.ccDeposit ?? prev.ccAmount),
         diwaliExtra: extracted.diwaliExtra !== undefined ? Number(extracted.diwaliExtra) : (extracted.drmSlip?.diwaliExt ?? prev.diwaliExtra),
         diwaliRefund: extracted.diwaliRefund !== undefined ? Number(extracted.diwaliRefund) : prev.diwaliRefund,
+        g12Amount: extracted.g12Amount !== undefined ? Number(extracted.g12Amount) : (extracted.drmSlip?.g12 ?? prev.g12Amount),
+        g12Number: extracted.g12Number !== undefined ? String(extracted.g12Number) : prev.g12Number,
         ruralIncome: extracted.ruralIncome ?? prev.ruralIncome,
         urbanIncome: extracted.urbanIncome ?? prev.urbanIncome,
       };

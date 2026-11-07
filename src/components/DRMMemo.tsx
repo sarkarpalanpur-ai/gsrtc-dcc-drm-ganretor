@@ -138,6 +138,18 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
                 </tr>
               )}
 
+              {/* Optional G-12 Remittance Row */}
+              {Number(record.g12Amount) > 0 && (
+                <tr className="border-b border-black bg-blue-50/30">
+                  <td className="border-r-2 border-black p-3 font-bold uppercase text-slate-900">
+                    G-12 REMITTANCE {record.g12Number ? `(VIDE NO. ${record.g12Number})` : ''}
+                  </td>
+                  <td className="p-3 text-right font-mono font-bold text-base tabular-nums text-blue-900">
+                    {formatIndianInteger(record.g12Amount)}/-
+                  </td>
+                </tr>
+              )}
+
               {/* Empty placeholder rows matching printed ledger format */}
               <tr className="border-b border-slate-400 h-9">
                 <td className="border-r-2 border-black"></td>

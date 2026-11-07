@@ -113,11 +113,13 @@ export const SAMPLE_RECORD_06_11_2026: DCCRecord = {
     { id: 'g-oth-4', headNo: '653 R', titleEn: 'Service Tax', titleGu: 'સર્વિસ ટેક્ષ (પરવાનેદાર)', amount: 0 },
   ],
 
-  // Special Adjustments (CC & Diwali)
+  // Special Adjustments (CC & Diwali & G-12)
   ccRefund: 0,
   ccAmount: 0,
   diwaliExtra: 35100,
   diwaliRefund: 20592,
+  g12Amount: 0,
+  g12Number: '',
 
   drmSlip: {
     pos: 4422250,
@@ -202,6 +204,8 @@ export function createBlankRecord(dateStr?: string): DCCRecord {
     ccAmount: 0,
     diwaliExtra: 0,
     diwaliRefund: 0,
+    g12Amount: 0,
+    g12Number: '',
     drmSlip: { pos: 0, drm: 0, g12: 0, ccDeposit: 0, diwaliExt: 0, ccRefund: 0, total: 0 },
     ruralIncome: 0,
     urbanIncome: 0,
