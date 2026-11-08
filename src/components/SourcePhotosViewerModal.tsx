@@ -11,21 +11,21 @@ const PHOTOS = [
     id: 'photo-3',
     title: 'Photo 3: DCC Summary (Computer Print)',
     titleGu: 'ડી.સી.સી. સમરી (કમ્પ્યુટર પ્રિન્ટ)',
-    src: '/public/assets/aistudio/20261107_201715_4b88928c.jpg',
+    src: '/assets/aistudio/20261107_201715_4b88928c.jpg',
     tag: 'DCC English Form'
   },
   {
     id: 'photo-1',
     title: 'Photo 1: DCC Summary (Gujarati Traditional)',
     titleGu: 'ડી.સી.સી. સમરી (ગુજરાતી ફોર્મેટ & સ્લિપ)',
-    src: '/public/assets/aistudio/20261107_201643_3b2ab9ba.jpg',
+    src: '/assets/aistudio/17940651291415103403549490171358_47414ff8.jpg',
     tag: 'DCC Gujarati Form'
   },
   {
     id: 'photo-2',
     title: 'Photo 2: Daily Revenue Memo (DRM)',
     titleGu: 'ડેઇલી રેવન્યુ મેમો (SBI બેંક ચલણ)',
-    src: '/public/assets/aistudio/20261107_201652_6b1f74a3.jpg',
+    src: '/assets/aistudio/20261107_201652_6b1f74a3.jpg',
     tag: 'DRM Memo'
   }
 ];

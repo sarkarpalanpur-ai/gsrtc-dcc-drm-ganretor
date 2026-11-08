@@ -65,14 +65,14 @@ export const SAMPLE_RECORD_06_11_2026: DCCRecord = {
 
   // Gujarati Traditional Layout Items (Photo 1)
   gujaratiIncomes: [
-    { id: 'g-rev-1', headNo: '101 A', titleEn: 'Passenger Income', titleGu: 'મુસાફર આવક', amount: 4283185 },
+    { id: 'g-rev-1', headNo: '101 A', titleEn: 'Passenger Income', titleGu: 'મુસાફર આવક', amount: 4283663 },
     { id: 'g-rev-2', headNo: '101 A', titleEn: 'Digital Transfer', titleGu: 'ડીજીટલ ટ્રાન્સફર', amount: 497787 },
     { id: 'g-rev-3', headNo: '102 C', titleEn: 'Student Pass (Monthly) Local', titleGu: 'વિદ્યાર્થી પાસ (માસીક) લોકલ', amount: 0 },
     { id: 'g-rev-4', headNo: '102 C', titleEn: 'Student Pass (Monthly) Express', titleGu: 'વિદ્યાર્થી પાસ (માસીક) એક્સપ્રેસ', amount: 0 },
     { id: 'g-rev-5', headNo: '102 D', titleEn: 'Student Pass (Quarterly) Local', titleGu: 'વિદ્યાર્થી પાસ (ત્રિમાસીક) લોકલ', amount: 0 },
     { id: 'g-rev-6', headNo: '102 D', titleEn: 'Student Pass (Quarterly) Express', titleGu: 'વિદ્યાર્થી પાસ (ત્રિમાસીક) એક્સપ્રેસ', amount: 0 },
     { id: 'g-rev-7', headNo: '659', titleEn: 'Student Pass Deposit', titleGu: 'વિદ્યાર્થી પાસ ડિપોઝીટ', amount: 0 },
-    { id: 'g-rev-8', headNo: '101 A', titleEn: 'Diwali Extra', titleGu: 'દીવાલી એક્સ્ટ્રા', amount: 35100 },
+    { id: 'g-rev-8', headNo: '101 A', titleEn: 'Diwali Extra', titleGu: 'દીવાલી એક્સ્ટ્રા', amount: 0 },
     { id: 'g-rev-9', headNo: '103', titleEn: 'Reservation Income', titleGu: 'રીઝર્વેશન આવક', amount: 0 },
     { id: 'g-rev-10', headNo: '105', titleEn: 'Luggage', titleGu: 'લગેજ', amount: 987 },
     { id: 'g-rev-11', headNo: '101 E', titleEn: 'Passenger Pass Local', titleGu: 'મુસાફર પાસ (માસીક) લોકલ', amount: 0 },
@@ -80,8 +80,8 @@ export const SAMPLE_RECORD_06_11_2026: DCCRecord = {
     { id: 'g-rev-13', headNo: '101 E', titleEn: 'Passenger Pass Gurjar Nagari', titleGu: 'મુસાફર પાસ (માસીક) ગુર્જર નગરી', amount: 0 },
     { id: 'g-rev-14', headNo: '101 F', titleEn: 'Passenger Pass Luxury', titleGu: 'મુસાફર પાસ (માસીક) લક્ઝરી', amount: 0 },
     { id: 'g-rev-15', headNo: '101 G', titleEn: 'Anywhere Pass', titleGu: 'મન ફાવે ત્યાં ફરો પાસ', amount: 0 },
-    { id: 'g-rev-16', headNo: '102 G', titleEn: 'Divyang', titleGu: 'દિવ્યાંગ', amount: 20347 },
-    { id: 'g-rev-17', headNo: '110 D', titleEn: 'Inter State UT', titleGu: 'ઇન્ટર સ્ટેટ (સંધપ્રદેશ)', amount: 483 },
+    { id: 'g-rev-16', headNo: '102 G', titleEn: 'Divyang', titleGu: 'દિવ્યાંગ', amount: 21582 },
+    { id: 'g-rev-17', headNo: '110 D', titleEn: 'Inter State UT', titleGu: 'ઇન્ટર સ્ટેટ (સંધપ્રદેશ)', amount: 0 },
     { id: 'g-rev-18', headNo: '110 A', titleEn: 'Inter State Maharashtra', titleGu: 'ઇન્ટર સ્ટેટ (મહારાષ્ટ્ર)', amount: 0 },
     { id: 'g-rev-19', headNo: '140', titleEn: 'ID Card Income', titleGu: 'આઈકાર્ડ આવક (વિદ્યાર્થી + મુસાફર)', amount: 0 },
     { id: 'g-rev-20', headNo: '129', titleEn: 'Express Income Extra', titleGu: 'એક્સપ્રેસ આવક (વધારાની)', amount: 0 },
@@ -99,11 +99,11 @@ export const SAMPLE_RECORD_06_11_2026: DCCRecord = {
     { id: 'g-ded-2', headNo: '620', titleEn: 'Police Motor Warrant', titleGu: 'પોલીસ મોટર વોરંટ', amount: 265 },
     { id: 'g-ded-3', headNo: '620 B', titleEn: 'Press Coupon', titleGu: 'પત્રકાર કુપન', amount: 0 },
     { id: 'g-ded-4', headNo: '620 E', titleEn: 'Award Winning Teacher', titleGu: 'એવોર્ડ વિનીગ ટીચર', amount: 0 },
-    { id: 'g-ded-5', headNo: '101 A', titleEn: 'Passenger Adv Booking Refund', titleGu: 'પેસેન્જર એડવાન્સ બુકીંગ રીફંડ', amount: 20592 },
+    { id: 'g-ded-5', headNo: '101 A', titleEn: 'Passenger Adv Booking Refund', titleGu: 'પેસેન્જર એડવાન્સ બુકીંગ રીફંડ', amount: 0 },
     { id: 'g-ded-6', headNo: '101 A', titleEn: 'Employee Coupon', titleGu: 'એમપ્લોય કુપન', amount: 0 },
     { id: 'g-ded-7', headNo: '107', titleEn: 'Digital Transfer', titleGu: 'ડીજીટલ ટ્રાન્સફર', amount: 497787 },
     { id: 'g-ded-8', headNo: '659 A', titleEn: 'CC Refund', titleGu: 'સી.સી. રીફંડ', amount: 0 },
-    { id: 'g-ded-9', headNo: '620 G', titleEn: 'Divyang', titleGu: 'દિવ્યાંગ', amount: 20347 },
+    { id: 'g-ded-9', headNo: '620 G', titleEn: 'Divyang', titleGu: 'દિવ્યાંગ', amount: 21582 },
   ],
 
   gujaratiOtherIncomes: [
@@ -116,8 +116,8 @@ export const SAMPLE_RECORD_06_11_2026: DCCRecord = {
   // Special Adjustments (CC & Diwali & G-12)
   ccRefund: 0,
   ccAmount: 0,
-  diwaliExtra: 35100,
-  diwaliRefund: 20592,
+  diwaliExtra: 0,
+  diwaliRefund: 0,
   g12Amount: 0,
   g12Number: '',
 
@@ -126,12 +126,12 @@ export const SAMPLE_RECORD_06_11_2026: DCCRecord = {
     drm: 0,
     g12: 0,
     ccDeposit: 0,
-    diwaliExt: 35100,
-    ccRefund: 20592,
-    total: 4436758,
+    diwaliExt: 0,
+    ccRefund: 0,
+    total: 4422250,
   },
 
-  ruralIncome: 4436758,
+  ruralIncome: 4422250,
   urbanIncome: 0,
   bankName: 'SBI',
   auditorTitle: 'THE DIVISIONAL AUDITOR SURAT DIVISION',
@@ -169,10 +169,11 @@ export function calculateDRMSlip(record: DCCRecord, posAmount?: number) {
   const pos = posAmount ?? record.drmSlip.pos;
   const diwaliExt = record.drmSlip.diwaliExt || 0;
   const ccRefund = record.drmSlip.ccRefund || 0;
-  const drm = record.drmSlip.drm || 0;
+  const drm = Number(record.drmSlip.drm) || 0;
   const g12 = record.drmSlip.g12 || 0;
   const ccDeposit = record.drmSlip.ccDeposit || 0;
-  const total = pos + diwaliExt - ccRefund + drm + g12 + ccDeposit;
+  // If user enters a holiday DRM (જૂનું DRM), it adds to today's cash (નવું DRM)
+  const total = pos + drm + diwaliExt - ccRefund + g12 + ccDeposit;
   return {
     pos,
     diwaliExt,

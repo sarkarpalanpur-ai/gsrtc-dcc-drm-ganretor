@@ -22,11 +22,14 @@ export default function App() {
   const [record, setRecord] = useState<DCCRecord>(() => {
     try {
       const saved = localStorage.getItem('gsrtc_current_record');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return autoMapEnglishToGujaratiAndDRM(parsed);
+      }
     } catch (e) {
       console.error(e);
     }
-    return SAMPLE_RECORD_06_11_2026;
+    return autoMapEnglishToGujaratiAndDRM(SAMPLE_RECORD_06_11_2026);
   });
 
   const [activeTab, setActiveTab] = useState<'dcc-en' | 'dcc-gu' | 'drm' | 'denomination'>('dcc-en');
@@ -85,8 +88,33 @@ export default function App() {
     }
   };
 
+  const [isPrintingAll, setIsPrintingAll] = useState(false);
+
   const handlePrint = () => {
-    window.print();
+    setIsPrintingAll(false);
+    window.focus();
+    try {
+      window.print();
+    } catch (e) {
+      console.error('Print failed:', e);
+      showToast('પ્રિન્ટ કરવા માટે કીબોર્ડ પર Ctrl + P દબાવો');
+    }
+  };
+
+  const handlePrintAll = () => {
+    setIsPrintingAll(true);
+    showToast('DCC English, DCC Gujarati અને DRM Memo ત્રણેય પત્રક ૩ પેજમાં પ્રિન્ટ થઈ રહ્યા છે...');
+    setTimeout(() => {
+      window.focus();
+      try {
+        window.print();
+      } catch (e) {
+        console.error('Print all failed:', e);
+      }
+      setTimeout(() => {
+        setIsPrintingAll(false);
+      }, 1500);
+    }, 350);
   };
 
   const handleSave = () => {
@@ -138,6 +166,7 @@ export default function App() {
         onOpenScanner={() => setIsScannerOpen(true)}
         onExportExcel={handleExportExcel}
         onPrint={handlePrint}
+        onPrintAll={handlePrintAll}
         onSave={handleSave}
         onNewTodayReport={handleNewTodayReport}
         onViewSourcePhotos={() => setIsSourcePhotosOpen(true)}
@@ -147,119 +176,173 @@ export default function App() {
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6">
         {/* Floating summary info strip (only on screen) */}
-        <div className="mb-4 bg-white border border-slate-200 rounded-xl p-3 shadow-xs flex flex-wrap items-center justify-between gap-3 no-print">
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="text-xs sm:text-sm font-semibold text-slate-800">
-              {record.division} • {record.depot} • તારીખ: <span className="font-mono font-bold text-red-700">{record.date}</span>
-            </span>
-          </div>
+        {!isPrintingAll && (
+          <div className="mb-4 bg-white border border-slate-200 rounded-xl p-3 shadow-xs flex flex-wrap items-center justify-between gap-3 no-print">
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span className="text-xs sm:text-sm font-semibold text-slate-800">
+                {record.division} • {record.depot} • તારીખ: <span className="font-mono font-bold text-red-700">{record.date}</span>
+              </span>
+            </div>
 
-          <div className="flex items-center gap-4 text-xs sm:text-sm">
+            <div className="flex items-center gap-4 text-xs sm:text-sm">
+              <div>
+                <span className="text-slate-500 mr-1.5">કુલ આવક (Gross):</span>
+                <span className="font-mono font-bold text-slate-900 tabular-nums">
+                  ₹{formatIndianInteger(engTotals.totalRevenue)}
+                </span>
+              </div>
+              <div className="border-l border-slate-300 pl-3">
+                <span className="text-slate-500 mr-1.5">કપાત (Deductions):</span>
+                <span className="font-mono font-bold text-slate-700 tabular-nums">
+                  ₹{formatIndianInteger(engTotals.totalDeductions)}
+                </span>
+              </div>
+              <div className="border-l border-slate-300 pl-3">
+                <span className="text-slate-500 mr-1.5">બેંક જમા (DRM Cash):</span>
+                <span className="font-mono font-extrabold text-red-700 tabular-nums">
+                  ₹{formatIndianInteger(record.drmSlip.total || record.ruralIncome)}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 3-Page Batch Print Mode (when printing all 3 documents sequentially on A4) */}
+        {isPrintingAll ? (
+          <div className="space-y-6">
+            <div className="print-page-break">
+              <DCCSummaryEnglish record={record} onChange={handleRecordChange} isPrintMode={true} />
+            </div>
+            <div className="print-page-break">
+              <DCCSummaryGujarati record={record} onChange={handleRecordChange} isPrintMode={true} />
+            </div>
             <div>
-              <span className="text-slate-500 mr-1.5">કુલ આવક (Gross):</span>
-              <span className="font-mono font-bold text-slate-900 tabular-nums">
-                ₹{formatIndianInteger(engTotals.totalRevenue)}
-              </span>
-            </div>
-            <div className="border-l border-slate-300 pl-3">
-              <span className="text-slate-500 mr-1.5">કપાત (Deductions):</span>
-              <span className="font-mono font-bold text-slate-700 tabular-nums">
-                ₹{formatIndianInteger(engTotals.totalDeductions)}
-              </span>
-            </div>
-            <div className="border-l border-slate-300 pl-3">
-              <span className="text-slate-500 mr-1.5">બેંક જમા (DRM Cash):</span>
-              <span className="font-mono font-extrabold text-red-700 tabular-nums">
-                ₹{formatIndianInteger(record.ruralIncome || gujTotals.netBankRemittance)}
-              </span>
+              <DRMMemo record={record} onChange={handleRecordChange} isPrintMode={true} />
             </div>
           </div>
-        </div>
+        ) : (
+          <>
+            {/* Tab 1: DCC Summary (English Computer Print) */}
+            {activeTab === 'dcc-en' && (
+              <div className="space-y-4">
+                <div className="no-print bg-blue-50 border border-blue-200 rounded-lg p-2.5 text-xs text-blue-900 flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 font-medium">
+                    <Info className="w-4 h-4 text-blue-600 shrink-0" />
+                    <span>
+                      <strong>કમ્પ્યુટર પ્રિન્ટ ફોર્મેટ (Computer Print Format):</strong> તમામ સેલ એક્સેલની જેમ એડિટેબલ છે. રકમ બદલતા કુલ સરવાળો અને DRM આપોઆપ બદલાઈ જશે.
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handlePrint}
+                      className="bg-blue-700 hover:bg-blue-800 text-white px-2.5 py-1 rounded text-xs font-semibold flex items-center gap-1 cursor-pointer shadow-sm"
+                      title="આ ૧ પેજ A4 સાઈઝમાં પ્રિન્ટ કરો"
+                    >
+                      <Printer className="w-3.5 h-3.5" />
+                      A4 પ્રિન્ટ
+                    </button>
+                    <button
+                      onClick={handlePrintAll}
+                      className="bg-indigo-700 hover:bg-indigo-800 text-white px-2.5 py-1 rounded text-xs font-bold flex items-center gap-1 cursor-pointer shadow-sm"
+                      title="ત્રણેય પત્રક ૩ પેજમાં એકસાથે પ્રિન્ટ કરો"
+                    >
+                      <span>📑 ૩ પેજ પ્રિન્ટ</span>
+                    </button>
+                    <button
+                      onClick={() => setIsScannerOpen(true)}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded text-xs font-semibold flex items-center gap-1 cursor-pointer"
+                    >
+                      <Camera className="w-3.5 h-3.5" />
+                      સ્કેન ફોટો
+                    </button>
+                    <button
+                      onClick={handleExportExcel}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded text-xs font-semibold flex items-center gap-1 cursor-pointer"
+                    >
+                      <FileSpreadsheet className="w-3.5 h-3.5" />
+                      Excel
+                    </button>
+                  </div>
+                </div>
 
-        {/* Tab 1: DCC Summary (English Computer Print) */}
-        {activeTab === 'dcc-en' && (
-          <div className="space-y-4">
-            <div className="no-print bg-blue-50 border border-blue-200 rounded-lg p-2.5 text-xs text-blue-900 flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2 font-medium">
-                <Info className="w-4 h-4 text-blue-600 shrink-0" />
-                <span>
-                  <strong>કમ્પ્યુટર પ્રિન્ટ ફોર્મેટ (Computer Print Format):</strong> તમામ સેલ એક્સેલની જેમ એડિટેબલ છે. રકમ બદલતા કુલ સરવાળો અને DRM આપોઆપ બદલાઈ જશે.
-                </span>
+                <DCCSummaryEnglish record={record} onChange={handleRecordChange} />
               </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setIsScannerOpen(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded text-xs font-semibold flex items-center gap-1 cursor-pointer"
-                >
-                  <Camera className="w-3.5 h-3.5" />
-                  સ્કેન ફોટો
-                </button>
-                <button
-                  onClick={handleExportExcel}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded text-xs font-semibold flex items-center gap-1 cursor-pointer"
-                >
-                  <FileSpreadsheet className="w-3.5 h-3.5" />
-                  Excel
-                </button>
+            )}
+
+            {/* Tab 2: DCC Summary (Gujarati Traditional Sheet) */}
+            {activeTab === 'dcc-gu' && (
+              <div className="space-y-4">
+                <div className="no-print bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-xs text-amber-900 flex flex-wrap items-center justify-between gap-2 font-gujarati">
+                  <div className="flex items-center gap-2 font-medium">
+                    <Info className="w-4 h-4 text-amber-600 shrink-0" />
+                    <span>
+                      <strong>પરંપરાગત ડી.સી.સી. સમરી (Gujarati Format):</strong> એકાઉન્ટ હેડ ૧૦૧ A, ૧૦૨ C, ૬૨૦ અને નીચે DRM સ્લિપ સાથેનું અધિકૃત પત્રક.
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handlePrint}
+                      className="bg-amber-700 hover:bg-amber-800 text-white px-3 py-1 rounded text-xs font-semibold flex items-center gap-1 cursor-pointer shadow-sm"
+                      title="આ ૧ પેજ A4 સાઈઝમાં પ્રિન્ટ કરો"
+                    >
+                      <Printer className="w-3.5 h-3.5" />
+                      A4 પ્રિન્ટ
+                    </button>
+                    <button
+                      onClick={handlePrintAll}
+                      className="bg-indigo-700 hover:bg-indigo-800 text-white px-3 py-1 rounded text-xs font-bold flex items-center gap-1 cursor-pointer shadow-sm"
+                      title="ત્રણેય પત્રક ૩ પેજમાં એકસાથે પ્રિન્ટ કરો"
+                    >
+                      <span>📑 ૩ પેજ પ્રિન્ટ</span>
+                    </button>
+                  </div>
+                </div>
+
+                <DCCSummaryGujarati record={record} onChange={handleRecordChange} />
               </div>
-            </div>
+            )}
 
-            <DCCSummaryEnglish record={record} onChange={handleRecordChange} />
-          </div>
-        )}
+            {/* Tab 3: Daily Revenue Memo (DRM) */}
+            {activeTab === 'drm' && (
+              <div className="space-y-4">
+                <div className="no-print bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 text-xs text-emerald-900 flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 font-medium">
+                    <Info className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>
+                      <strong>Daily Revenue Memo (DRM - SBI):</strong> એસબીઆઈ બેંકમાં નાણાં જમા કરાવવા માટેનું અધિકૃત ચલણ. રકમ મુજબ શબ્દોમાં રકમ (Words) આપોઆપ તૈયાર થાય છે.
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handlePrint}
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1 rounded text-xs font-semibold flex items-center gap-1 cursor-pointer shadow-sm"
+                      title="આ ૧ પેજ A4 સાઈઝમાં પ્રિન્ટ કરો"
+                    >
+                      <Printer className="w-3.5 h-3.5" />
+                      A4 પ્રિન્ટ
+                    </button>
+                    <button
+                      onClick={handlePrintAll}
+                      className="bg-indigo-700 hover:bg-indigo-800 text-white px-3 py-1 rounded text-xs font-bold flex items-center gap-1 cursor-pointer shadow-sm"
+                      title="ત્રણેય પત્રક ૩ પેજમાં એકસાથે પ્રિન્ટ કરો"
+                    >
+                      <span>📑 ૩ પેજ પ્રિન્ટ</span>
+                    </button>
+                  </div>
+                </div>
 
-        {/* Tab 2: DCC Summary (Gujarati Traditional Sheet) */}
-        {activeTab === 'dcc-gu' && (
-          <div className="space-y-4">
-            <div className="no-print bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-xs text-amber-900 flex items-center justify-between gap-2 font-gujarati">
-              <div className="flex items-center gap-2 font-medium">
-                <Info className="w-4 h-4 text-amber-600 shrink-0" />
-                <span>
-                  <strong>પરંપરાગત ડી.સી.સી. સમરી (Gujarati Format):</strong> એકાઉન્ટ હેડ ૧૦૧ A, ૧૦૨ C, ૬૨૦ અને નીચે DRM સ્લિપ સાથેનું અધિકૃત પત્રક.
-                </span>
+                <DRMMemo record={record} onChange={handleRecordChange} />
               </div>
-              <button
-                onClick={handlePrint}
-                className="bg-amber-700 hover:bg-amber-800 text-white px-3 py-1 rounded text-xs font-semibold flex items-center gap-1 cursor-pointer"
-              >
-                <Printer className="w-3.5 h-3.5" />
-                પ્રિન્ટ A4
-              </button>
-            </div>
+            )}
 
-            <DCCSummaryGujarati record={record} onChange={handleRecordChange} />
-          </div>
-        )}
-
-        {/* Tab 3: Daily Revenue Memo (DRM) */}
-        {activeTab === 'drm' && (
-          <div className="space-y-4">
-            <div className="no-print bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 text-xs text-emerald-900 flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2 font-medium">
-                <Info className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>
-                  <strong>Daily Revenue Memo (DRM - SBI):</strong> એસબીઆઈ બેંકમાં નાણાં જમા કરાવવા માટેનું અધિકૃત ચલણ. રકમ મુજબ શબ્દોમાં રકમ (Words) આપોઆપ તૈયાર થાય છે.
-                </span>
+            {/* Tab 4: Cash Denomination Calculator */}
+            {activeTab === 'denomination' && (
+              <div className="space-y-4">
+                <DenominationCalculator record={record} />
               </div>
-              <button
-                onClick={handlePrint}
-                className="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1 rounded text-xs font-semibold flex items-center gap-1 cursor-pointer"
-              >
-                <Printer className="w-3.5 h-3.5" />
-                પ્રિન્ટ DRM
-              </button>
-            </div>
-
-            <DRMMemo record={record} onChange={handleRecordChange} />
-          </div>
-        )}
-
-        {/* Tab 4: Cash Denomination Calculator */}
-        {activeTab === 'denomination' && (
-          <div className="space-y-4">
-            <DenominationCalculator record={record} />
-          </div>
+            )}
+          </>
         )}
       </main>
 

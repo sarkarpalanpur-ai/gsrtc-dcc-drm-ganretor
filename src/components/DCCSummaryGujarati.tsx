@@ -36,20 +36,22 @@ export const DCCSummaryGujarati: React.FC<DCCSummaryGujaratiProps> = ({
   };
 
   const handleDRMSlipChange = (field: keyof DCCRecord['drmSlip'], newAmount: number) => {
+    const cleanAmount = isNaN(newAmount) ? 0 : newAmount;
     const updatedSlip = {
       ...record.drmSlip,
-      [field]: isNaN(newAmount) ? 0 : newAmount,
+      [field]: cleanAmount,
     };
+    const holidayDrm = Number(updatedSlip.drm) || 0;
     const newTotal =
       (updatedSlip.pos || 0) +
+      holidayDrm +
       (updatedSlip.diwaliExt || 0) -
       (updatedSlip.ccRefund || 0) +
-      (updatedSlip.drm || 0) +
       (updatedSlip.g12 || 0) +
       (updatedSlip.ccDeposit || 0);
 
     updatedSlip.total = newTotal;
-    onChange({ ...record, drmSlip: updatedSlip, ruralIncome: newTotal });
+    onChange({ ...record, drmSlip: updatedSlip });
   };
 
   return (
@@ -57,9 +59,14 @@ export const DCCSummaryGujarati: React.FC<DCCSummaryGujaratiProps> = ({
       {/* Official Header matching Photo 1 */}
       <div className="border-b-2 border-black p-3 text-center bg-white">
         <div className="flex items-center justify-center gap-3">
-          <div className="w-12 h-12 rounded-full border-2 border-black flex items-center justify-center font-bold text-xs p-1">
-            <span className="text-[10px] text-center font-bold">નિગમ<br/>GSRTC</span>
-          </div>
+          <img
+            src="/assets/aistudio/images_09942867.jpeg"
+            alt="GSRTC Logo"
+            className="w-14 h-14 object-contain rounded-full border border-black p-0.5 bg-white shrink-0"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = './gsrtc-logo.jpeg';
+            }}
+          />
           <div>
             <h2 className="text-lg sm:text-xl font-extrabold tracking-wide text-black">
               ગુજરાત રાજ્ય માર્ગ વાહન વ્યવહાર નિગમ, સુરત વિભાગ
@@ -272,13 +279,15 @@ export const DCCSummaryGujarati: React.FC<DCCSummaryGujaratiProps> = ({
                   <div className="flex justify-between items-center">
                     <span className="font-bold text-black font-sans">DRM</span>
                     {isPrintMode ? (
-                      <span className="font-bold">{drmSlipValues.drm}</span>
+                      <span className="font-bold">{drmSlipValues.drm ? formatIndianInteger(drmSlipValues.drm) : ''}</span>
                     ) : (
                       <input
                         type="number"
-                        value={record.drmSlip.drm}
+                        value={record.drmSlip.drm ? record.drmSlip.drm : ''}
+                        placeholder="રજાનું DRM"
+                        title="જો અગાઉ રજા હોય અને બેંકમાં રકમ ના ભરી શકાઈ હોય તો તે DRM રકમ અહીં લખો"
                         onChange={(e) => handleDRMSlipChange('drm', parseFloat(e.target.value))}
-                        className="w-24 text-right font-bold bg-white border border-slate-300 rounded px-1"
+                        className="w-24 text-right font-bold bg-white border border-slate-300 rounded px-1 placeholder:text-[10px] placeholder:text-slate-400 placeholder:font-normal focus:bg-amber-50"
                       />
                     )}
                   </div>

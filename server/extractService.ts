@@ -52,8 +52,8 @@ Look carefully at the photo for:
   * DIWALI REFUND / દીવાલી રીફંડ (e.g. 0)
   * DRM / G12 amounts (if any)
 - Net SBI Remittance Formula:
-  POS + CC Amount + Diwali Extra - CC Refund - Diwali Refund + DRM + G12 = Total Net Cash to SBI
-  (e.g. 4422250 + 0 + 35100 - 20592 = 4436758)
+  DRM matches Total Cash To Be Deposited (P.O.S):
+  Total Revenue - Total Deductions = Total Cash To Be Deposited = DRM (e.g. 4422250)
 
 Return ONLY valid JSON matching this structure:
 {
@@ -62,12 +62,12 @@ Return ONLY valid JSON matching this structure:
   "depot": "SURAT CITY DEPOT",
   "depotCityNum": "SURAT CITY-2",
   "depotCode": "CODE O 72123 (FROM NO A508)",
-  "ruralIncome": 4436758,
+  "ruralIncome": 4422250,
   "urbanIncome": 0,
   "advanceBookingAmount": 327851,
-  "ccRefund": 20592,
+  "ccRefund": 0,
   "ccAmount": 0,
-  "diwaliExtra": 35100,
+  "diwaliExtra": 0,
   "diwaliRefund": 0,
   "g12Amount": 0,
   "g12Number": "",

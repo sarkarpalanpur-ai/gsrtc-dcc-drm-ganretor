@@ -9,6 +9,7 @@ interface HeaderProps {
   onOpenScanner: () => void;
   onExportExcel: () => void;
   onPrint: () => void;
+  onPrintAll?: () => void;
   onSave: () => void;
   onNewTodayReport: () => void;
   onReset?: () => void;
@@ -23,6 +24,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenScanner,
   onExportExcel,
   onPrint,
+  onPrintAll,
   onSave,
   onNewTodayReport,
   onReset,
@@ -34,9 +36,14 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Top Bar with GSRTC Branding */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-red-700 border-2 border-amber-400 flex items-center justify-center font-bold text-amber-200 text-sm shadow-md overflow-hidden">
-            <span className="font-gujarati text-center text-[10px] leading-tight">એસ.ટી.<br/>GSRTC</span>
-          </div>
+          <img
+            src="/assets/aistudio/images_09942867.jpeg"
+            alt="ગુજરાત રાજ્ય માર્ગ વાહન વ્યવહાર નિગમ લોગો"
+            className="w-13 h-13 rounded-full object-contain bg-white shadow-md border-2 border-amber-400 p-0.5 shrink-0"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = './gsrtc-logo.jpeg';
+            }}
+          />
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-lg sm:text-xl font-bold tracking-tight text-white font-gujarati">
@@ -106,15 +113,26 @@ export const Header: React.FC<HeaderProps> = ({
             <span>Excel ડાઉનલોડ</span>
           </button>
 
-          {/* Print Button */}
+          {/* Print Current Sheet */}
           <button
             onClick={onPrint}
-            className="flex items-center gap-1.5 bg-blue-700 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium shadow transition cursor-pointer"
-            title="Print or Save PDF"
+            className="flex items-center gap-1.5 bg-blue-700 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow transition cursor-pointer"
+            title="હાલનું પત્રક A4 સાઈઝમાં પ્રિન્ટ કરો"
           >
             <Printer className="w-4 h-4 text-blue-200" />
-            <span>પ્રિન્ટ (A4)</span>
+            <span>A4 પ્રિન્ટ</span>
           </button>
+
+          {/* Print All 3 Sheets Together */}
+          {onPrintAll && (
+            <button
+              onClick={onPrintAll}
+              className="flex items-center gap-1.5 bg-indigo-700 hover:bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-md transition cursor-pointer"
+              title="DCC Computer, DCC Gujarati અને DRM Memo ત્રણેય પત્રક ૩ પેજમાં એકસાથે પ્રિન્ટ કરો"
+            >
+              <span>📑 ૩ પેજ પ્રિન્ટ (All 3 A4)</span>
+            </button>
+          )}
 
           {/* Source Photos preview button */}
           <button

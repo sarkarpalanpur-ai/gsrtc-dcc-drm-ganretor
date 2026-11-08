@@ -13,7 +13,11 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
   onChange,
   isPrintMode = false,
 }) => {
-  const totalAmount = (record.ruralIncome || 0) + (record.urbanIncome || 0);
+  const holidayDrmAmount = Number(record.drmSlip?.drm) || 0;
+  const g12Amt = Number(record.g12Amount) || 0;
+  const todayCash = Number(record.ruralIncome) || 0;
+  // USER RULE: junu (holiday DRM) ane navu (today's cash) banne drm plus thay
+  const totalAmount = todayCash + holidayDrmAmount + (record.urbanIncome || 0) + g12Amt;
   const words = numberToIndianCurrencyWords(totalAmount);
 
   const handleRuralChange = (val: number) => {
@@ -38,10 +42,14 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
         <div className="relative text-center pb-4 border-b border-black">
           <div className="flex items-center justify-between mb-2">
             {/* Left Emblem */}
-            <div className="w-16 h-16 rounded-full border-2 border-black flex flex-col items-center justify-center p-1 text-[9px] font-bold">
-              <span>GSRTC</span>
-              <span>એસ.ટી.</span>
-            </div>
+            <img
+              src="/assets/aistudio/images_09942867.jpeg"
+              alt="GSRTC Logo Left"
+              className="w-16 h-16 rounded-full object-contain border border-black p-0.5 bg-white shrink-0"
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).src = './gsrtc-logo.jpeg';
+              }}
+            />
 
             {/* Title */}
             <div className="flex-1 px-4">
@@ -51,10 +59,14 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
             </div>
 
             {/* Right Emblem */}
-            <div className="w-16 h-16 rounded-full border-2 border-black flex flex-col items-center justify-center p-1 text-[9px] font-bold">
-              <span>GSRTC</span>
-              <span>એસ.ટી.</span>
-            </div>
+            <img
+              src="/assets/aistudio/images_09942867.jpeg"
+              alt="GSRTC Logo Right"
+              className="w-16 h-16 rounded-full object-contain border border-black p-0.5 bg-white shrink-0"
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).src = './gsrtc-logo.jpeg';
+              }}
+            />
           </div>
 
           <div className="grid grid-cols-2 text-xs font-bold pt-2 uppercase">
@@ -125,6 +137,18 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
                   )}
                 </td>
               </tr>
+
+              {/* Optional Previous Holiday DRM Row (જૂનું DRM / રજાનું બાકી DRM) */}
+              {holidayDrmAmount > 0 && (
+                <tr className="border-b-2 border-black bg-amber-50/40">
+                  <td className="border-r-2 border-black p-3 font-bold uppercase text-slate-900">
+                    PREVIOUS HOLIDAY DRM / રજાનું બાકી DRM (CARRIED FORWARD)
+                  </td>
+                  <td className="p-3 text-right font-mono font-bold text-base sm:text-lg tabular-nums text-slate-900">
+                    {formatIndianInteger(holidayDrmAmount)}/-
+                  </td>
+                </tr>
+              )}
 
               {/* Optional Urban Income Row */}
               {record.urbanIncome > 0 && (

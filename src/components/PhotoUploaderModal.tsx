@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { X, Upload, Camera, Sparkles, CheckCircle2, AlertCircle, RefreshCw, FileText } from 'lucide-react';
+import { X, Upload, Camera, Sparkles, CheckCircle2, AlertCircle, RefreshCw, FileText, Image as ImageIcon } from 'lucide-react';
 import { DCCRecord } from '../types';
 import { SAMPLE_RECORD_06_11_2026 } from '../utils/defaultData';
 
@@ -14,22 +14,22 @@ const SAMPLE_PHOTOS = [
     id: 'photo-3',
     title: 'DCC Summary (Computer Format)',
     titleGu: 'ડી.સી.સી. સમરી (કમ્પ્યુટર ફોર્મેટ)',
-    path: '/public/assets/aistudio/20261107_201715_4b88928c.jpg',
+    path: '/assets/aistudio/20261107_201715_4b88928c.jpg',
     description: 'Surat City Depot - Revenue, Deductions, State Wise, GST'
   },
   {
     id: 'photo-1',
     title: 'DCC Summary (Gujarati Traditional Sheet)',
     titleGu: 'ડી.સી.સી. સમરી (ગુજરાતી પરંપરાગત શીટ)',
-    path: '/public/assets/aistudio/20261107_201643_3b2ab9ba.jpg',
+    path: '/assets/aistudio/17940651291415103403549490171358_47414ff8.jpg',
     description: 'Surat City-2 - 101A, 102C, 620, DRM Slip, Signatures'
   },
   {
     id: 'photo-2',
     title: 'Daily Revenue Memo (DRM)',
     titleGu: 'ડેઇલી રેવન્યુ મેમો (DRM - SBI)',
-    path: '/public/assets/aistudio/20261107_201652_6b1f74a3.jpg',
-    description: 'Rural Income 44,36,758/- remitted to SBI with words'
+    path: '/assets/aistudio/20261107_201652_6b1f74a3.jpg',
+    description: 'Rural Income 44,22,250/- remitted to SBI with words'
   }
 ];
 
@@ -44,7 +44,8 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
   const [statusMessage, setStatusMessage] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;
 
@@ -232,29 +233,83 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
             </div>
           </div>
 
-          {/* Upload New Custom Photo Section */}
-          <div className="border-t border-slate-200 pt-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-700 block mb-2">
-              અથવા નવો ફોટો અપલોડ કરો (Or Upload New Photo)
+          {/* Upload New Custom Photo Section with Separate Gallery & Camera Options */}
+          <div className="border-t border-slate-200 pt-4 space-y-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-700 block">
+              અથવા નવો ફોટો અપલોડ કરો (Upload From Mobile / PC)
             </span>
+
+            {/* Hidden Input 1: GALLERY & FILES (NO capture attribute, opens Android Gallery / Files picker) */}
+            <input
+              ref={galleryInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+
+            {/* Hidden Input 2: LIVE CAMERA (capture="environment", opens camera immediately if desired) */}
+            <input
+              ref={cameraInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+
+            {/* Dual Quick Action Buttons for Mobile & Desktop */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Option 1: Choose from Gallery / Files */}
+              <button
+                type="button"
+                onClick={() => galleryInputRef.current?.click()}
+                className="flex items-center gap-3 p-3.5 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-400 hover:border-blue-600 rounded-xl cursor-pointer text-left transition shadow-xs hover:shadow-md active:scale-98"
+              >
+                <div className="w-10 h-10 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                  <ImageIcon className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0 font-gujarati">
+                  <p className="text-xs sm:text-sm font-bold text-blue-950">
+                    🖼️ ગેલેરી / ફાઇલ્સમાંથી પસંદ કરો
+                  </p>
+                  <p className="text-[11px] text-blue-700 font-medium truncate">
+                    Google Photos, Gallery કે WhatsApp ફોટો
+                  </p>
+                </div>
+              </button>
+
+              {/* Option 2: Take Live Photo via Camera */}
+              <button
+                type="button"
+                onClick={() => cameraInputRef.current?.click()}
+                className="flex items-center gap-3 p-3.5 bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-400 hover:border-emerald-600 rounded-xl cursor-pointer text-left transition shadow-xs hover:shadow-md active:scale-98"
+              >
+                <div className="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                  <Camera className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0 font-gujarati">
+                  <p className="text-xs sm:text-sm font-bold text-emerald-950">
+                    📸 કેમેરાથી ફોટો પાડો
+                  </p>
+                  <p className="text-[11px] text-emerald-700 font-medium truncate">
+                    મોબાઇલ કેમેરાથી DCC શીટનો ફોટો લો
+                  </p>
+                </div>
+              </button>
+            </div>
+
+            {/* Drag & Drop Zone (defaults to opening Gallery/Files dialog) */}
             <div
-              onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-slate-300 hover:border-red-500 rounded-xl p-4 sm:p-5 text-center cursor-pointer transition bg-slate-50 hover:bg-red-50/20"
+              onClick={() => galleryInputRef.current?.click()}
+              className="border-2 border-dashed border-slate-300 hover:border-red-500 rounded-xl p-3.5 sm:p-4 text-center cursor-pointer transition bg-slate-50 hover:bg-red-50/20"
             >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                onChange={handleFileChange}
-                className="hidden"
-              />
-              <Upload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-              <p className="text-xs sm:text-sm font-semibold text-slate-700 font-gujarati">
-                મોબાઇલ કેમેરાથી ફોટો લો અથવા ગેલેરીમાંથી પસંદ કરો
+              <Upload className="w-6 h-6 text-slate-400 mx-auto mb-1" />
+              <p className="text-xs font-semibold text-slate-700 font-gujarati">
+                અહીં ક્લિક કરો અથવા ફોટો ડ્રેગ કરીને મૂકો (Drag & Drop)
               </p>
-              <p className="text-xs text-slate-400 mt-1">
-                Supports JPG, PNG, HEIC (DCC Summary, DRM Memo, Cashier Waybill)
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                JPG, PNG, HEIC, WebP સપોર્ટેડ છે
               </p>
             </div>
           </div>

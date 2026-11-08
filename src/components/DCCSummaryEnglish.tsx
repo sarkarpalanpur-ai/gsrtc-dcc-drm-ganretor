@@ -71,9 +71,14 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
       {/* Official Corporation Header matching Photo 3 */}
       <div className="border-b-2 border-black p-3 text-center bg-white">
         <div className="flex items-center justify-center gap-3">
-          <div className="w-10 h-10 rounded-full border-2 border-black flex items-center justify-center font-bold text-xs">
-            <span>ST</span>
-          </div>
+          <img
+            src="/assets/aistudio/images_09942867.jpeg"
+            alt="GSRTC Logo"
+            className="w-12 h-12 object-contain rounded-full border border-black p-0.5 bg-white shrink-0"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = './gsrtc-logo.jpeg';
+            }}
+          />
           <h2 className="text-base sm:text-lg font-bold tracking-wide uppercase text-black">
             Gujarat State Road Transport Corporation
           </h2>

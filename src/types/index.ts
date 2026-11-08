@@ -1,6 +1,6 @@
 export interface LineItem {
   id: string;
-  headNo?: string;        // Account Head Number, e.g., "101 A", "620", "102 H"
+  headNo?: string;        // Account Head Number, e.g., "101 A", "620", "102 H", "102 G"
   titleEn: string;        // English name
   titleGu: string;        // Gujarati name
   amount: number;         // Amount in Rupees

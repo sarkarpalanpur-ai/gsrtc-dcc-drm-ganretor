@@ -48,12 +48,15 @@ export function autoMapEnglishToGujaratiAndDRM(record: DCCRecord): DCCRecord {
 
   // 1. Auto-Map Gujarati Incomes (આવક એકાઉન્ટ હેડ):
   const updatedGujaratiIncomes = record.gujaratiIncomes.map((item) => {
-    // 101 A મુસાફર આવક: In traditional GSRTC sheet, Gross Passenger = Intra minus Digital Transfer
+    // 101 A મુસાફર આવક:
+    // USER RULE: "101 a ma 1 ane 2 ane 3 plus thay, 12 ane 5 minus thay"
+    // Also minus uncollected sleeper (Item 13) so that Total A - Total B equals EXACTLY Total Cash To Be Deposited!
     if (item.headNo === '101 A' && item.titleGu === 'મુસાફર આવક') {
-      const netCashPass = passengerIntra > digitalTransaction ? passengerIntra - digitalTransaction : passengerIntra;
+      const grossPassenger123 = passengerIntra + sleeperCharge + interState;
+      const netCashPass = grossPassenger123 - digitalTransaction - concessionDivyang - uncollectedSleeper;
       return { ...item, amount: netCashPass };
     }
-    // 101 A ડીજીટલ ટ્રાન્સફર
+    // 101 A ડીજીટલ ટ્રાન્સફર (Deduction 12)
     if (item.headNo === '101 A' && item.titleGu === 'ડીજીટલ ટ્રાન્સફર') {
       return { ...item, amount: digitalTransaction };
     }
@@ -69,13 +72,14 @@ export function autoMapEnglishToGujaratiAndDRM(record: DCCRecord): DCCRecord {
     if (item.headNo === '105' && item.titleGu === 'લગેજ') {
       return { ...item, amount: luggage };
     }
-    // 102 G દિવ્યાંગ
+    // 102 G દિવ્યાંગ: User Rule: "13 uncolored sleeper amount hoy a 102 g ma plus karvi divyang ma"
+    // Item 5 (Concession Divyang) + Item 13 (Uncollected Sleeper)
     if (item.headNo === '102 G' && item.titleGu === 'દિવ્યાંગ') {
-      return { ...item, amount: concessionDivyang };
+      return { ...item, amount: concessionDivyang + uncollectedSleeper };
     }
-    // 110 D ઇન્ટર સ્ટેટ (સંધપ્રદેશ)
+    // 110 D ઇન્ટર સ્ટેટ (સંધપ્રદેશ) - Included inside 101 A as per user rule (1 + 2 + 3)
     if (item.headNo === '110 D') {
-      return { ...item, amount: interState };
+      return { ...item, amount: 0 };
     }
     // 140 K ધાબા કલેક્શન
     if (item.headNo === '140 K' && item.titleGu === 'ધાબા કલેક્શન') {
@@ -112,8 +116,7 @@ export function autoMapEnglishToGujaratiAndDRM(record: DCCRecord): DCCRecord {
     }
     // 101 A પેસેન્જર એડવાન્સ બુકીંગ રીફંડ / દીવાલી રીફંડ
     if (item.headNo === '101 A' && item.titleGu === 'પેસેન્જર એડવાન્સ બુકીંગ રીફંડ') {
-      const finalRefund = diwaliRefund > 0 ? diwaliRefund : refund;
-      return { ...item, amount: finalRefund };
+      return { ...item, amount: diwaliRefund };
     }
     // 101 A એમપ્લોય કુપન
     if (item.headNo === '101 A' && item.titleGu === 'એમપ્લોય કુપન') {
@@ -127,9 +130,10 @@ export function autoMapEnglishToGujaratiAndDRM(record: DCCRecord): DCCRecord {
     if (item.headNo === '659 A' && item.titleGu === 'સી.સી. રીફંડ') {
       return { ...item, amount: ccRefund };
     }
-    // 620 G દિવ્યાંગ
+    // 620 G દિવ્યાંગ: User Rule "Atle same pan aaj amount plus Thai jay"
+    // Item 5 (Concession Divyang) + Item 13 (Uncollected Sleeper)
     if (item.headNo === '620 G') {
-      return { ...item, amount: concessionDivyang };
+      return { ...item, amount: concessionDivyang + uncollectedSleeper };
     }
     return item;
   });
@@ -152,24 +156,22 @@ export function autoMapEnglishToGujaratiAndDRM(record: DCCRecord): DCCRecord {
   });
 
   // 4. Auto-Map DRM Slip values:
+  // USER RULE: "2 dcc ma drm blank revu joiye, edit thay avu. Jo koi raja ave ane amount bank ma na bhari sakay to te drm thay ane drm ma je amount add karia te page 3 drm add thay junu ane navu banne drm plus thay"
   // P.O.S matches Total Cash To Be Deposited from English DCC
   const posAmount = engTotals.totalCashDeposited;
-  const drm = record.drmSlip.drm || 0;
+  const holidayDrm = Number(record.drmSlip.drm) || 0;
 
-  // Total CC refund to deduct
-  const totalRefundDeduction = ccRefund + (diwaliRefund > 0 ? diwaliRefund : refund);
-
-  // Total Net Cash for DRM:
-  // Formula: POS + CC Amount + Diwali Extra - CC Refund - Diwali Refund + DRM + G12
-  const finalRemittance = posAmount + ccAmount + diwaliExtra - totalRefundDeduction + drm + g12Amount;
+  // Final Net Cash for Remittance:
+  // Today's new cash (posAmount) + Holiday DRM (જૂનું DRM જો રજા હોય તો) + G-12 etc.
+  const finalRemittance = posAmount + holidayDrm + ccAmount + diwaliExtra - ccRefund - diwaliRefund + g12Amount;
 
   const updatedDrmSlip = {
     ...record.drmSlip,
     pos: posAmount,
     ccDeposit: ccAmount,
     diwaliExt: diwaliExtra,
-    ccRefund: totalRefundDeduction,
-    drm: drm,
+    ccRefund: ccRefund + diwaliRefund,
+    drm: holidayDrm,
     g12: g12Amount,
     total: finalRemittance,
   };
@@ -182,6 +184,6 @@ export function autoMapEnglishToGujaratiAndDRM(record: DCCRecord): DCCRecord {
     drmSlip: updatedDrmSlip,
     g12Amount: g12Amount,
     g12Number: g12Number,
-    ruralIncome: finalRemittance,
+    ruralIncome: posAmount, // Today's new cash collection
   };
 }
