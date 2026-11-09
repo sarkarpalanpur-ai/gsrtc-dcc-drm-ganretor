@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { DCCRecord } from './types';
-import { SAMPLE_RECORD_06_11_2026, createBlankRecord, calculateEnglishTotals, calculateGujaratiTotals } from './utils/defaultData';
+import { createBlankRecord, calculateEnglishTotals, calculateGujaratiTotals } from './utils/defaultData';
 import { exportDCCAndDRMToExcel } from './utils/excelExport';
 import { autoMapEnglishToGujaratiAndDRM } from './utils/dccAutoMapper';
 import { Header } from './components/Header';
@@ -21,16 +21,25 @@ import { Camera, FileSpreadsheet, Printer, CheckCircle, Info } from 'lucide-reac
 
 export default function App() {
   const [record, setRecord] = useState<DCCRecord>(() => {
+    const today = new Date();
+    const todayStr = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+
     try {
       const saved = localStorage.getItem('gsrtc_current_record');
       if (saved) {
         const parsed = JSON.parse(saved);
+        // Completely remove old 06/11/2026 sample data
+        if (parsed.date === '06/11/2026' || parsed.id === 'dcc-2026-11-06-surat') {
+          localStorage.removeItem('gsrtc_current_record');
+          return createBlankRecord(todayStr);
+        }
         return autoMapEnglishToGujaratiAndDRM(parsed);
       }
     } catch (e) {
       console.error(e);
     }
-    return autoMapEnglishToGujaratiAndDRM(SAMPLE_RECORD_06_11_2026);
+    // Default to completely clean blank record with TODAY's date
+    return createBlankRecord(todayStr);
   });
 
   const [activeTab, setActiveTab] = useState<'dcc-en' | 'dcc-gu' | 'drm' | 'denomination'>('dcc-en');
@@ -146,9 +155,12 @@ export default function App() {
   };
 
   const handleReset = () => {
-    if (window.confirm('શું તમે 06/11/2026 ના મૂળ સેમ્પલ ડેટા પર પાછા જવા માંગો છો?')) {
-      setRecord(SAMPLE_RECORD_06_11_2026);
-      showToast('મૂળ સેમ્પલ ડેટા રીસેટ થયો');
+    if (window.confirm('શું તમે તમામ ખાના સાફ કરીને નવો કોરો રિપોર્ટ બનાવવા માંગો છો?')) {
+      const today = new Date();
+      const dateStr = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+      localStorage.removeItem('gsrtc_current_record');
+      setRecord(createBlankRecord(dateStr));
+      showToast('તમામ ખાના સાફ થઈ ગયા છે - નવો કોરો રિપોર્ટ તૈયાર છે');
     }
   };
 
@@ -173,51 +185,40 @@ export default function App() {
         onPrintAll={handlePrintAll}
         onSave={handleSave}
         onNewTodayReport={handleNewTodayReport}
+        onReset={handleReset}
         onViewSourcePhotos={() => setIsSourcePhotosOpen(true)}
         onDateChange={handleDateChange}
       />
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6">
-        {/* Sample Date Notice Banner if date is 06/11/2026 */}
-        {record.date === '06/11/2026' && !isPrintingAll && (
-          <div className="mb-4 bg-gradient-to-r from-amber-500/15 via-orange-500/15 to-red-500/15 border-2 border-amber-500/40 rounded-xl p-3 sm:p-4 shadow-xs flex flex-wrap items-center justify-between gap-3 no-print font-gujarati">
-            <div className="flex items-start gap-2.5">
-              <span className="text-xl shrink-0">⚠️</span>
+        {/* Quick Action Helper Banner */}
+        {!isPrintingAll && (
+          <div className="mb-4 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-xl p-3 sm:p-3.5 shadow-md flex flex-wrap items-center justify-between gap-3 no-print font-gujarati">
+            <div className="flex items-center gap-2.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
               <div>
-                <h4 className="text-xs sm:text-sm font-bold text-slate-900">
-                  હાલમાં ૦૬/૧૧/૨૦૨૬ નો સેમ્પલ ડેટા દર્શાવેલ છે
-                </h4>
-                <p className="text-[11px] sm:text-xs text-slate-700">
-                  આજના નવા પત્રક માટે આજની તારીખ સેટ કરો અથવા ઝડપી એન્ટ્રી કરો:
+                <span className="text-xs sm:text-sm font-bold text-white">
+                  {record.division} • {record.depotCityNum} • તારીખ: <span className="font-mono text-amber-300 font-bold underline">{record.date}</span>
+                </span>
+                <p className="text-[11px] text-slate-300">
+                  આજના નવા આંકડા દાખલ કરવા માટે 'ઝડપી એન્ટ્રી' વાપરો અથવા નીચે ખાનાઓમાં સીધા આંકડા લખો.
                 </p>
               </div>
             </div>
             <div className="flex items-center flex-wrap gap-2">
               <button
-                onClick={() => {
-                  const now = new Date();
-                  const d = String(now.getDate()).padStart(2, '0');
-                  const m = String(now.getMonth() + 1).padStart(2, '0');
-                  const y = now.getFullYear();
-                  handleDateChange(`${d}/${m}/${y}`);
-                  showToast(`તારીખ બદલાઈને આજની (${d}/${m}/${y}) થઈ ગઈ!`);
-                }}
-                className="bg-amber-600 hover:bg-amber-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold shadow-xs cursor-pointer transition active:scale-95 flex items-center gap-1.5"
-              >
-                <span>📅 આજની તારીખ સેટ કરો</span>
-              </button>
-              <button
                 onClick={() => setIsQuickEntryOpen(true)}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold shadow-xs cursor-pointer transition active:scale-95 flex items-center gap-1.5"
+                className="bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold shadow-xs cursor-pointer transition active:scale-95 flex items-center gap-1.5"
               >
-                <span>⚡ ઝડપી એન્ટ્રી</span>
+                <span>⚡ ઝડપી એન્ટ્રી (Quick Entry)</span>
               </button>
               <button
-                onClick={handleNewTodayReport}
-                className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-xs cursor-pointer transition active:scale-95"
+                onClick={handleReset}
+                className="bg-rose-700 hover:bg-rose-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-xs cursor-pointer transition active:scale-95"
+                title="તમામ ખાના ૦ કરી કોરો રિપોર્ટ બનાવો"
               >
-                <span>➕ નવો કોરો રિપોર્ટ</span>
+                <span>🗑️ ખાના સાફ કરો (Clear)</span>
               </button>
             </div>
           </div>

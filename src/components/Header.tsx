@@ -191,6 +191,17 @@ export const Header: React.FC<HeaderProps> = ({
             <Save className="w-3.5 h-3.5" />
             <span>સેવ</span>
           </button>
+
+          {/* Reset / Clear Button */}
+          {onReset && (
+            <button
+              onClick={onReset}
+              className="flex items-center gap-1.5 bg-slate-800 hover:bg-rose-950 text-rose-300 border border-rose-900/60 px-2 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer font-gujarati"
+              title="તમામ આંકડા સાફ કરી કોરો રિપોર્ટ બનાવો"
+            >
+              <span>🗑️ સાફ કરો</span>
+            </button>
+          )}
         </div>
       </div>
 

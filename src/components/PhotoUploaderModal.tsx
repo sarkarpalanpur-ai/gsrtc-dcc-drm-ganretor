@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { X, Upload, Camera, Sparkles, CheckCircle2, AlertCircle, RefreshCw, FileText, Image as ImageIcon } from 'lucide-react';
 import { DCCRecord } from '../types';
-import { SAMPLE_RECORD_06_11_2026 } from '../utils/defaultData';
+import { createBlankRecord } from '../utils/defaultData';
 
 interface PhotoUploaderModalProps {
   isOpen: boolean;
@@ -121,9 +121,7 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
         // If backend returned HTML (e.g. GitHub Pages 404 static page) or failed
         if (!apiResp.ok || !contentType.includes('application/json')) {
           if (isGitHubPages || apiResp.status === 404 || contentType.includes('text/html')) {
-            // On GitHub Pages, backend Node.js server does not run
-            console.warn('Running on static GitHub Pages - falling back to verified sample record');
-            extractedData = { ...SAMPLE_RECORD_06_11_2026, id: `dcc-${Date.now()}` };
+            throw new Error('GITHUB_STATIC_NO_API');
           } else {
             throw new Error(`સર્વર એરર (${apiResp.status})`);
           }
@@ -136,12 +134,7 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
         }
       } catch (fetchErr: any) {
         console.warn('Backend fetch failed:', fetchErr);
-        // Fallback for static environments (GitHub Pages, offline, etc.)
-        if (isGitHubPages || fetchErr.message?.includes('fetch') || fetchErr.message?.includes('Network')) {
-          extractedData = { ...SAMPLE_RECORD_06_11_2026, id: `dcc-${Date.now()}` };
-        } else {
-          throw fetchErr;
-        }
+        throw fetchErr;
       }
 
       if (extractedData) {
@@ -149,13 +142,7 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
           extractedData.date = currentDate;
         }
         onDataExtracted(extractedData);
-        if (isGitHubPages) {
-          setSuccessMessage(
-            `સુરત સીટી-૨ નો ડેટા તારીખ ${extractedData.date || currentDate || '06/11/2026'} માં સફળતાપૂર્વક ઓટો-ફિલ થઈ ગયો! (તમે કોઈપણ રકમ સીધી એડિટ કરી શકો છો)`
-          );
-        } else {
-          setSuccessMessage(`DCC અને DRM વિગતો તારીખ ${extractedData.date} માટે સફળતાપૂર્વક ઓટો-ફિલ થઈ ગઈ છે!`);
-        }
+        setSuccessMessage(`DCC અને DRM વિગતો તારીખ ${extractedData.date} માટે સફળતાપૂર્વક ઓટો-ફિલ થઈ ગઈ છે!`);
         setTimeout(() => {
           onClose();
         }, 1500);
@@ -163,31 +150,18 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
     } catch (err: any) {
       console.error('Extraction error:', err);
       const isGitHubPages = typeof window !== 'undefined' && window.location.hostname.includes('github.io');
-      if (isGitHubPages) {
+      if (isGitHubPages || err.message === 'GITHUB_STATIC_NO_API') {
         setErrorMessage(
-          `GitHub Pages સ્ટેટિક છે. તારીખ ${currentDate || '06/11/2026'} નો સુરત સીટી ડેપોનો ડેટા સીધો લોડ કરવા નીચે બટન દબાવો.`
+          `GitHub Pages માત્ર સ્ટેટિક વેબસાઇટ (HTML/JS) છે જેમાં બેકએન્ડ AI સર્વર ચાલતું નથી. તમારા આજના વાઉચરના આંકડા ભરવા માટે '⚡ ઝડપી એન્ટ્રી' વાપરો અથવા Google AI Studio ની લિંક વાપરો.`
         );
       } else {
         setErrorMessage(
-          `Gemini API માં ત્રુટિ: ${err.message || 'Error'}. ડેટા લોડ કરવો હોય તો નીચે બટન દબાવો.`
+          `Gemini API માં ત્રુટિ: ${err.message || 'Error'}. વિગતો જાતે ભરવા '⚡ ઝડપી એન્ટ્રી' વાપરો.`
         );
       }
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleDirectLoadSample = () => {
-    const targetDate = (preserveDate && currentDate) ? currentDate : SAMPLE_RECORD_06_11_2026.date;
-    onDataExtracted({
-      ...SAMPLE_RECORD_06_11_2026,
-      date: targetDate,
-      id: `dcc-${Date.now()}`,
-    });
-    setSuccessMessage(`તારીખ ${targetDate} નો સુરત સીટી સેમ્પલ ડેટા સફળતાપૂર્વક લોડ થઈ ગયો!`);
-    setTimeout(() => {
-      onClose();
-    }, 800);
   };
 
   return (
@@ -277,15 +251,8 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
                 <FileText className="w-3.5 h-3.5 text-red-600" />
-                સેમ્પલ ફોટો (DCC Summary Photo 3)
+                નમૂના માટે સેમ્પલ ફોટા (Sample Photos for Preview)
               </span>
-              <button
-                type="button"
-                onClick={handleDirectLoadSample}
-                className="text-xs text-red-700 hover:text-red-800 font-semibold underline cursor-pointer"
-              >
-                સીધો સેમ્પલ ડેટા લોડ કરો (Instant Load)
-              </button>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
@@ -444,13 +411,6 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
                 <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
                 <span>{errorMessage}</span>
               </div>
-              <button
-                type="button"
-                onClick={handleDirectLoadSample}
-                className="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer"
-              >
-                06/11/2026 સેમ્પલ ડેટા સીધો લોડ કરો
-              </button>
             </div>
           )}
         </div>
@@ -465,12 +425,6 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
           </button>
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={handleDirectLoadSample}
-              className="px-3.5 py-2 text-xs sm:text-sm font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-100 rounded-lg transition cursor-pointer"
-            >
-              સેમ્પલ ભરો (Sample)
-            </button>
             <button
               onClick={handleExtract}
               disabled={isLoading || !selectedImage}
