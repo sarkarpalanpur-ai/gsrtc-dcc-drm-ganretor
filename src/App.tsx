@@ -46,6 +46,7 @@ export default function App() {
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [isSourcePhotosOpen, setIsSourcePhotosOpen] = useState(false);
   const [isQuickEntryOpen, setIsQuickEntryOpen] = useState(false);
+  const [quickEntryImage, setQuickEntryImage] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Auto-save to localStorage on change
@@ -179,7 +180,10 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onOpenScanner={() => setIsScannerOpen(true)}
-        onOpenQuickEntry={() => setIsQuickEntryOpen(true)}
+        onOpenQuickEntry={() => {
+          setQuickEntryImage(null);
+          setIsQuickEntryOpen(true);
+        }}
         onExportExcel={handleExportExcel}
         onPrint={handlePrint}
         onPrintAll={handlePrintAll}
@@ -409,6 +413,10 @@ export default function App() {
         onClose={() => setIsScannerOpen(false)}
         onDataExtracted={handleDataExtracted}
         currentDate={record.date}
+        onOpenQuickEntry={(img) => {
+          setQuickEntryImage(img || null);
+          setIsQuickEntryOpen(true);
+        }}
       />
 
       {/* Quick Data Entry Wizard Modal */}
@@ -416,6 +424,7 @@ export default function App() {
         isOpen={isQuickEntryOpen}
         onClose={() => setIsQuickEntryOpen(false)}
         currentRecord={record}
+        uploadedImage={quickEntryImage}
         onApply={(updated) => {
           handleRecordChange(updated);
           showToast(`તારીખ ${updated.date} નો રિપોર્ટ સફળતાપૂર્વક તૈયાર થઈ ગયો!`);

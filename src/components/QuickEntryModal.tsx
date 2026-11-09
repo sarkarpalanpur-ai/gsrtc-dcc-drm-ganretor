@@ -8,6 +8,7 @@ interface QuickEntryModalProps {
   onClose: () => void;
   currentRecord: DCCRecord;
   onApply: (updated: DCCRecord) => void;
+  uploadedImage?: string | null;
 }
 
 export const QuickEntryModal: React.FC<QuickEntryModalProps> = ({
@@ -15,6 +16,7 @@ export const QuickEntryModal: React.FC<QuickEntryModalProps> = ({
   onClose,
   currentRecord,
   onApply,
+  uploadedImage,
 }) => {
   const [date, setDate] = useState(currentRecord.date);
   
@@ -150,6 +152,27 @@ export const QuickEntryModal: React.FC<QuickEntryModalProps> = ({
 
         {/* Form Body */}
         <div className="p-4 sm:p-5 overflow-y-auto space-y-4 text-xs sm:text-sm">
+          {/* Uploaded Photo Preview if provided */}
+          {uploadedImage && (
+            <div className="bg-slate-100 rounded-xl p-3 border border-slate-300 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-800">
+                  📸 તમારો અપલોડ કરેલો ફોટો (આમાંથી આંકડા જોઈને નીચે લખો):
+                </span>
+                <span className="text-[11px] text-slate-500 font-sans">
+                  {uploadedImage.startsWith('/') ? uploadedImage.split('/').pop() : 'Custom Photo'}
+                </span>
+              </div>
+              <div className="max-h-56 overflow-y-auto rounded-lg border border-slate-300 bg-white p-1 flex justify-center shadow-inner">
+                <img
+                  src={uploadedImage}
+                  alt="Waybill / DCC Photo"
+                  className="max-h-52 object-contain rounded"
+                />
+              </div>
+            </div>
+          )}
+
           {/* Date Selector Row */}
           <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-3 flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">

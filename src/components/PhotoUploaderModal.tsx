@@ -8,6 +8,7 @@ interface PhotoUploaderModalProps {
   onClose: () => void;
   onDataExtracted: (data: Partial<DCCRecord>) => void;
   currentDate?: string;
+  onOpenQuickEntry?: (image?: string | null) => void;
 }
 
 const SAMPLE_PHOTOS = [
@@ -39,6 +40,7 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
   onClose,
   onDataExtracted,
   currentDate,
+  onOpenQuickEntry,
 }) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(SAMPLE_PHOTOS[0].path);
   const [selectedMimeType, setSelectedMimeType] = useState<string>('image/jpeg');
@@ -240,7 +242,7 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
                   GitHub Pages પર સૂચના:
                 </p>
                 <p className="text-blue-800 leading-relaxed">
-                  GitHub Pages સ્ટેટિક હોવાથી નવા ફોટામાંથી Gemini AI લાઈવ રીડિંગ નથી કરી શકતું. જો નવા ફોટામાંથી AI સ્કેન કરાવવું હોય તો <a href="https://ais-pre-o6nczqdisubp3r4yi76yzt-299774883268.asia-east1.run.app" target="_blank" rel="noreferrer" className="underline font-bold text-blue-950 hover:text-red-700">Google AI Studio લાઈવ લિંક ખોલો</a>. અહીં નીચે <strong>'ઓટો-ફિલ'</strong> દબાવતાં જ તારીખ <strong>{currentDate || '06/11/2026'}</strong> માં સંપૂર્ણ ડેટા ભરાઈ જશે, જેને તમે જાતે સીધો બદલી (Edit) કરી શકો છો!
+                  GitHub Pages માત્ર સ્ટેટિક વેબસાઇટ હોવાથી ફોટો પસંદ કર્યા પછી નીચે <strong>'⚡ આ ફોટામાંથી ઝડપી એન્ટ્રી કરો'</strong> બટન દબાવો, જેથી તમારો ફોટો સ્ક્રીન પર દેખાશે અને તમે સરળતાથી આજના આંકડા ભરી શકશો. જો નવા ફોટામાંથી Gemini AI વડે લાઈવ સ્કેન કરાવવું હોય તો <a href="https://ais-pre-o6nczqdisubp3r4yi76yzt-299774883268.asia-east1.run.app" target="_blank" rel="noreferrer" className="underline font-bold text-blue-950 hover:text-red-700">Google AI Studio લાઈવ લિંક ખોલો</a>.
                 </p>
               </div>
             </div>
@@ -406,17 +408,39 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
           )}
 
           {errorMessage && (
-            <div className="bg-rose-50 border border-rose-200 rounded-xl p-3 text-rose-800 text-xs sm:text-sm space-y-2">
+            <div className="bg-rose-50 border border-rose-200 rounded-xl p-3 text-rose-800 text-xs sm:text-sm space-y-2.5">
               <div className="flex items-center gap-2 font-medium">
                 <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
                 <span>{errorMessage}</span>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 pt-1 font-gujarati">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (onOpenQuickEntry) {
+                      onOpenQuickEntry(selectedImage);
+                      onClose();
+                    }
+                  }}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1.5"
+                >
+                  <span>⚡ ઝડપી એન્ટ્રી ખોલો (આજના આંકડા લખો)</span>
+                </button>
+                <a
+                  href="https://ais-pre-o6nczqdisubp3r4yi76yzt-299774883268.asia-east1.run.app"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1.5"
+                >
+                  <span>🌐 Google AI Studio લાઈવ સ્કેનર</span>
+                </a>
               </div>
             </div>
           )}
         </div>
 
         {/* Modal Footer */}
-        <div className="bg-slate-50 border-t border-slate-200 px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3">
+        <div className="bg-slate-50 border-t border-slate-200 px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3 font-gujarati">
           <button
             onClick={onClose}
             className="px-4 py-2 text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-200 rounded-lg transition cursor-pointer"
@@ -425,23 +449,40 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
           </button>
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={handleExtract}
-              disabled={isLoading || !selectedImage}
-              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white px-5 py-2 rounded-lg text-xs sm:text-sm font-bold shadow-md transition cursor-pointer"
-            >
-              {isLoading ? (
-                <>
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>પ્રોસેસિંગ...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4 text-amber-300" />
-                  <span>Gemini AI વડે ઓટો-ફિલ કરો</span>
-                </>
-              )}
-            </button>
+            {typeof window !== 'undefined' && window.location.hostname.includes('github.io') ? (
+              <button
+                type="button"
+                onClick={() => {
+                  if (onOpenQuickEntry) {
+                    onOpenQuickEntry(selectedImage);
+                    onClose();
+                  }
+                }}
+                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg text-xs sm:text-sm font-bold shadow-md transition cursor-pointer"
+              >
+                <Sparkles className="w-4 h-4 text-amber-300" />
+                <span>⚡ આ ફોટામાંથી ઝડપી એન્ટ્રી કરો (Quick Entry)</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleExtract}
+                disabled={isLoading || !selectedImage}
+                className="flex items-center gap-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white px-5 py-2 rounded-lg text-xs sm:text-sm font-bold shadow-md transition cursor-pointer"
+              >
+                {isLoading ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>પ્રોસેસિંગ...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 text-amber-300" />
+                    <span>Gemini AI વડે ઓટો-ફિલ કરો</span>
+                  </>
+                )}
+              </button>
+            )}
           </div>
         </div>
       </div>
