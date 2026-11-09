@@ -1,5 +1,5 @@
 import React from 'react';
-import { Camera, FileSpreadsheet, Printer, Save, RefreshCw, Calendar, Eye } from 'lucide-react';
+import { Camera, FileSpreadsheet, Printer, Save, RefreshCw, Calendar, Eye, Download } from 'lucide-react';
 import { DCCRecord } from '../types';
 
 interface HeaderProps {
@@ -143,6 +143,17 @@ export const Header: React.FC<HeaderProps> = ({
             <Eye className="w-3.5 h-3.5" />
             <span>મૂળ ફોટા (3)</span>
           </button>
+
+          {/* Download updated project ZIP for GitHub */}
+          <a
+            href="./gsrtc-latest-code.zip"
+            download="gsrtc-latest-code.zip"
+            className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-teal-300 border border-slate-700 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer"
+            title="Download full updated project ZIP to upload on GitHub"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>GitHub ZIP</span>
+          </a>
 
           {/* Save Record */}
           <button
