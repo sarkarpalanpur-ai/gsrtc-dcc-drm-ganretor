@@ -55,9 +55,11 @@ export default function App() {
 
   const handleDataExtracted = (extracted: Partial<DCCRecord>) => {
     setRecord((prev) => {
+      const finalDate = extracted.date || prev.date;
       const merged: DCCRecord = {
         ...prev,
         ...extracted,
+        date: finalDate,
         revenueItems: extracted.revenueItems || prev.revenueItems,
         deductionItems: extracted.deductionItems || prev.deductionItems,
         stateWiseIncomes: extracted.stateWiseIncomes || prev.stateWiseIncomes,
@@ -138,8 +140,7 @@ export default function App() {
     const dateStr = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
     const blank = createBlankRecord(dateStr);
     setRecord(blank);
-    setIsScannerOpen(true);
-    showToast(`આજનો નવો રિપોર્ટ (${dateStr}) શરૂ થયો! ફોટો સ્કેન કરો અથવા રકમ લખો.`);
+    showToast(`આજનો નવો રિપોર્ટ (${dateStr}) શરૂ થયો! રકમ જાતે લખો અથવા ફોટો સ્કેન કરો.`);
   };
 
   const handleReset = () => {
@@ -359,6 +360,7 @@ export default function App() {
         isOpen={isScannerOpen}
         onClose={() => setIsScannerOpen(false)}
         onDataExtracted={handleDataExtracted}
+        currentDate={record.date}
       />
 
       {/* Source Photos Inspection Modal */}

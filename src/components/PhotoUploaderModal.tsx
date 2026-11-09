@@ -7,6 +7,7 @@ interface PhotoUploaderModalProps {
   isOpen: boolean;
   onClose: () => void;
   onDataExtracted: (data: Partial<DCCRecord>) => void;
+  currentDate?: string;
 }
 
 const SAMPLE_PHOTOS = [
@@ -37,6 +38,7 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
   isOpen,
   onClose,
   onDataExtracted,
+  currentDate,
 }) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(SAMPLE_PHOTOS[0].path);
   const [selectedMimeType, setSelectedMimeType] = useState<string>('image/jpeg');
@@ -44,6 +46,7 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
   const [statusMessage, setStatusMessage] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
+  const [preserveDate, setPreserveDate] = useState<boolean>(true);
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
@@ -142,13 +145,16 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
       }
 
       if (extractedData) {
+        if (preserveDate && currentDate) {
+          extractedData.date = currentDate;
+        }
         onDataExtracted(extractedData);
         if (isGitHubPages) {
           setSuccessMessage(
-            'GitHub Pages પર સુરત સીટી-૨ નો 06/11/2026 નો સંપૂર્ણ ચકાસાયેલ ડેટા સફળતાપૂર્વક ઓટો-ફિલ થઈ ગયો છે! (તમે કોઈપણ રકમ સીધી એડિટ કરી શકો છો)'
+            `સુરત સીટી-૨ નો ડેટા તારીખ ${extractedData.date || currentDate || '06/11/2026'} માં સફળતાપૂર્વક ઓટો-ફિલ થઈ ગયો! (તમે કોઈપણ રકમ સીધી એડિટ કરી શકો છો)`
           );
         } else {
-          setSuccessMessage('DCC અને DRM વિગતો સફળતાપૂર્વક ઓટો-ફિલ થઈ ગઈ છે! (DCC & DRM auto-filled successfully!)');
+          setSuccessMessage(`DCC અને DRM વિગતો તારીખ ${extractedData.date} માટે સફળતાપૂર્વક ઓટો-ફિલ થઈ ગઈ છે!`);
         }
         setTimeout(() => {
           onClose();
@@ -159,11 +165,11 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
       const isGitHubPages = typeof window !== 'undefined' && window.location.hostname.includes('github.io');
       if (isGitHubPages) {
         setErrorMessage(
-          'GitHub Pages માત્ર સ્ટેટિક વેબસાઇટ (HTML/JS) છે જેમાં બેકએન્ડ Node.js સર્વર ચાલતું નથી. 06/11/2026 નો સુરત સીટી ડેપોનો ચકાસાયેલ ડેટા સીધો લોડ કરવા માટે નીચેનું બટન દબાવો.'
+          `GitHub Pages સ્ટેટિક છે. તારીખ ${currentDate || '06/11/2026'} નો સુરત સીટી ડેપોનો ડેટા સીધો લોડ કરવા નીચે બટન દબાવો.`
         );
       } else {
         setErrorMessage(
-          `Gemini API માં ત્રુટિ: ${err.message || 'Error'}. 06/11/2026 નો ચકાસાયેલ ડેટા લોડ કરવો હોય તો નીચે બટન દબાવો.`
+          `Gemini API માં ત્રુટિ: ${err.message || 'Error'}. ડેટા લોડ કરવો હોય તો નીચે બટન દબાવો.`
         );
       }
     } finally {
@@ -172,8 +178,13 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
   };
 
   const handleDirectLoadSample = () => {
-    onDataExtracted(SAMPLE_RECORD_06_11_2026);
-    setSuccessMessage('06/11/2026 સુરત સીટી સેમ્પલ ડેટા સફળતાપૂર્વક લોડ થઈ ગયો!');
+    const targetDate = (preserveDate && currentDate) ? currentDate : SAMPLE_RECORD_06_11_2026.date;
+    onDataExtracted({
+      ...SAMPLE_RECORD_06_11_2026,
+      date: targetDate,
+      id: `dcc-${Date.now()}`,
+    });
+    setSuccessMessage(`તારીખ ${targetDate} નો સુરત સીટી સેમ્પલ ડેટા સફળતાપૂર્વક લોડ થઈ ગયો!`);
     setTimeout(() => {
       onClose();
     }, 800);
@@ -227,16 +238,35 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
             </div>
           </div>
 
+          {/* Target Date Selector inside Modal */}
+          <div className="bg-amber-50/80 border border-amber-300 rounded-xl p-3 flex flex-wrap items-center justify-between gap-2 text-xs font-gujarati">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-amber-950">📅 રિપોર્ટની તારીખ:</span>
+              <span className="bg-amber-500 text-slate-950 font-mono font-bold px-2.5 py-0.5 rounded shadow-xs text-xs sm:text-sm">
+                {currentDate || '06/11/2026'}
+              </span>
+            </div>
+            <label className="flex items-center gap-1.5 cursor-pointer text-amber-900 font-medium">
+              <input
+                type="checkbox"
+                checked={preserveDate}
+                onChange={(e) => setPreserveDate(e.target.checked)}
+                className="rounded text-amber-600 focus:ring-amber-500 w-4 h-4 cursor-pointer"
+              />
+              <span>આ જ તારીખ ({currentDate || 'પસંદ કરેલ'}) માં ડેટા ભરવો</span>
+            </label>
+          </div>
+
           {/* GitHub Pages Host Info Banner */}
           {typeof window !== 'undefined' && window.location.hostname.includes('github.io') && (
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 flex items-start gap-2.5 text-xs text-blue-900 font-gujarati">
               <div className="text-base shrink-0">ℹ️</div>
-              <div className="flex-1 space-y-1">
+              <div className="flex-1 space-y-1.5">
                 <p className="font-bold text-blue-950">
                   GitHub Pages પર સૂચના:
                 </p>
                 <p className="text-blue-800 leading-relaxed">
-                  GitHub Pages માત્ર સ્ટેટિક વેબસાઇટ (HTML/JS) હોસ્ટ કરે છે (તેમાં બેકએન્ડ સર્વર નથી હોતું). અહીં 06/11/2026 નો સુરત સીટી ડેપોનો ચકાસાયેલ ડેટા ૧-સેકન્ડમાં ઓટો-ફિલ કરવા માટે નીચે <strong>'સેમ્પલ ભરો'</strong> અથવા <strong>'ઓટો-ફિલ કરો'</strong> બટન દબાવો. પછી તમે કોઈપણ રકમ સીધી બદલી શકો છો!
+                  GitHub Pages સ્ટેટિક હોવાથી નવા ફોટામાંથી Gemini AI લાઈવ રીડિંગ નથી કરી શકતું. જો નવા ફોટામાંથી AI સ્કેન કરાવવું હોય તો <a href="https://ais-pre-o6nczqdisubp3r4yi76yzt-299774883268.asia-east1.run.app" target="_blank" rel="noreferrer" className="underline font-bold text-blue-950 hover:text-red-700">Google AI Studio લાઈવ લિંક ખોલો</a>. અહીં નીચે <strong>'ઓટો-ફિલ'</strong> દબાવતાં જ તારીખ <strong>{currentDate || '06/11/2026'}</strong> માં સંપૂર્ણ ડેટા ભરાઈ જશે, જેને તમે જાતે સીધો બદલી (Edit) કરી શકો છો!
                 </p>
               </div>
             </div>

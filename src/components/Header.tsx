@@ -83,6 +83,20 @@ export const Header: React.FC<HeaderProps> = ({
                 }
               }}
             />
+            <button
+              type="button"
+              onClick={() => {
+                const now = new Date();
+                const d = String(now.getDate()).padStart(2, '0');
+                const m = String(now.getMonth() + 1).padStart(2, '0');
+                const y = now.getFullYear();
+                onDateChange(`${d}/${m}/${y}`);
+              }}
+              className="text-[10px] bg-slate-700 hover:bg-slate-600 text-amber-300 px-1.5 py-0.5 rounded cursor-pointer font-gujarati font-bold"
+              title="આજની તારીખ સેટ કરો"
+            >
+              આજ
+            </button>
           </div>
 
           {/* New Today Report Button */}
