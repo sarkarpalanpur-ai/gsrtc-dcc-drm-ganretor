@@ -15,6 +15,7 @@ interface HeaderProps {
   onReset?: () => void;
   onViewSourcePhotos: () => void;
   onDateChange: (newDate: string) => void;
+  onOpenQuickEntry?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -30,6 +31,7 @@ export const Header: React.FC<HeaderProps> = ({
   onReset,
   onViewSourcePhotos,
   onDateChange,
+  onOpenQuickEntry,
 }) => {
   return (
     <header className="bg-slate-900 text-white shadow-lg border-b border-slate-800 no-print">
@@ -107,6 +109,17 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <span>➕ આજનો નવો રિપોર્ટ</span>
           </button>
+
+          {/* Quick Entry Button */}
+          {onOpenQuickEntry && (
+            <button
+              onClick={onOpenQuickEntry}
+              className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-md transition transform active:scale-95 cursor-pointer font-gujarati"
+              title="નવી તારીખ અને મુખ્ય રકમ ઝડપથી દાખલ કરો"
+            >
+              <span>⚡ ઝડપી એન્ટ્રી</span>
+            </button>
+          )}
 
           {/* AI Scanner Button */}
           <button

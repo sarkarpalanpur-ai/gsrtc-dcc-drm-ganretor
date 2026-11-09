@@ -15,6 +15,7 @@ import { DRMMemo } from './components/DRMMemo';
 import { DenominationCalculator } from './components/DenominationCalculator';
 import { PhotoUploaderModal } from './components/PhotoUploaderModal';
 import { SourcePhotosViewerModal } from './components/SourcePhotosViewerModal';
+import { QuickEntryModal } from './components/QuickEntryModal';
 import { formatIndianInteger } from './utils/numberToWords';
 import { Camera, FileSpreadsheet, Printer, CheckCircle, Info } from 'lucide-react';
 
@@ -35,6 +36,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'dcc-en' | 'dcc-gu' | 'drm' | 'denomination'>('dcc-en');
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [isSourcePhotosOpen, setIsSourcePhotosOpen] = useState(false);
+  const [isQuickEntryOpen, setIsQuickEntryOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Auto-save to localStorage on change
@@ -165,6 +167,7 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onOpenScanner={() => setIsScannerOpen(true)}
+        onOpenQuickEntry={() => setIsQuickEntryOpen(true)}
         onExportExcel={handleExportExcel}
         onPrint={handlePrint}
         onPrintAll={handlePrintAll}
@@ -176,6 +179,50 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6">
+        {/* Sample Date Notice Banner if date is 06/11/2026 */}
+        {record.date === '06/11/2026' && !isPrintingAll && (
+          <div className="mb-4 bg-gradient-to-r from-amber-500/15 via-orange-500/15 to-red-500/15 border-2 border-amber-500/40 rounded-xl p-3 sm:p-4 shadow-xs flex flex-wrap items-center justify-between gap-3 no-print font-gujarati">
+            <div className="flex items-start gap-2.5">
+              <span className="text-xl shrink-0">⚠️</span>
+              <div>
+                <h4 className="text-xs sm:text-sm font-bold text-slate-900">
+                  હાલમાં ૦૬/૧૧/૨૦૨૬ નો સેમ્પલ ડેટા દર્શાવેલ છે
+                </h4>
+                <p className="text-[11px] sm:text-xs text-slate-700">
+                  આજના નવા પત્રક માટે આજની તારીખ સેટ કરો અથવા ઝડપી એન્ટ્રી કરો:
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center flex-wrap gap-2">
+              <button
+                onClick={() => {
+                  const now = new Date();
+                  const d = String(now.getDate()).padStart(2, '0');
+                  const m = String(now.getMonth() + 1).padStart(2, '0');
+                  const y = now.getFullYear();
+                  handleDateChange(`${d}/${m}/${y}`);
+                  showToast(`તારીખ બદલાઈને આજની (${d}/${m}/${y}) થઈ ગઈ!`);
+                }}
+                className="bg-amber-600 hover:bg-amber-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold shadow-xs cursor-pointer transition active:scale-95 flex items-center gap-1.5"
+              >
+                <span>📅 આજની તારીખ સેટ કરો</span>
+              </button>
+              <button
+                onClick={() => setIsQuickEntryOpen(true)}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold shadow-xs cursor-pointer transition active:scale-95 flex items-center gap-1.5"
+              >
+                <span>⚡ ઝડપી એન્ટ્રી</span>
+              </button>
+              <button
+                onClick={handleNewTodayReport}
+                className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-xs cursor-pointer transition active:scale-95"
+              >
+                <span>➕ નવો કોરો રિપોર્ટ</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Floating summary info strip (only on screen) */}
         {!isPrintingAll && (
           <div className="mb-4 bg-white border border-slate-200 rounded-xl p-3 shadow-xs flex flex-wrap items-center justify-between gap-3 no-print">
@@ -361,6 +408,17 @@ export default function App() {
         onClose={() => setIsScannerOpen(false)}
         onDataExtracted={handleDataExtracted}
         currentDate={record.date}
+      />
+
+      {/* Quick Data Entry Wizard Modal */}
+      <QuickEntryModal
+        isOpen={isQuickEntryOpen}
+        onClose={() => setIsQuickEntryOpen(false)}
+        currentRecord={record}
+        onApply={(updated) => {
+          handleRecordChange(updated);
+          showToast(`તારીખ ${updated.date} નો રિપોર્ટ સફળતાપૂર્વક તૈયાર થઈ ગયો!`);
+        }}
       />
 
       {/* Source Photos Inspection Modal */}
