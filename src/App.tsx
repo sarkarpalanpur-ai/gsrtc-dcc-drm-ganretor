@@ -206,23 +206,31 @@ export default function App() {
                   {record.division} • {record.depotCityNum} • તારીખ: <span className="font-mono text-amber-300 font-bold underline">{record.date}</span>
                 </span>
                 <p className="text-[11px] text-slate-300">
-                  આજના નવા આંકડા દાખલ કરવા માટે 'ઝડપી એન્ટ્રી' વાપરો અથવા નીચે ખાનાઓમાં સીધા આંકડા લખો.
+                  નવા ફોટામાંથી ઓટો-ફિલ કરવા '📷 ફોટો સ્કેન (AI)' દબાવો, અથવા નીચે સીધા આંકડા લખો.
                 </p>
               </div>
             </div>
             <div className="flex items-center flex-wrap gap-2">
               <button
-                onClick={() => setIsQuickEntryOpen(true)}
-                className="bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold shadow-xs cursor-pointer transition active:scale-95 flex items-center gap-1.5"
+                onClick={() => setIsScannerOpen(true)}
+                className="bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold shadow-xs cursor-pointer transition active:scale-95 flex items-center gap-1.5"
+                title="ફોટો સ્કેન કરી આપોઆપ ખાના ભરો"
               >
-                <span>⚡ ઝડપી એન્ટ્રી (Quick Entry)</span>
+                <Camera className="w-4 h-4 text-amber-300" />
+                <span>📷 ફોટો સ્કેન (Auto-Fill)</span>
+              </button>
+              <button
+                onClick={() => setIsQuickEntryOpen(true)}
+                className="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-xs cursor-pointer transition active:scale-95 flex items-center gap-1.5"
+              >
+                <span>⚡ ઝડપી એન્ટ્રી</span>
               </button>
               <button
                 onClick={handleReset}
-                className="bg-rose-700 hover:bg-rose-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-xs cursor-pointer transition active:scale-95"
+                className="bg-slate-700 hover:bg-slate-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold shadow-xs cursor-pointer transition active:scale-95"
                 title="તમામ ખાના ૦ કરી કોરો રિપોર્ટ બનાવો"
               >
-                <span>🗑️ ખાના સાફ કરો (Clear)</span>
+                <span>🗑️ સાફ કરો</span>
               </button>
             </div>
           </div>
