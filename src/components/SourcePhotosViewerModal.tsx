@@ -8,6 +8,13 @@ interface SourcePhotosViewerModalProps {
 
 const PHOTOS = [
   {
+    id: 'photo-today',
+    title: 'Photo: DCC Summary Today 11/11/2026',
+    titleGu: 'આજનો નવો હિસાબ (૧૧/૧૧/૨૦૨૬)',
+    src: '/assets/aistudio/Screenshot__8__12406596.png',
+    tag: 'Latest Today 11/11'
+  },
+  {
     id: 'photo-3',
     title: 'Photo 3: DCC Summary (Computer Print)',
     titleGu: 'ડી.સી.સી. સમરી (કમ્પ્યુટર પ્રિન્ટ)',

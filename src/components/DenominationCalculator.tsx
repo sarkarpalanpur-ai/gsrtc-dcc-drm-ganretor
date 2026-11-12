@@ -106,7 +106,7 @@ export const DenominationCalculator: React.FC<DenominationCalculatorProps> = ({ 
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 no-print">
           <button
             onClick={autoCalculateDenominations}
             className="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold rounded-lg shadow transition cursor-pointer"
@@ -236,6 +236,22 @@ export const DenominationCalculator: React.FC<DenominationCalculatorProps> = ({ 
             </tr>
           </tbody>
         </table>
+      </div>
+
+      {/* Official Signatures for Cash Tally Print */}
+      <div className="p-4 pt-8 print:pt-4 grid grid-cols-2 text-center text-xs font-bold font-gujarati border-t border-black bg-white">
+        <div>
+          <div className="h-8 flex items-end justify-center pb-1">
+            <span className="text-blue-900 italic font-serif">કેશીયર</span>
+          </div>
+          <p className="border-t border-dashed border-black pt-1 w-44 mx-auto">કેશીયર ની સહી</p>
+        </div>
+        <div>
+          <div className="h-8 flex items-end justify-center pb-1">
+            <span className="text-blue-900 italic font-serif">ટ્રાફિક સુપરવાઈઝર</span>
+          </div>
+          <p className="border-t border-dashed border-black pt-1 w-44 mx-auto">સુપરવાઈઝર ની સહી</p>
+        </div>
       </div>
     </div>
   );

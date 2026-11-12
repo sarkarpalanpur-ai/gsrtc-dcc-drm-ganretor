@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { DCCRecord } from './types';
-import { createBlankRecord, calculateEnglishTotals, calculateGujaratiTotals } from './utils/defaultData';
+import { createSuratCityRecord, createBlankRecord, calculateEnglishTotals, calculateGujaratiTotals, getYesterdayDateString, getTodayDateString } from './utils/defaultData';
 import { exportDCCAndDRMToExcel } from './utils/excelExport';
 import { autoMapEnglishToGujaratiAndDRM } from './utils/dccAutoMapper';
 import { Header } from './components/Header';
@@ -16,30 +16,40 @@ import { DenominationCalculator } from './components/DenominationCalculator';
 import { PhotoUploaderModal } from './components/PhotoUploaderModal';
 import { SourcePhotosViewerModal } from './components/SourcePhotosViewerModal';
 import { QuickEntryModal } from './components/QuickEntryModal';
+import { PrintModal } from './components/PrintModal';
 import { formatIndianInteger } from './utils/numberToWords';
 import { Camera, FileSpreadsheet, Printer, CheckCircle, Info } from 'lucide-react';
 
 export default function App() {
   const [record, setRecord] = useState<DCCRecord>(() => {
-    const today = new Date();
-    const todayStr = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+    // GSRTC Surat City: Today's collection is 11/11/2026
+    const todayCollDate = '11/11/2026';
 
     try {
       const saved = localStorage.getItem('gsrtc_current_record');
       if (saved) {
         const parsed = JSON.parse(saved);
-        // Completely remove old 06/11/2026 sample data
-        if (parsed.date === '06/11/2026' || parsed.id === 'dcc-2026-11-06-surat') {
+        // Completely remove old 44 lakh data AND old 180,000 (184693) data
+        const isOldData =
+          parsed.date === '06/11/2026' ||
+          parsed.date === '10/11/2026' ||
+          parsed.id === 'dcc-2026-11-06-surat' ||
+          Number(parsed.ruralIncome) > 1000000 ||
+          Number(parsed.ruralIncome) === 184693 ||
+          Number(parsed.drmSlip?.pos) === 184693 ||
+          Number(parsed.drmSlip?.total) === 426266;
+
+        if (isOldData) {
           localStorage.removeItem('gsrtc_current_record');
-          return createBlankRecord(todayStr);
+          return createSuratCityRecord(todayCollDate);
         }
         return autoMapEnglishToGujaratiAndDRM(parsed);
       }
     } catch (e) {
       console.error(e);
     }
-    // Default to completely clean blank record with TODAY's date
-    return createBlankRecord(todayStr);
+    // Default to authentic Surat City record for 11/11/2026
+    return createSuratCityRecord(todayCollDate);
   });
 
   const [activeTab, setActiveTab] = useState<'dcc-en' | 'dcc-gu' | 'drm' | 'denomination'>('dcc-en');
@@ -103,33 +113,79 @@ export default function App() {
   };
 
   const [isPrintingAll, setIsPrintingAll] = useState(false);
+  const [isSinglePrinting, setIsSinglePrinting] = useState(false);
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+  const [isPrintModalAll, setIsPrintModalAll] = useState(false);
 
-  const handlePrint = () => {
-    setIsPrintingAll(false);
-    window.focus();
-    try {
-      window.print();
-    } catch (e) {
-      console.error('Print failed:', e);
-      showToast('પ્રિન્ટ કરવા માટે કીબોર્ડ પર Ctrl + P દબાવો');
+  const executeDirectPrint = (allPages: boolean) => {
+    if (allPages) {
+      setIsPrintingAll(true);
+      setIsSinglePrinting(false);
+      showToast('DCC English, DCC Gujarati અને DRM Memo ત્રણેય પત્રક ૩ પેજમાં પ્રિન્ટ થઈ રહ્યા છે...');
+    } else {
+      setIsPrintingAll(false);
+      setIsSinglePrinting(true);
+      showToast('A4 પ્રિન્ટ તૈયાર થઈ રહી છે...');
     }
-  };
 
-  const handlePrintAll = () => {
-    setIsPrintingAll(true);
-    showToast('DCC English, DCC Gujarati અને DRM Memo ત્રણેય પત્રક ૩ પેજમાં પ્રિન્ટ થઈ રહ્યા છે...');
+    const cleanup = () => {
+      setIsSinglePrinting(false);
+      setIsPrintingAll(false);
+      window.removeEventListener('afterprint', cleanup);
+    };
+    window.addEventListener('afterprint', cleanup);
+
     setTimeout(() => {
       window.focus();
       try {
         window.print();
       } catch (e) {
-        console.error('Print all failed:', e);
+        console.error('Print failed:', e);
+        showToast('પ્રિન્ટ કરવા માટે કીબોર્ડ પર Ctrl + P દબાવો');
+        cleanup();
       }
-      setTimeout(() => {
-        setIsPrintingAll(false);
-      }, 1500);
-    }, 350);
+      setTimeout(cleanup, 12000);
+    }, 300);
   };
+
+  const handlePrint = () => {
+    const isIframe = typeof window !== 'undefined' && window.self !== window.top;
+    if (isIframe) {
+      setIsPrintModalAll(false);
+      setIsPrintModalOpen(true);
+    } else {
+      executeDirectPrint(false);
+    }
+  };
+
+  const handlePrintAll = () => {
+    const isIframe = typeof window !== 'undefined' && window.self !== window.top;
+    if (isIframe) {
+      setIsPrintModalAll(true);
+      setIsPrintModalOpen(true);
+    } else {
+      executeDirectPrint(true);
+    }
+  };
+
+  // Check URL query parameters on load (e.g. when opened in a new tab from Google AI Studio)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const directPrint = params.get('directPrint');
+    const tabParam = params.get('tab') as 'dcc-en' | 'dcc-gu' | 'drm' | 'denomination' | null;
+    const allParam = params.get('all');
+
+    if (tabParam && ['dcc-en', 'dcc-gu', 'drm', 'denomination'].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+
+    if (directPrint === '1') {
+      setTimeout(() => {
+        executeDirectPrint(allParam === '1');
+      }, 700);
+    }
+  }, []);
 
   const handleSave = () => {
     try {
@@ -148,21 +204,17 @@ export default function App() {
   };
 
   const handleNewTodayReport = () => {
-    const today = new Date();
-    const dateStr = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
-    const blank = createBlankRecord(dateStr);
-    setRecord(blank);
-    showToast(`આજનો નવો રિપોર્ટ (${dateStr}) શરૂ થયો! રકમ જાતે લખો અથવા ફોટો સ્કેન કરો.`);
+    const collDate = '11/11/2026';
+    const newReport = createSuratCityRecord(collDate);
+    setRecord(newReport);
+    showToast(`કલેક્શન તારીખ ${collDate} નો આજનો નવો રિપોર્ટ (P.O.S ₹1,22,749) ઓટો-ફિલ થયો!`);
   };
 
   const handleReset = () => {
-    if (window.confirm('શું તમે તમામ ખાના સાફ કરીને નવો કોરો રિપોર્ટ બનાવવા માંગો છો?')) {
-      const today = new Date();
-      const dateStr = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
-      localStorage.removeItem('gsrtc_current_record');
-      setRecord(createBlankRecord(dateStr));
-      showToast('તમામ ખાના સાફ થઈ ગયા છે - નવો કોરો રિપોર્ટ તૈયાર છે');
-    }
+    const collDate = getYesterdayDateString();
+    localStorage.removeItem('gsrtc_current_record');
+    setRecord(createBlankRecord(collDate));
+    showToast(`જૂનો હિસાબ સાફ! કલેક્શન તારીખ ${collDate} નો નવો 0 કોરો રિપોર્ટ તૈયાર છે.`);
   };
 
   const handleDateChange = (newDate: string) => {
@@ -227,10 +279,10 @@ export default function App() {
               </button>
               <button
                 onClick={handleReset}
-                className="bg-slate-700 hover:bg-slate-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold shadow-xs cursor-pointer transition active:scale-95"
-                title="તમામ ખાના ૦ કરી કોરો રિપોર્ટ બનાવો"
+                className="bg-rose-700 hover:bg-rose-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-xs cursor-pointer transition active:scale-95 flex items-center gap-1"
+                title="જૂનો તમામ હિસાબ સાફ કરી ૦ કરો"
               >
-                <span>🗑️ સાફ કરો</span>
+                <span>🗑️ જૂનો હિસાબ સાફ (0 કરો)</span>
               </button>
             </div>
           </div>
@@ -327,7 +379,7 @@ export default function App() {
                   </div>
                 </div>
 
-                <DCCSummaryEnglish record={record} onChange={handleRecordChange} />
+                <DCCSummaryEnglish record={record} onChange={handleRecordChange} isPrintMode={isSinglePrinting} />
               </div>
             )}
 
@@ -360,7 +412,7 @@ export default function App() {
                   </div>
                 </div>
 
-                <DCCSummaryGujarati record={record} onChange={handleRecordChange} />
+                <DCCSummaryGujarati record={record} onChange={handleRecordChange} isPrintMode={isSinglePrinting} />
               </div>
             )}
 
@@ -393,13 +445,32 @@ export default function App() {
                   </div>
                 </div>
 
-                <DRMMemo record={record} onChange={handleRecordChange} />
+                <DRMMemo record={record} onChange={handleRecordChange} isPrintMode={isSinglePrinting} />
               </div>
             )}
 
             {/* Tab 4: Cash Denomination Calculator */}
             {activeTab === 'denomination' && (
               <div className="space-y-4">
+                <div className="no-print bg-purple-50 border border-purple-200 rounded-lg p-2.5 text-xs text-purple-900 flex flex-wrap items-center justify-between gap-2 font-gujarati">
+                  <div className="flex items-center gap-2 font-medium">
+                    <Info className="w-4 h-4 text-purple-600 shrink-0" />
+                    <span>
+                      <strong>કેશિયર નોટ ગણતરી પત્રક (Denomination Tally):</strong> રોકડ જમા અને DCC તાળો મેળવવા માટેનું અધિકૃત પત્રક.
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handlePrint}
+                      className="bg-purple-700 hover:bg-purple-800 text-white px-3 py-1 rounded text-xs font-semibold flex items-center gap-1 cursor-pointer shadow-sm"
+                      title="આ ૧ પેજ A4 સાઈઝમાં પ્રિન્ટ કરો"
+                    >
+                      <Printer className="w-3.5 h-3.5" />
+                      A4 પ્રિન્ટ
+                    </button>
+                  </div>
+                </div>
+
                 <DenominationCalculator record={record} />
               </div>
             )}
@@ -443,6 +514,17 @@ export default function App() {
       <SourcePhotosViewerModal
         isOpen={isSourcePhotosOpen}
         onClose={() => setIsSourcePhotosOpen(false)}
+      />
+
+      {/* A4 Print and Export Options Modal (Handles Google AI Studio iframe & Direct Downloads) */}
+      <PrintModal
+        isOpen={isPrintModalOpen}
+        onClose={() => setIsPrintModalOpen(false)}
+        record={record}
+        activeTab={activeTab}
+        isAllPages={isPrintModalAll}
+        onDirectPrint={() => executeDirectPrint(isPrintModalAll)}
+        onExportExcel={handleExportExcel}
       />
     </div>
   );

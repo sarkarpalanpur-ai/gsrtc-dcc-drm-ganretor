@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Calculator, CheckCircle2, ArrowRight } from 'lucide-react';
 import { DCCRecord } from '../types';
 import { formatIndianInteger } from '../utils/numberToWords';
+import { getYesterdayDateString, getTodayDateString } from '../utils/defaultData';
 
 interface QuickEntryModalProps {
   isOpen: boolean;
@@ -176,7 +177,7 @@ export const QuickEntryModal: React.FC<QuickEntryModalProps> = ({
           {/* Date Selector Row */}
           <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-3 flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <span className="font-bold text-indigo-950">📅 રિપોર્ટની તારીખ:</span>
+              <span className="font-bold text-indigo-950">📅 કલેક્શન તારીખ:</span>
               <input
                 type="text"
                 value={date}
@@ -185,13 +186,23 @@ export const QuickEntryModal: React.FC<QuickEntryModalProps> = ({
                 placeholder="DD/MM/YYYY"
               />
             </div>
-            <button
-              type="button"
-              onClick={handleSetToday}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-md font-bold transition cursor-pointer"
-            >
-              આજની તારીખ સેટ કરો
-            </button>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <button
+                type="button"
+                onClick={() => setDate(getYesterdayDateString())}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded-md font-bold text-xs transition cursor-pointer"
+                title={`DCC ગઈકાલના કલેક્શનની હોય છે (${getYesterdayDateString()})`}
+              >
+                ગઈકાલ કલેક્શન ({getYesterdayDateString()})
+              </button>
+              <button
+                type="button"
+                onClick={() => setDate(getTodayDateString())}
+                className="bg-indigo-100 hover:bg-indigo-200 text-indigo-900 px-2.5 py-1 rounded-md font-bold text-xs transition cursor-pointer"
+              >
+                આજ ({getTodayDateString()})
+              </button>
+            </div>
           </div>
 
           {/* Revenue Items */}

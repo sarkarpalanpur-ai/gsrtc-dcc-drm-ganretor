@@ -2,6 +2,7 @@ import React from 'react';
 import { DCCRecord } from '../types';
 import { calculateEnglishTotals } from '../utils/defaultData';
 import { formatIndianNumber } from '../utils/numberToWords';
+import { GSRTC_LOGO_BASE64 } from '../utils/logoBase64';
 
 interface DCCSummaryEnglishProps {
   record: DCCRecord;
@@ -69,23 +70,25 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
   return (
     <div className="bg-white rounded-xl shadow-lg border border-slate-300 print-card overflow-hidden max-w-5xl mx-auto my-4 text-black font-sans">
       {/* Official Corporation Header matching Photo 3 */}
-      <div className="border-b-2 border-black p-3 text-center bg-white">
+      <div className="border-b-2 border-black p-3.5 print:p-2 text-center bg-white">
         <div className="flex items-center justify-center gap-3">
           <img
-            src="/assets/aistudio/images_09942867.jpeg"
+            src={GSRTC_LOGO_BASE64}
             alt="GSRTC Logo"
-            className="w-12 h-12 object-contain rounded-full border border-black p-0.5 bg-white shrink-0"
+            className="w-14 h-14 print:w-12 print:h-12 object-contain rounded-full border border-black p-0.5 bg-white shrink-0"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).src = './gsrtc-logo.jpeg';
             }}
           />
-          <h2 className="text-base sm:text-lg font-bold tracking-wide uppercase text-black">
-            Gujarat State Road Transport Corporation
-          </h2>
-        </div>
-        <div className="grid grid-cols-2 text-xs font-bold uppercase mt-1 border-t border-black pt-1">
-          <div className="text-center">{record.division}</div>
-          <div className="text-center">{record.depot}</div>
+          <div>
+            <h2 className="text-lg sm:text-xl print:text-base font-black tracking-wide uppercase text-black">
+              Gujarat State Road Transport Corporation
+            </h2>
+            <div className="grid grid-cols-2 text-xs print:text-[11px] font-bold uppercase mt-0.5 border-t border-black pt-0.5">
+              <div className="text-center">{record.division}</div>
+              <div className="text-center">{record.depot}</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -103,14 +106,15 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
       </div>
 
       {/* Two Column Layout: REVENUE and DEDUCTIONS */}
+      {/* Two Column Layout: REVENUE and DEDUCTIONS */}
       <div className="border-b-2 border-black">
         <table className="w-full border-collapse text-xs">
           <thead>
             <tr className="border-b-2 border-black bg-slate-200">
-              <th className="border-r-2 border-black px-2 py-1.5 text-left font-bold uppercase w-1/2">
+              <th className="border-r-2 border-black px-3 py-2 print:py-1.5 text-left font-bold uppercase w-1/2 print:text-[11.5px]">
                 REVENUE
               </th>
-              <th className="px-2 py-1.5 text-left font-bold uppercase w-1/2">
+              <th className="px-3 py-2 print:py-1.5 text-left font-bold uppercase w-1/2 print:text-[11.5px]">
                 DEDUCTIONS
               </th>
             </tr>
@@ -123,14 +127,14 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
                 return (
                   <tr key={idx} className="border-b border-black hover:bg-amber-50/40">
                     {/* Revenue Column */}
-                    <td className="border-r-2 border-black p-0 align-top">
+                    <td className="border-r-2 border-black p-0 align-middle">
                       {rev ? (
-                        <div className="flex items-center justify-between px-2 py-1 gap-2">
-                          <span className="font-medium text-slate-800">
+                        <div className="flex items-center justify-between px-2.5 py-2.5 print:py-2 min-h-[30px] print:min-h-[26px] gap-2">
+                          <span className="font-semibold text-slate-800 print:text-[11.5px]">
                             {idx + 1}. {rev.titleEn}
                           </span>
                           {isPrintMode ? (
-                            <span className="font-mono font-bold tabular-nums">
+                            <span className="font-mono font-bold tabular-nums print:text-[11.5px]">
                               {formatIndianNumber(rev.amount)}
                             </span>
                           ) : (
@@ -147,14 +151,14 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
                     </td>
 
                     {/* Deduction Column */}
-                    <td className="p-0 align-top">
+                    <td className="p-0 align-middle">
                       {ded ? (
-                        <div className="flex items-center justify-between px-2 py-1 gap-2">
-                          <span className="font-medium text-slate-800">
+                        <div className="flex items-center justify-between px-2.5 py-2.5 print:py-2 min-h-[30px] print:min-h-[26px] gap-2">
+                          <span className="font-semibold text-slate-800 print:text-[11.5px]">
                             {idx + 1}. {ded.titleEn}
                           </span>
                           {isPrintMode ? (
-                            <span className="font-mono font-bold tabular-nums">
+                            <span className="font-mono font-bold tabular-nums print:text-[11.5px]">
                               {formatIndianNumber(ded.amount)}
                             </span>
                           ) : (
@@ -180,34 +184,34 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
       {/* Summary Box (Total Revenue, Total Deduction, Total Cash Deposited, Advance Booking) */}
       <div className="border-b-2 border-black grid grid-cols-2 text-xs">
         <div className="border-r-2 border-black">
-          <div className="flex items-center justify-between px-3 py-1.5 border-b border-black font-bold bg-slate-100">
+          <div className="flex items-center justify-between px-3 py-2 print:py-1.5 border-b border-black font-bold bg-slate-100 print:text-[11.5px]">
             <span>Total Revenue</span>
             <span className="font-mono font-extrabold text-sm tabular-nums">
               {formatIndianNumber(totals.totalRevenue)}
             </span>
           </div>
-          <div className="flex items-center justify-between px-3 py-1.5 border-b border-black font-bold">
+          <div className="flex items-center justify-between px-3 py-2 print:py-1.5 border-b border-black font-bold print:text-[11.5px]">
             <span>Total Deduction</span>
             <span className="font-mono font-bold tabular-nums">
               {formatIndianNumber(totals.totalDeductions)}
             </span>
           </div>
-          <div className="flex items-center justify-between px-3 py-2 font-bold bg-amber-50">
-            <span className="font-extrabold text-black">Total Cash To Be Deposited</span>
-            <span className="font-mono font-extrabold text-base text-red-700 tabular-nums">
+          <div className="flex items-center justify-between px-3 py-2.5 print:py-2 font-bold bg-amber-50">
+            <span className="font-extrabold text-black print:text-[12px]">Total Cash To Be Deposited</span>
+            <span className="font-mono font-extrabold text-base print:text-sm text-red-700 tabular-nums">
               {formatIndianNumber(totals.totalCashDeposited)}
             </span>
           </div>
         </div>
 
         <div>
-          <div className="flex items-center justify-between px-3 py-1.5 border-b border-black font-bold bg-slate-100">
+          <div className="flex items-center justify-between px-3 py-2 print:py-1.5 border-b border-black font-bold bg-slate-100 print:text-[11.5px]">
             <span>Total Deduction</span>
             <span className="font-mono font-bold tabular-nums">
               {formatIndianNumber(totals.totalDeductions)}
             </span>
           </div>
-          <div className="flex items-center justify-between px-3 py-2 font-bold bg-slate-50">
+          <div className="flex items-center justify-between px-3 py-2.5 print:py-2 font-bold bg-slate-50 print:text-[11.5px]">
             <span>Advance Booking Amount</span>
             {isPrintMode ? (
               <span className="font-mono font-bold tabular-nums">
@@ -226,8 +230,8 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
         </div>
       </div>
 
-      {/* Special Adjustments: CC REFUND, CC AMOUNT, DIWALI EXTRA, DIWALI REFUND */}
-      <div className="border-b-2 border-black bg-slate-50 p-3 sm:p-4 font-sans">
+      {/* Special Adjustments: CC REFUND, CC AMOUNT, DIWALI EXTRA, DIWALI REFUND (Screen only, excluded from official A4 print) */}
+      <div className="border-b-2 border-black bg-slate-50 p-3 sm:p-4 font-sans no-print">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-red-600"></span>
@@ -413,7 +417,7 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
       </div>
 
       {/* State Wise Income Summary and GST Details */}
-      <div className="border-b-2 border-black grid grid-cols-1 sm:grid-cols-2 text-xs">
+      <div className="border-b-2 border-black grid grid-cols-1 sm:grid-cols-2 print-cols-2 text-xs">
         {/* State Wise Income Table */}
         <div className="border-r-2 border-black">
           <div className="bg-slate-200 font-bold px-3 py-1 border-b border-black text-center uppercase">
@@ -427,11 +431,11 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
             {record.stateWiseIncomes.map((stateItem, idx) => (
               <div
                 key={stateItem.state}
-                className="grid grid-cols-2 px-3 py-1 border-b border-slate-300 last:border-b-0 items-center hover:bg-slate-50"
+                className="grid grid-cols-2 px-3 py-1.5 print:py-1 border-b border-slate-300 last:border-b-0 items-center hover:bg-slate-50"
               >
-                <span className="font-medium text-slate-800">{stateItem.state}</span>
+                <span className="font-semibold text-slate-800 print:text-[11px]">{stateItem.state}</span>
                 {isPrintMode ? (
-                  <span className="text-right font-mono font-bold tabular-nums">
+                  <span className="text-right font-mono font-bold tabular-nums print:text-[11px]">
                     {formatIndianNumber(stateItem.amount)}
                   </span>
                 ) : (
@@ -454,10 +458,10 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
             GST Details
           </div>
           <div className="divide-y divide-slate-300">
-            <div className="flex items-center justify-between px-3 py-1.5">
-              <span>1) Collected Cash GST Amt</span>
+            <div className="flex items-center justify-between px-3 py-2 print:py-1.5">
+              <span className="font-semibold print:text-[11px]">1) Collected Cash GST Amt</span>
               {isPrintMode ? (
-                <span className="font-mono font-bold">{formatIndianNumber(record.gstDetails.collectedCash)}</span>
+                <span className="font-mono font-bold print:text-[11px]">{formatIndianNumber(record.gstDetails.collectedCash)}</span>
               ) : (
                 <input
                   type="number"
@@ -468,10 +472,10 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
                 />
               )}
             </div>
-            <div className="flex items-center justify-between px-3 py-1.5">
-              <span>2) Uncollected Cash GST Amt</span>
+            <div className="flex items-center justify-between px-3 py-2 print:py-1.5">
+              <span className="font-semibold print:text-[11px]">2) Uncollected Cash GST Amt</span>
               {isPrintMode ? (
-                <span className="font-mono font-bold">{formatIndianNumber(record.gstDetails.uncollectedCash)}</span>
+                <span className="font-mono font-bold print:text-[11px]">{formatIndianNumber(record.gstDetails.uncollectedCash)}</span>
               ) : (
                 <input
                   type="number"
@@ -482,10 +486,10 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
                 />
               )}
             </div>
-            <div className="flex items-center justify-between px-3 py-1.5">
-              <span>3) Collected Digital GST Amt</span>
+            <div className="flex items-center justify-between px-3 py-2 print:py-1.5">
+              <span className="font-semibold print:text-[11px]">3) Collected Digital GST Amt</span>
               {isPrintMode ? (
-                <span className="font-mono font-bold">{formatIndianNumber(record.gstDetails.collectedDigital)}</span>
+                <span className="font-mono font-bold print:text-[11px]">{formatIndianNumber(record.gstDetails.collectedDigital)}</span>
               ) : (
                 <input
                   type="number"
@@ -496,10 +500,10 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
                 />
               )}
             </div>
-            <div className="flex items-center justify-between px-3 py-1.5">
-              <span>4) Uncollected Digital GST Amt</span>
+            <div className="flex items-center justify-between px-3 py-2 print:py-1.5">
+              <span className="font-semibold print:text-[11px]">4) Uncollected Digital GST Amt</span>
               {isPrintMode ? (
-                <span className="font-mono font-bold">{formatIndianNumber(record.gstDetails.uncollectedDigital)}</span>
+                <span className="font-mono font-bold print:text-[11px]">{formatIndianNumber(record.gstDetails.uncollectedDigital)}</span>
               ) : (
                 <input
                   type="number"
@@ -515,9 +519,9 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
       </div>
 
       {/* Official Signatures Bar matching Photo 3 */}
-      <div className="p-4 pt-8 grid grid-cols-2 gap-4 text-center text-xs font-bold font-gujarati border-b border-black">
+      <div className="p-4 pt-8 print:p-3 print:pt-6 grid grid-cols-2 print-cols-2 gap-4 text-center text-xs font-bold font-gujarati border-b border-black">
         <div className="space-y-1">
-          <div className="h-10 flex items-end justify-center">
+          <div className="h-10 print:h-8 flex items-end justify-center">
             <span className="text-blue-900 italic font-serif text-sm tracking-widest font-normal">
               ટ્રાફિક સુપરવાઈઝર
             </span>

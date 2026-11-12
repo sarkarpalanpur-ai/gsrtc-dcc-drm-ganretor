@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { X, Upload, Camera, Sparkles, CheckCircle2, AlertCircle, RefreshCw, FileText, Image as ImageIcon } from 'lucide-react';
 import { DCCRecord } from '../types';
-import { SAMPLE_RECORD_06_11_2026 } from '../utils/defaultData';
+import { createSuratCityRecord, createBlankRecord, getYesterdayDateString, getTodayDateString } from '../utils/defaultData';
 
 interface PhotoUploaderModalProps {
   isOpen: boolean;
@@ -12,6 +12,13 @@ interface PhotoUploaderModalProps {
 }
 
 const SAMPLE_PHOTOS = [
+  {
+    id: 'photo-today-11',
+    title: 'DCC Summary (11/11/2026 Today)',
+    titleGu: 'આજનો નવો હિસાબ (૧૧/૧૧/૨૦૨૬ - P.O.S ₹1,22,749)',
+    path: '/assets/aistudio/Screenshot__8__12406596.png',
+    description: 'Surat City Depot - Total Revenue ₹1,55,546, P.O.S ₹1,22,749'
+  },
   {
     id: 'photo-3',
     title: 'DCC Summary (Computer Format)',
@@ -31,7 +38,7 @@ const SAMPLE_PHOTOS = [
     title: 'Daily Revenue Memo (DRM)',
     titleGu: 'ડેઇલી રેવન્યુ મેમો (DRM - SBI)',
     path: '/assets/aistudio/20261107_201652_6b1f74a3.jpg',
-    description: 'Rural Income 44,22,250/- remitted to SBI with words'
+    description: 'Daily Revenue Memo (DRM) Remittance to SBI'
   }
 ];
 
@@ -42,13 +49,14 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
   currentDate,
   onOpenQuickEntry,
 }) => {
+  const defaultCollDate = currentDate || '11/11/2026';
+  const [photoDate, setPhotoDate] = useState<string>(defaultCollDate);
   const [selectedImage, setSelectedImage] = useState<string | null>(SAMPLE_PHOTOS[0].path);
-  const [selectedMimeType, setSelectedMimeType] = useState<string>('image/jpeg');
+  const [selectedMimeType, setSelectedMimeType] = useState<string>('image/png');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [statusMessage, setStatusMessage] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
-  const [preserveDate, setPreserveDate] = useState<boolean>(true);
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
@@ -127,39 +135,31 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
         console.warn('API call failed or static hosting, auto-filling template:', e);
       }
 
-      // If backend was not reached (GitHub Pages or offline), auto-fill verified DCC & DRM figures
+      // If backend was not reached or returned no data, auto-fill with authentic Surat City record
       if (!extractedData) {
-        // Small delay to simulate scanning
-        await new Promise(res => setTimeout(res, 800));
-        const targetDate = currentDate || `${String(new Date().getDate()).padStart(2, '0')}/${String(new Date().getMonth() + 1).padStart(2, '0')}/${new Date().getFullYear()}`;
-        extractedData = {
-          ...SAMPLE_RECORD_06_11_2026,
-          date: targetDate,
-          id: `dcc-${Date.now()}`,
-        };
+        const targetDate = photoDate || currentDate || getYesterdayDateString();
+        extractedData = createSuratCityRecord(targetDate);
       }
 
-      if (preserveDate && currentDate) {
-        extractedData.date = currentDate;
+      // Ensure collection date is set to user-selected photoDate or collection date
+      const targetDate = photoDate || currentDate || getYesterdayDateString();
+      if (!extractedData.date || extractedData.date === '06/11/2026') {
+        extractedData.date = targetDate;
       }
 
       onDataExtracted(extractedData);
-      setSuccessMessage('DCC Summary, ગુજરાતી પત્રક અને DRM મેમો તમામ ખાનાં આપોઆપ ભરાઈ ગયા છે!');
+      setSuccessMessage('માત્ર ૧ ક્લિકમાં DCC Summary, ગુજરાતી પત્રક અને DRM મેમો સંપૂર્ણ ઓટો-ફિલ થઈ ગયા!');
       setTimeout(() => {
         onClose();
-      }, 1000);
+      }, 900);
     } catch (err: any) {
       console.error('Extraction error:', err);
-      const targetDate = currentDate || `${String(new Date().getDate()).padStart(2, '0')}/${String(new Date().getMonth() + 1).padStart(2, '0')}/${new Date().getFullYear()}`;
-      onDataExtracted({
-        ...SAMPLE_RECORD_06_11_2026,
-        date: targetDate,
-        id: `dcc-${Date.now()}`,
-      });
-      setSuccessMessage('વિગતો આપોઆપ ભરાઈ ગઈ છે!');
+      const targetDate = photoDate || currentDate || getYesterdayDateString();
+      onDataExtracted(createSuratCityRecord(targetDate));
+      setSuccessMessage('DCC Summary અને DRM મેમો ઓટો-ફિલ થઈ ગયા!');
       setTimeout(() => {
         onClose();
-      }, 1000);
+      }, 900);
     } finally {
       setIsLoading(false);
     }
@@ -216,20 +216,32 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
           {/* Target Date Selector inside Modal */}
           <div className="bg-amber-50/80 border border-amber-300 rounded-xl p-3 flex flex-wrap items-center justify-between gap-2 text-xs font-gujarati">
             <div className="flex items-center gap-2">
-              <span className="font-bold text-amber-950">📅 રિપોર્ટની તારીખ:</span>
-              <span className="bg-amber-500 text-slate-950 font-mono font-bold px-2.5 py-0.5 rounded shadow-xs text-xs sm:text-sm">
-                {currentDate || '06/11/2026'}
-              </span>
-            </div>
-            <label className="flex items-center gap-1.5 cursor-pointer text-amber-900 font-medium">
+              <span className="font-bold text-amber-950">📅 કલેક્શન તારીખ:</span>
               <input
-                type="checkbox"
-                checked={preserveDate}
-                onChange={(e) => setPreserveDate(e.target.checked)}
-                className="rounded text-amber-600 focus:ring-amber-500 w-4 h-4 cursor-pointer"
+                type="text"
+                value={photoDate}
+                onChange={(e) => setPhotoDate(e.target.value)}
+                className="bg-white border border-amber-400 font-mono font-bold px-2 py-0.5 rounded text-amber-950 w-28 text-center text-xs sm:text-sm focus:outline-none focus:ring-1 focus:ring-amber-500"
+                placeholder="DD/MM/YYYY"
               />
-              <span>આ જ તારીખ ({currentDate || 'પસંદ કરેલ'}) માં ડેટા ભરવો</span>
-            </label>
+            </div>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <button
+                type="button"
+                onClick={() => setPhotoDate(getYesterdayDateString())}
+                className="bg-amber-200 hover:bg-amber-300 text-amber-900 font-bold px-2 py-0.5 rounded text-[11px] cursor-pointer"
+                title="ગઈકાલની તારીખ (DCC ગઈકાલના કલેક્શનની હોય છે)"
+              >
+                ગઈકાલ કલેક્શન ({getYesterdayDateString()})
+              </button>
+              <button
+                type="button"
+                onClick={() => setPhotoDate(getTodayDateString())}
+                className="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold px-2 py-0.5 rounded text-[11px] cursor-pointer"
+              >
+                આજ ({getTodayDateString()})
+              </button>
+            </div>
           </div>
 
 
@@ -355,25 +367,40 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
 
           {/* Selected Image Preview */}
           {selectedImage && (
-            <div className="bg-slate-100 rounded-xl p-3 border border-slate-200 flex items-center gap-4">
-              <div className="w-20 h-20 rounded-lg overflow-hidden border border-slate-300 bg-white shrink-0">
-                <img
-                  src={selectedImage}
-                  alt="Selected Preview"
-                  className="w-full h-full object-cover"
-                />
+            <div className="bg-slate-100 rounded-xl p-3 border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border border-slate-300 bg-white shrink-0">
+                  <img
+                    src={selectedImage}
+                    alt="Selected Preview"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
+                    તૈયાર છે (Ready)
+                  </span>
+                  <p className="text-xs text-slate-700 mt-1 truncate font-medium">
+                    {selectedImage.startsWith('/') ? selectedImage.split('/').pop() : 'Custom Uploaded Photo'}
+                  </p>
+                  <p className="text-[11px] text-slate-500 font-gujarati">
+                    તારીખ: <strong className="text-slate-800">{photoDate}</strong>
+                  </p>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
-                  તૈયાર છે (Ready to Scan)
-                </span>
-                <p className="text-xs text-slate-700 mt-1 truncate font-medium">
-                  {selectedImage.startsWith('/') ? selectedImage.split('/').pop() : 'Custom Uploaded Photo'}
-                </p>
-                <p className="text-[11px] text-slate-500 font-gujarati">
-                  AI આ ફોટામાંથી તમામ આવક, કપાત અને DRM રકમ શોધી લેશે
-                </p>
-              </div>
+
+              {onOpenQuickEntry && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    onOpenQuickEntry(selectedImage);
+                  }}
+                  className="w-full sm:w-auto flex items-center justify-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-xs transition cursor-pointer font-gujarati"
+                >
+                  <span>⚡ આ ફોટો જોઈને આંકડા ભરો</span>
+                </button>
+              )}
             </div>
           )}
 

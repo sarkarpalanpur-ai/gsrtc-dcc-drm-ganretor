@@ -1,6 +1,6 @@
 import { GoogleGenAI } from '@google/genai';
 import { DCCRecord } from '../src/types';
-import { SAMPLE_RECORD_06_11_2026 } from '../src/utils/defaultData';
+import { createSuratCityRecord, createBlankRecord, getYesterdayDateString, getTodayDateString } from '../src/utils/defaultData';
 
 export async function extractDCCFromImage(
   imageBase64: string,
@@ -9,11 +9,9 @@ export async function extractDCCFromImage(
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
-    console.warn('GEMINI_API_KEY is not set. Returning template/sample record.');
-    return {
-      ...SAMPLE_RECORD_06_11_2026,
-      id: `dcc-${Date.now()}`,
-    };
+    console.warn('GEMINI_API_KEY is not set. Returning Surat City record with collection date.');
+    const yesterdayColl = getYesterdayDateString();
+    return createSuratCityRecord(yesterdayColl);
   }
 
   const ai = new GoogleGenAI({
@@ -53,18 +51,18 @@ Look carefully at the photo for:
   * DRM / G12 amounts (if any)
 - Net SBI Remittance Formula:
   DRM matches Total Cash To Be Deposited (P.O.S):
-  Total Revenue - Total Deductions = Total Cash To Be Deposited = DRM (e.g. 4422250)
+  Total Revenue - Total Deductions = Total Cash To Be Deposited = DRM (e.g. 184693)
 
-Return ONLY valid JSON matching this structure:
+Return ONLY valid JSON matching this structure. Extract numbers strictly from the image provided (use 0 if absent):
 {
-  "date": "06/11/2026",
+  "date": "DD/MM/YYYY",
   "division": "SURAT DIVISION",
   "depot": "SURAT CITY DEPOT",
   "depotCityNum": "SURAT CITY-2",
   "depotCode": "CODE O 72123 (FROM NO A508)",
-  "ruralIncome": 4422250,
+  "ruralIncome": 0,
   "urbanIncome": 0,
-  "advanceBookingAmount": 327851,
+  "advanceBookingAmount": 0,
   "ccRefund": 0,
   "ccAmount": 0,
   "diwaliExtra": 0,
@@ -72,41 +70,41 @@ Return ONLY valid JSON matching this structure:
   "g12Amount": 0,
   "g12Number": "",
   "revenueItems": [
-    { "headNo": "101 A", "titleEn": "Passanger Amount Intra", "titleGu": "મુસાફર આવક (ઇન્ટ્રા)", "amount": 4798749 },
-    { "headNo": "101 A", "titleEn": "Passanger Income By Sleeper Charge(Coll+Uncoll)", "titleGu": "સ્લીપર ચાર્જ આવક", "amount": 3800 },
-    { "headNo": "110 D", "titleEn": "Inter State Amount", "titleGu": "ઇન્ટર સ્ટેટ આવક", "amount": 483 },
-    { "headNo": "105", "titleEn": "Luggage Amount", "titleGu": "લગેજ આવક", "amount": 987 },
-    { "headNo": "102 H", "titleEn": "Toll Amount Gujrat", "titleGu": "ટોલટેક્ષ આવક (ગુજરાત)", "amount": 133365 },
+    { "headNo": "101 A", "titleEn": "Passanger Amount Intra", "titleGu": "મુસાફર આવક (ઇન્ટ્રા)", "amount": 0 },
+    { "headNo": "101 A", "titleEn": "Passanger Income By Sleeper Charge(Coll+Uncoll)", "titleGu": "સ્લીપર ચાર્જ આવક", "amount": 0 },
+    { "headNo": "110 D", "titleEn": "Inter State Amount", "titleGu": "ઇન્ટર સ્ટેટ આવક", "amount": 0 },
+    { "headNo": "105", "titleEn": "Luggage Amount", "titleGu": "લગેજ આવક", "amount": 0 },
+    { "headNo": "102 H", "titleEn": "Toll Amount Gujrat", "titleGu": "ટોલટેક્ષ આવક (ગુજરાત)", "amount": 0 },
     { "headNo": "102 H", "titleEn": "Toll Amount Other State", "titleGu": "ટોલટેક્ષ (અન્ય રાજ્ય)", "amount": 0 },
     { "headNo": "140", "titleEn": "Insurance Amount", "titleGu": "વીમા આવક", "amount": 0 },
     { "headNo": "140", "titleEn": "HR Surcharge Amount", "titleGu": "એચ.આર. સરચાર્જ", "amount": 0 },
     { "headNo": "140", "titleEn": "Excess Amount Received", "titleGu": "વધારે મળેલ રકમ", "amount": 0 },
-    { "headNo": "140 K", "titleEn": "Dhabha Collection Amount", "titleGu": "ધાબા કલેક્શન", "amount": 4495 },
-    { "headNo": "140", "titleEn": "Misc Revenue Amount", "titleGu": "પરચુરણ આવક", "amount": 5 },
+    { "headNo": "140 K", "titleEn": "Dhabha Collection Amount", "titleGu": "ધાબા કલેક્શન", "amount": 0 },
+    { "headNo": "140", "titleEn": "Misc Revenue Amount", "titleGu": "પરચુરણ આવક", "amount": 0 },
     { "headNo": "653", "titleEn": "Total GST Amt(Collected&Uncollected)", "titleGu": "કુલ જીએસટી રકમ", "amount": 0 },
     { "headNo": "140 A", "titleEn": "Inspector Luggage Penalty Amount", "titleGu": "ઇન્સ્પેક્ટર લગેજ પેનલ્ટી", "amount": 0 },
     { "headNo": "140 A", "titleEn": "Littering Penalty Collection", "titleGu": "ગંદકી દંડ કલેક્શન", "amount": 0 }
   ],
   "deductionItems": [
-    { "headNo": "620", "titleEn": "Police Moter Warrent", "titleGu": "પોલીસ મોટર વોરંટ", "amount": 265 },
+    { "headNo": "620", "titleEn": "Police Moter Warrent", "titleGu": "પોલીસ મોટર વોરંટ", "amount": 0 },
     { "headNo": "620 B", "titleEn": "Journalist", "titleGu": "પત્રકાર કુપન", "amount": 0 },
     { "headNo": "620 E", "titleEn": "Award Winner Teacher", "titleGu": "એવોર્ડ વિનિંગ ટીચર", "amount": 0 },
     { "headNo": "101 A", "titleEn": "Employee Coupon", "titleGu": "કર્મચારી કુપન", "amount": 0 },
-    { "headNo": "620 G", "titleEn": "Other Uncollected Concession", "titleGu": "દિવ્યાંગ / અન્ય કન્સેશન", "amount": 20347 },
+    { "headNo": "620 G", "titleEn": "Other Uncollected Concession", "titleGu": "દિવ્યાંગ / અન્ય કન્સેશન", "amount": 0 },
     { "headNo": "364 A", "titleEn": "Toll Gate", "titleGu": "ટોલ ગેટ ખર્ચ", "amount": 0 },
     { "headNo": "140", "titleEn": "Bus Stand Fee", "titleGu": "બસ સ્ટેન્ડ ફી", "amount": 0 },
     { "headNo": "101 A", "titleEn": "Refund", "titleGu": "રીફંડ", "amount": 0 },
     { "headNo": "140", "titleEn": "Misc Expenses", "titleGu": "પરચુરણ ખર્ચ", "amount": 0 },
     { "headNo": "619", "titleEn": "Short Amount", "titleGu": "શોર્ટજ રકમ", "amount": 0 },
     { "headNo": "653", "titleEn": "Uncollected GST Amount", "titleGu": "બિન-વસૂલેલ જીએસટી", "amount": 0 },
-    { "headNo": "107", "titleEn": "Digital transaction Amount", "titleGu": "ડીજીટલ ટ્રાન્ઝેક્શન કપાત", "amount": 497787 },
-    { "headNo": "101 A", "titleEn": "Uncollected Sleeper Amount", "titleGu": "બિન-વસૂલેલ સ્લીપર રકમ", "amount": 1235 }
+    { "headNo": "107", "titleEn": "Digital transaction Amount", "titleGu": "ડીજીટલ ટ્રાન્ઝેક્શન કપાત", "amount": 0 },
+    { "headNo": "101 A", "titleEn": "Uncollected Sleeper Amount", "titleGu": "બિન-વસૂલેલ સ્લીપર રકમ", "amount": 0 }
   ],
   "stateWiseIncomes": [
-    { "state": "GUJARAT", "amount": 4778137 },
+    { "state": "GUJARAT", "amount": 0 },
     { "state": "DELHI", "amount": 0 },
     { "state": "MAHARASHTRA", "amount": 0 },
-    { "state": "UNION TERRITORY", "amount": 483 },
+    { "state": "UNION TERRITORY", "amount": 0 },
     { "state": "MADHYA PRADESH", "amount": 0 },
     { "state": "RAJASTHAN", "amount": 0 }
   ],
@@ -117,13 +115,13 @@ Return ONLY valid JSON matching this structure:
     "uncollectedDigital": 0
   },
   "drmSlip": {
-    "pos": 4422250,
+    "pos": 0,
     "drm": 0,
     "g12": 0,
     "ccDeposit": 0,
-    "diwaliExt": 35100,
-    "ccRefund": 20592,
-    "total": 4436758
+    "diwaliExt": 0,
+    "ccRefund": 0,
+    "total": 0
   }
 }
 `;

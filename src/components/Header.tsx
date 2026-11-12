@@ -1,6 +1,7 @@
 import React from 'react';
 import { Camera, FileSpreadsheet, Printer, Save, RefreshCw, Calendar, Eye, Download } from 'lucide-react';
 import { DCCRecord } from '../types';
+import { getYesterdayDateString, getTodayDateString } from '../utils/defaultData';
 
 interface HeaderProps {
   record: DCCRecord;
@@ -64,9 +65,9 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Date & Quick Action Buttons */}
         <div className="flex items-center flex-wrap gap-2">
           {/* Date Selector */}
-          <div className="flex items-center gap-1.5 bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-lg text-xs">
+          <div className="flex items-center gap-1.5 bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-gujarati">
             <Calendar className="w-3.5 h-3.5 text-amber-400" />
-            <span className="text-slate-400">તારીખ:</span>
+            <span className="text-slate-400">કલેક્શન તારીખ:</span>
             <input
               type="text"
               value={record.date}
@@ -87,15 +88,17 @@ export const Header: React.FC<HeaderProps> = ({
             />
             <button
               type="button"
-              onClick={() => {
-                const now = new Date();
-                const d = String(now.getDate()).padStart(2, '0');
-                const m = String(now.getMonth() + 1).padStart(2, '0');
-                const y = now.getFullYear();
-                onDateChange(`${d}/${m}/${y}`);
-              }}
-              className="text-[10px] bg-slate-700 hover:bg-slate-600 text-amber-300 px-1.5 py-0.5 rounded cursor-pointer font-gujarati font-bold"
-              title="આજની તારીખ સેટ કરો"
+              onClick={() => onDateChange(getYesterdayDateString())}
+              className="text-[10px] bg-amber-500 hover:bg-amber-400 text-slate-950 px-1.5 py-0.5 rounded cursor-pointer font-bold"
+              title={`DCC ગઈકાલના કલેક્શનની હોય છે (${getYesterdayDateString()})`}
+            >
+              ગઈકાલ કલેક્શન
+            </button>
+            <button
+              type="button"
+              onClick={() => onDateChange(getTodayDateString())}
+              className="text-[10px] bg-slate-700 hover:bg-slate-600 text-slate-300 px-1.5 py-0.5 rounded cursor-pointer"
+              title={`આજની તારીખ (${getTodayDateString()})`}
             >
               આજ
             </button>
@@ -196,10 +199,10 @@ export const Header: React.FC<HeaderProps> = ({
           {onReset && (
             <button
               onClick={onReset}
-              className="flex items-center gap-1.5 bg-slate-800 hover:bg-rose-950 text-rose-300 border border-rose-900/60 px-2 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer font-gujarati"
-              title="તમામ આંકડા સાફ કરી કોરો રિપોર્ટ બનાવો"
+              className="flex items-center gap-1.5 bg-rose-900/60 hover:bg-rose-800 text-rose-100 border border-rose-500 px-3 py-1.5 rounded-lg text-xs font-bold transition transform active:scale-95 cursor-pointer font-gujarati"
+              title="જૂનો તમામ 44 લાખ કે સેમ્પલ હિસાબ સાફ કરી નવો કોરો રિપોર્ટ બનાવો"
             >
-              <span>🗑️ સાફ કરો</span>
+              <span>🗑️ જૂનો હિસાબ સાફ કરો (0 કરો)</span>
             </button>
           )}
         </div>
