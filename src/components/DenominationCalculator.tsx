@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { DCCRecord, CashDenominationState } from '../types';
 import { formatIndianInteger } from '../utils/numberToWords';
 import { calculateEnglishTotals } from '../utils/defaultData';
-import { CheckCircle2, AlertTriangle, Calculator, RotateCcw } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, Calculator, RotateCcw, Sparkles } from 'lucide-react';
 
 interface DenominationCalculatorProps {
   record: DCCRecord;
@@ -10,45 +10,67 @@ interface DenominationCalculatorProps {
 
 const DENOMINATIONS = [500, 200, 100, 50, 20, 10, 5, 2, 1];
 
+export function computeOptimalDenominations(targetAmount: number): CashDenominationState {
+  const safeAmount = Math.max(0, Math.round(Number(targetAmount) || 0));
+  let remaining = safeAmount;
+  const newCounts: Record<number, number> = {};
+
+  for (const note of DENOMINATIONS) {
+    const count = Math.floor(remaining / note);
+    newCounts[note] = count;
+    remaining -= count * note;
+  }
+
+  return {
+    counts: newCounts,
+    coins: remaining,
+  };
+}
+
 export const DenominationCalculator: React.FC<DenominationCalculatorProps> = ({ record }) => {
   const totals = calculateEnglishTotals(record);
-  const targetCash = totals.totalCashDeposited;
+  const posTargetCash = Math.max(0, Math.round(totals.totalCashDeposited || 0));
+  const drmTargetCash = Math.max(0, Math.round(Number(record.drmSlip?.total) || posTargetCash));
+  const hasDrmDifference = drmTargetCash !== posTargetCash;
 
-  const [denominations, setDenominations] = useState<CashDenominationState>({
-    counts: {
-      500: 8844,
-      200: 0,
-      100: 2,
-      50: 1,
-      20: 0,
-      10: 0,
-      5: 0,
-      2: 0,
-      1: 0,
-    },
-    coins: 0,
-  });
+  const [targetMode, setTargetMode] = useState<'drm' | 'pos'>('drm');
+  const targetCash = targetMode === 'drm' ? drmTargetCash : posTargetCash;
+
+  const [isAutoCount, setIsAutoCount] = useState<boolean>(true);
+  const [denominations, setDenominations] = useState<CashDenominationState>(() =>
+    computeOptimalDenominations(targetCash)
+  );
+
+  // Automatically re-count denominations whenever the report's cash amount changes
+  useEffect(() => {
+    if (isAutoCount) {
+      setDenominations(computeOptimalDenominations(targetCash));
+    }
+  }, [targetCash, isAutoCount]);
 
   const handleCountChange = (note: number, value: string) => {
+    setIsAutoCount(false);
     const count = parseInt(value, 10);
     setDenominations((prev) => ({
       ...prev,
       counts: {
         ...prev.counts,
-        [note]: isNaN(count) ? 0 : count,
+        [note]: isNaN(count) || count < 0 ? 0 : count,
       },
     }));
   };
 
   const handleCoinsChange = (value: string) => {
+    setIsAutoCount(false);
     const coins = parseFloat(value);
     setDenominations((prev) => ({
       ...prev,
-      coins: isNaN(coins) ? 0 : coins,
+      coins: isNaN(coins) || coins < 0 ? 0 : coins,
     }));
   };
 
   const resetCounts = () => {
+    setIsAutoCount(false);
     setDenominations({
       counts: {
         500: 0,
@@ -65,24 +87,12 @@ export const DenominationCalculator: React.FC<DenominationCalculatorProps> = ({ 
     });
   };
 
-  // Auto-fill denomination to match target
-  const autoCalculateDenominations = () => {
-    let remaining = targetCash;
-    const newCounts: Record<number, number> = {};
+  const enableAutoCount = useCallback(() => {
+    setIsAutoCount(true);
+    setDenominations(computeOptimalDenominations(targetCash));
+  }, [targetCash]);
 
-    for (const note of DENOMINATIONS) {
-      const count = Math.floor(remaining / note);
-      newCounts[note] = count;
-      remaining -= count * note;
-    }
-
-    setDenominations({
-      counts: newCounts,
-      coins: remaining,
-    });
-  };
-
-  // Calculate total cash
+  // Calculate total physical cash
   const notesTotal = DENOMINATIONS.reduce(
     (sum, note) => sum + note * (denominations.counts[note] || 0),
     0
@@ -93,40 +103,88 @@ export const DenominationCalculator: React.FC<DenominationCalculatorProps> = ({ 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-slate-300 print-card max-w-3xl mx-auto my-4 overflow-hidden font-gujarati">
       {/* Header */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white p-4 sm:p-5 flex items-center justify-between">
+      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-purple-600/90 flex items-center justify-center text-amber-300">
             <Calculator className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-base sm:text-lg font-bold">કેશિયર નોટ ગણતરી પત્રક (Denomination Tally)</h2>
+            <h2 className="text-base sm:text-lg font-bold">કેશિયર નોટ ગણતરી પત્રક (Auto-Count Tally)</h2>
             <p className="text-xs text-slate-300">
-              રોકડ જમા અને DCC તાળો મેળવવા માટે ચલણી નોટોની વિગત
+              {isAutoCount
+                ? 'ઓટો-કાઉન્ટ ચાલુ છે: DCC/DRM રકમ મુજબ નોટ આપોઆપ ગણાશે'
+                : 'મેન્યુઅલ મોડ: તમે જાતે નોટ સંખ્યા લખી શકો છો'}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2 no-print">
           <button
-            onClick={autoCalculateDenominations}
-            className="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold rounded-lg shadow transition cursor-pointer"
+            type="button"
+            onClick={enableAutoCount}
+            className={`px-3 py-1.5 text-xs font-semibold rounded-lg shadow transition cursor-pointer flex items-center gap-1.5 ${
+              isAutoCount
+                ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                : 'bg-purple-600 hover:bg-purple-500 text-white'
+            }`}
           >
-            ઓટો-કેલ્ક્યુલેટ
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>{isAutoCount ? 'ઓટો-કાઉન્ટ (Active)' : 'ઓટો-કાઉન્ટ ચાલુ કરો'}</span>
           </button>
           <button
+            type="button"
             onClick={resetCounts}
-            className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition"
-            title="Reset"
+            className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition cursor-pointer"
+            title="નોટ સંખ્યા 0 કરો"
           >
             <RotateCcw className="w-4 h-4" />
           </button>
         </div>
       </div>
 
+      {/* Optional Target Mode Switcher when DRM Total differs from POS */}
+      {hasDrmDifference && (
+        <div className="bg-indigo-50 border-b border-indigo-200 px-4 py-2 flex flex-wrap items-center justify-between gap-2 text-xs no-print">
+          <span className="font-bold text-indigo-950">કઈ રકમ મુજબ નોટ ઓટો-કાઉન્ટ કરવી?</span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setTargetMode('drm');
+                setIsAutoCount(true);
+              }}
+              className={`px-2.5 py-1 rounded-md font-bold cursor-pointer transition ${
+                targetMode === 'drm'
+                  ? 'bg-indigo-700 text-white shadow-xs'
+                  : 'bg-white text-indigo-800 border border-indigo-300'
+              }`}
+            >
+              DRM કુલ બેંક જમા (₹{formatIndianInteger(drmTargetCash)})
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setTargetMode('pos');
+                setIsAutoCount(true);
+              }}
+              className={`px-2.5 py-1 rounded-md font-bold cursor-pointer transition ${
+                targetMode === 'pos'
+                  ? 'bg-indigo-700 text-white shadow-xs'
+                  : 'bg-white text-indigo-800 border border-indigo-300'
+              }`}
+            >
+              માત્ર P.O.S રોકડ (₹{formatIndianInteger(posTargetCash)})
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Target Comparison Bar */}
       <div className="bg-slate-50 border-b border-slate-200 p-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
         <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-xs">
-          <span className="text-xs text-slate-500 block">DCC મુજબ જમા રકમ</span>
+          <span className="text-xs text-slate-500 block">
+            {targetMode === 'drm' && hasDrmDifference ? 'DRM કુલ બેંક જમા રકમ' : 'DCC મુજબ જમા રકમ'}
+          </span>
           <span className="font-mono font-extrabold text-base sm:text-lg text-slate-800 tabular-nums">
             ₹ {formatIndianInteger(targetCash)}
           </span>

@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { DCCRecord } from './types';
-import { createSuratCityRecord, createBlankRecord, calculateEnglishTotals, calculateGujaratiTotals, getYesterdayDateString, getTodayDateString } from './utils/defaultData';
+import { createBlankRecord, calculateEnglishTotals, calculateGujaratiTotals, getYesterdayDateString } from './utils/defaultData';
 import { exportDCCAndDRMToExcel } from './utils/excelExport';
 import { autoMapEnglishToGujaratiAndDRM } from './utils/dccAutoMapper';
 import { Header } from './components/Header';
@@ -22,34 +22,33 @@ import { Camera, FileSpreadsheet, Printer, CheckCircle, Info } from 'lucide-reac
 
 export default function App() {
   const [record, setRecord] = useState<DCCRecord>(() => {
-    // GSRTC Surat City: Today's collection is 11/11/2026
-    const todayCollDate = '11/11/2026';
+    const defaultCollDate = getYesterdayDateString();
 
     try {
       const saved = localStorage.getItem('gsrtc_current_record');
       if (saved) {
         const parsed = JSON.parse(saved);
-        // Completely remove old 44 lakh data AND old 180,000 (184693) data
-        const isOldData =
-          parsed.date === '06/11/2026' ||
-          parsed.date === '10/11/2026' ||
+        // Remove any old hardcoded template/sample records so fresh reports calculate strictly from user input
+        const isStaleTemplate =
+          !parsed?.id ||
+          String(parsed.id).startsWith('dcc-surat') ||
           parsed.id === 'dcc-2026-11-06-surat' ||
           Number(parsed.ruralIncome) > 1000000 ||
           Number(parsed.ruralIncome) === 184693 ||
           Number(parsed.drmSlip?.pos) === 184693 ||
           Number(parsed.drmSlip?.total) === 426266;
 
-        if (isOldData) {
+        if (isStaleTemplate) {
           localStorage.removeItem('gsrtc_current_record');
-          return createSuratCityRecord(todayCollDate);
+          return createBlankRecord(defaultCollDate);
         }
-        return autoMapEnglishToGujaratiAndDRM(parsed);
+        return parsed;
       }
     } catch (e) {
       console.error(e);
     }
-    // Default to authentic Surat City record for 11/11/2026
-    return createSuratCityRecord(todayCollDate);
+    // Start clean with 0 values until user uploads/scans or enters today's report
+    return createBlankRecord(defaultCollDate);
   });
 
   const [activeTab, setActiveTab] = useState<'dcc-en' | 'dcc-gu' | 'drm' | 'denomination'>('dcc-en');
@@ -197,17 +196,99 @@ export default function App() {
     }
   };
 
-  const handleRecordChange = (updated: DCCRecord) => {
-    // Automatically map English DCC changes to Gujarati Account heads and DRM
+  // Edits from English DCC Summary / Quick Entry -> auto-calculate Gujarati heads & DRM
+  const handleEnglishRecordChange = (updated: DCCRecord) => {
     const fullyMapped = autoMapEnglishToGujaratiAndDRM(updated);
     setRecord(fullyMapped);
   };
 
+  // Edits directly inside Gujarati DCC Summary -> recalculate Gujarati totals & DRM without overwriting user's Gujarati edits
+  const handleGujaratiRecordChange = (updated: DCCRecord) => {
+    setRecord((prev) => {
+      const slipEditedDirectly =
+        updated.drmSlip !== prev.drmSlip &&
+        updated.gujaratiIncomes === prev.gujaratiIncomes &&
+        updated.gujaratiDeductions === prev.gujaratiDeductions &&
+        updated.gujaratiOtherIncomes === prev.gujaratiOtherIncomes;
+
+      if (slipEditedDirectly) {
+        const g12Val = Number(updated.drmSlip.g12) || 0;
+        const syncedOther = updated.gujaratiOtherIncomes.map((item) =>
+          item.headNo === '140'
+            ? {
+                ...item,
+                amount: g12Val,
+                titleGu: g12Val > 0 ? `અન્ય આવક${updated.g12Number ? ` (G-12 નં. ${updated.g12Number})` : ' (G-12)'}` : 'અન્ય આવક',
+              }
+            : item
+        );
+        return {
+          ...updated,
+          g12Amount: g12Val,
+          ccAmount: Number(updated.drmSlip.ccDeposit) || 0,
+          diwaliExtra: Number(updated.drmSlip.diwaliExt) || 0,
+          ruralIncome: Number(updated.drmSlip.pos) || 0,
+          gujaratiOtherIncomes: syncedOther,
+        };
+      }
+
+      const gujTotals = calculateGujaratiTotals(updated);
+      const holidayDrm = Number(updated.drmSlip.drm) || 0;
+      const g12FromOther = updated.gujaratiOtherIncomes.find((o) => o.headNo === '140')?.amount ?? updated.g12Amount;
+      const netPosOnly = gujTotals.totalA - gujTotals.totalB;
+      const updatedDrmSlip = {
+        ...updated.drmSlip,
+        pos: netPosOnly,
+        g12: Number(g12FromOther) || 0,
+        total: gujTotals.netBankRemittance + holidayDrm,
+      };
+      return {
+        ...updated,
+        g12Amount: Number(g12FromOther) || 0,
+        drmSlip: updatedDrmSlip,
+        ruralIncome: netPosOnly,
+      };
+    });
+  };
+
+  // Edits directly inside DRM Memo -> preserve manual rural/urban/G-12 inputs and update totals & words
+  const handleDRMRecordChange = (updated: DCCRecord) => {
+    setRecord((prev) => {
+      const holidayDrm = Number(updated.drmSlip?.drm) || 0;
+      const g12Val = Number(updated.g12Amount) || 0;
+      const ruralVal = Number(updated.ruralIncome) || 0;
+      const ccDep = Number(updated.drmSlip?.ccDeposit ?? updated.ccAmount) || 0;
+      const diwaliExt = Number(updated.drmSlip?.diwaliExt ?? updated.diwaliExtra) || 0;
+      const ccRef = Number(updated.drmSlip?.ccRefund) || 0;
+
+      const syncedOther =
+        g12Val !== prev.g12Amount
+          ? updated.gujaratiOtherIncomes.map((item) =>
+              item.headNo === '140'
+                ? {
+                    ...item,
+                    amount: g12Val,
+                    titleGu: g12Val > 0 ? `અન્ય આવક${updated.g12Number ? ` (G-12 નં. ${updated.g12Number})` : ' (G-12)'}` : 'અન્ય આવક',
+                  }
+                : item
+            )
+          : updated.gujaratiOtherIncomes;
+
+      return {
+        ...updated,
+        gujaratiOtherIncomes: syncedOther,
+        drmSlip: {
+          ...updated.drmSlip,
+          pos: ruralVal,
+          g12: g12Val,
+          total: ruralVal + holidayDrm + ccDep + diwaliExt - ccRef + g12Val,
+        },
+      };
+    });
+  };
+
   const handleNewTodayReport = () => {
-    const collDate = '11/11/2026';
-    const newReport = createSuratCityRecord(collDate);
-    setRecord(newReport);
-    showToast(`કલેક્શન તારીખ ${collDate} નો આજનો નવો રિપોર્ટ (P.O.S ₹1,22,749) ઓટો-ફિલ થયો!`);
+    setIsScannerOpen(true);
   };
 
   const handleReset = () => {
@@ -288,6 +369,29 @@ export default function App() {
           </div>
         )}
 
+        {/* Prominent Upload Prompt when sheet is currently empty (0) */}
+        {!isPrintingAll && engTotals.totalRevenue === 0 && gujTotals.totalA === 0 && record.ruralIncome === 0 && (
+          <div className="mb-4 bg-gradient-to-r from-emerald-50 via-blue-50 to-indigo-50 border-2 border-dashed border-blue-400 rounded-xl p-4 shadow-xs flex flex-wrap items-center justify-between gap-3 no-print font-gujarati">
+            <div>
+              <p className="text-sm sm:text-base font-extrabold text-slate-900">
+                📄 નવો રિપોર્ટ અપલોડ કરવા તૈયાર (હાલ બધા ખાના 0 છે)
+              </p>
+              <p className="text-xs text-slate-700 mt-0.5">
+                કોઈ જૂનો ફિક્સ હિસાબ લોડ કરેલ નથી — આજનો DCC રિપોર્ટ ફોટો મૂકતા જ DCC English, ગુજરાતી પત્રક, DRM અને નોટ ગણતરી આપોઆપ ભરાઈ જશે!
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsScannerOpen(true)}
+                className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-md cursor-pointer transition active:scale-95 flex items-center gap-2"
+              >
+                <Camera className="w-4 h-4 text-amber-300" />
+                <span>📷 આજનો રિપોર્ટ ફોટો અપલોડ કરો</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Floating summary info strip (only on screen) */}
         {!isPrintingAll && (
           <div className="mb-4 bg-white border border-slate-200 rounded-xl p-3 shadow-xs flex flex-wrap items-center justify-between gap-3 no-print">
@@ -325,13 +429,13 @@ export default function App() {
         {isPrintingAll ? (
           <div className="space-y-6">
             <div className="print-page-break">
-              <DCCSummaryEnglish record={record} onChange={handleRecordChange} isPrintMode={true} />
+              <DCCSummaryEnglish record={record} onChange={handleEnglishRecordChange} isPrintMode={true} />
             </div>
             <div className="print-page-break">
-              <DCCSummaryGujarati record={record} onChange={handleRecordChange} isPrintMode={true} />
+              <DCCSummaryGujarati record={record} onChange={handleGujaratiRecordChange} isPrintMode={true} />
             </div>
             <div>
-              <DRMMemo record={record} onChange={handleRecordChange} isPrintMode={true} />
+              <DRMMemo record={record} onChange={handleDRMRecordChange} isPrintMode={true} />
             </div>
           </div>
         ) : (
@@ -379,7 +483,7 @@ export default function App() {
                   </div>
                 </div>
 
-                <DCCSummaryEnglish record={record} onChange={handleRecordChange} isPrintMode={isSinglePrinting} />
+                <DCCSummaryEnglish record={record} onChange={handleEnglishRecordChange} isPrintMode={isSinglePrinting} />
               </div>
             )}
 
@@ -412,7 +516,7 @@ export default function App() {
                   </div>
                 </div>
 
-                <DCCSummaryGujarati record={record} onChange={handleRecordChange} isPrintMode={isSinglePrinting} />
+                <DCCSummaryGujarati record={record} onChange={handleGujaratiRecordChange} isPrintMode={isSinglePrinting} />
               </div>
             )}
 
@@ -445,7 +549,7 @@ export default function App() {
                   </div>
                 </div>
 
-                <DRMMemo record={record} onChange={handleRecordChange} isPrintMode={isSinglePrinting} />
+                <DRMMemo record={record} onChange={handleDRMRecordChange} isPrintMode={isSinglePrinting} />
               </div>
             )}
 
@@ -505,7 +609,7 @@ export default function App() {
         currentRecord={record}
         uploadedImage={quickEntryImage}
         onApply={(updated) => {
-          handleRecordChange(updated);
+          handleEnglishRecordChange(updated);
           showToast(`તારીખ ${updated.date} નો રિપોર્ટ સફળતાપૂર્વક તૈયાર થઈ ગયો!`);
         }}
       />

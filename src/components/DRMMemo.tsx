@@ -17,8 +17,11 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
   const holidayDrmAmount = Number(record.drmSlip?.drm) || 0;
   const g12Amt = Number(record.g12Amount) || 0;
   const todayCash = Number(record.ruralIncome) || 0;
-  // USER RULE: junu (holiday DRM) ane navu (today's cash) banne drm plus thay + G-12
-  const totalAmount = todayCash + holidayDrmAmount + (record.urbanIncome || 0) + g12Amt;
+  const ccDepAmt = Number(record.drmSlip?.ccDeposit ?? record.ccAmount) || 0;
+  const diwaliExtAmt = Number(record.drmSlip?.diwaliExt ?? record.diwaliExtra) || 0;
+  const ccRefAmt = Number(record.drmSlip?.ccRefund) || 0;
+  // USER RULE: junu (holiday DRM) ane navu (today's cash) banne drm plus thay + G-12 + adjustments
+  const totalAmount = todayCash + holidayDrmAmount + (record.urbanIncome || 0) + g12Amt + ccDepAmt + diwaliExtAmt - ccRefAmt;
   const words = numberToIndianCurrencyWords(totalAmount);
 
   const handleRuralChange = (val: number) => {
@@ -179,6 +182,38 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
                   </td>
                   <td className="p-3 print:py-2 print:px-3 text-right font-mono font-bold text-base tabular-nums">
                     {formatIndianInteger(record.urbanIncome)}/-
+                  </td>
+                </tr>
+              )}
+
+              {/* Optional Adjustment Rows when non-zero */}
+              {ccDepAmt > 0 && (
+                <tr className="border-b-2 border-black">
+                  <td className="border-r-2 border-black p-3 print:py-2 print:px-3 font-bold uppercase text-slate-900 print:text-xs">
+                    CC DEPOSIT (+)
+                  </td>
+                  <td className="p-3 print:py-2 print:px-3 text-right font-mono font-bold text-base tabular-nums">
+                    {formatIndianInteger(ccDepAmt)}/-
+                  </td>
+                </tr>
+              )}
+              {diwaliExtAmt > 0 && (
+                <tr className="border-b-2 border-black">
+                  <td className="border-r-2 border-black p-3 print:py-2 print:px-3 font-bold uppercase text-slate-900 print:text-xs">
+                    DIWALI EXTRA (+)
+                  </td>
+                  <td className="p-3 print:py-2 print:px-3 text-right font-mono font-bold text-base tabular-nums">
+                    {formatIndianInteger(diwaliExtAmt)}/-
+                  </td>
+                </tr>
+              )}
+              {ccRefAmt > 0 && (
+                <tr className="border-b-2 border-black">
+                  <td className="border-r-2 border-black p-3 print:py-2 print:px-3 font-bold uppercase text-rose-800 print:text-xs">
+                    LESS: CC / DIWALI REFUND (-)
+                  </td>
+                  <td className="p-3 print:py-2 print:px-3 text-right font-mono font-bold text-base tabular-nums text-rose-800">
+                    - {formatIndianInteger(ccRefAmt)}/-
                   </td>
                 </tr>
               )}

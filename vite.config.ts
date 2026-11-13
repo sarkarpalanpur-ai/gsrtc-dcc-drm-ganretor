@@ -20,22 +20,33 @@ function gsrtcApiPlugin(): Plugin {
           req.on('end', async () => {
             try {
               const rawBody = Buffer.concat(chunks).toString('utf-8');
-              const { imageBase64, mimeType } = JSON.parse(rawBody);
+              const { imageBase64, mimeType, width, height } = JSON.parse(rawBody);
               if (!imageBase64) {
                 res.statusCode = 400;
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify({ error: 'Missing imageBase64' }));
                 return;
               }
-              const extractedData = await extractDCCFromImage(imageBase64, mimeType);
+              const result = await extractDCCFromImage(imageBase64, mimeType, width, height);
               res.statusCode = 200;
               res.setHeader('Content-Type', 'application/json');
-              res.end(JSON.stringify({ success: true, data: extractedData }));
+              if (!result) {
+                res.end(JSON.stringify({ success: false, needClientOcr: true }));
+              } else {
+                res.end(
+                  JSON.stringify({
+                    success: true,
+                    data: result.data,
+                    matchedFieldsCount: result.matchedFieldsCount,
+                    engine: result.engine,
+                  })
+                );
+              }
             } catch (err: any) {
               console.error('API Extract Error:', err);
               res.statusCode = 500;
               res.setHeader('Content-Type', 'application/json');
-              res.end(JSON.stringify({ error: err.message || 'Failed to extract data' }));
+              res.end(JSON.stringify({ error: err.message || 'Failed to extract data', needClientOcr: true }));
             }
           });
           return;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Calculator, CheckCircle2, ArrowRight } from 'lucide-react';
 import { DCCRecord } from '../types';
 import { formatIndianInteger } from '../utils/numberToWords';
@@ -54,6 +54,9 @@ export const QuickEntryModal: React.FC<QuickEntryModalProps> = ({
   const [policeWarrant, setPoliceWarrant] = useState(
     currentRecord.deductionItems.find(d => d.titleEn.includes('Police Moter Warrent'))?.amount || 0
   );
+  const [awardTeacher, setAwardTeacher] = useState(
+    currentRecord.deductionItems.find(d => d.titleEn.includes('Award Winner Teacher'))?.amount || 0
+  );
 
   // Holiday DRM & Adjustments
   const [holidayDrm, setHolidayDrm] = useState(Number(currentRecord.drmSlip.drm) || 0);
@@ -61,11 +64,33 @@ export const QuickEntryModal: React.FC<QuickEntryModalProps> = ({
   const [ccRefund, setCcRefund] = useState(Number(currentRecord.ccRefund) || 0);
   const [g12Amount, setG12Amount] = useState(Number(currentRecord.g12Amount) || 0);
 
+  // Keep form synced with latest currentRecord whenever opened
+  useEffect(() => {
+    if (isOpen) {
+      setDate(currentRecord.date);
+      setPassangerIntra(currentRecord.revenueItems.find(r => r.titleEn.includes('Passanger Amount Intra'))?.amount || 0);
+      setSleeperCharge(currentRecord.revenueItems.find(r => r.titleEn.includes('Sleeper Charge'))?.amount || 0);
+      setInterState(currentRecord.revenueItems.find(r => r.titleEn.includes('Inter State'))?.amount || 0);
+      setTollTax(currentRecord.revenueItems.find(r => r.titleEn.includes('Toll Amount Gujrat'))?.amount || 0);
+      setDhabha(currentRecord.revenueItems.find(r => r.titleEn.includes('Dhabha Collection'))?.amount || 0);
+      setLuggage(currentRecord.revenueItems.find(r => r.titleEn.includes('Luggage'))?.amount || 0);
+      setDigitalTransfer(currentRecord.deductionItems.find(d => d.titleEn.includes('Digital transaction'))?.amount || 0);
+      setDivyangConcession(currentRecord.deductionItems.find(d => d.titleEn.includes('Other Uncollected Concession'))?.amount || 0);
+      setUncollectedSleeper(currentRecord.deductionItems.find(d => d.titleEn.includes('Uncollected Sleeper'))?.amount || 0);
+      setPoliceWarrant(currentRecord.deductionItems.find(d => d.titleEn.includes('Police Moter Warrent'))?.amount || 0);
+      setAwardTeacher(currentRecord.deductionItems.find(d => d.titleEn.includes('Award Winner Teacher'))?.amount || 0);
+      setHolidayDrm(Number(currentRecord.drmSlip.drm) || 0);
+      setDiwaliExtra(Number(currentRecord.diwaliExtra) || 0);
+      setCcRefund(Number(currentRecord.ccRefund) || 0);
+      setG12Amount(Number(currentRecord.g12Amount) || 0);
+    }
+  }, [isOpen, currentRecord]);
+
   if (!isOpen) return null;
 
   // Live Calculations according to GSRTC rules
   const grossTotalRev = passangerIntra + sleeperCharge + interState + tollTax + dhabha + luggage;
-  const grossTotalDed = digitalTransfer + divyangConcession + uncollectedSleeper + policeWarrant;
+  const grossTotalDed = digitalTransfer + divyangConcession + uncollectedSleeper + policeWarrant + awardTeacher;
   const netPosCash = grossTotalRev - grossTotalDed;
 
   // Head 101 A: (1 + 2 + 3) - 12 - 5 - 13
@@ -92,6 +117,7 @@ export const QuickEntryModal: React.FC<QuickEntryModalProps> = ({
       if (item.titleEn.includes('Other Uncollected Concession')) return { ...item, amount: divyangConcession };
       if (item.titleEn.includes('Uncollected Sleeper')) return { ...item, amount: uncollectedSleeper };
       if (item.titleEn.includes('Police Moter Warrent')) return { ...item, amount: policeWarrant };
+      if (item.titleEn.includes('Award Winner Teacher')) return { ...item, amount: awardTeacher };
       return item;
     });
 
@@ -346,6 +372,19 @@ export const QuickEntryModal: React.FC<QuickEntryModalProps> = ({
                   type="number"
                   value={policeWarrant || ''}
                   onChange={(e) => setPoliceWarrant(Number(e.target.value) || 0)}
+                  className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 font-mono font-bold text-slate-900"
+                  placeholder="0"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] text-slate-600 font-medium mb-1">
+                  ૩. એવોર્ડ વિનિંગ ટીચર (620 E Teacher)
+                </label>
+                <input
+                  type="number"
+                  value={awardTeacher || ''}
+                  onChange={(e) => setAwardTeacher(Number(e.target.value) || 0)}
                   className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 font-mono font-bold text-slate-900"
                   placeholder="0"
                 />

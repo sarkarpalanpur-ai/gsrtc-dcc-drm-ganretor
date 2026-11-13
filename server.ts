@@ -20,18 +20,26 @@ app.get('/health', (_req, res) => {
   res.send('OK');
 });
 
-// Server-side AI OCR extraction endpoint
+// Server-side AI / Tesseract OCR extraction endpoint
 app.post('/api/extract', async (req, res) => {
   try {
-    const { imageBase64, mimeType } = req.body;
+    const { imageBase64, mimeType, width, height } = req.body;
     if (!imageBase64) {
       return res.status(400).json({ error: 'Missing imageBase64' });
     }
-    const extractedData = await extractDCCFromImage(imageBase64, mimeType);
-    res.json({ success: true, data: extractedData });
+    const result = await extractDCCFromImage(imageBase64, mimeType, width, height);
+    if (!result) {
+      return res.json({ success: false, needClientOcr: true });
+    }
+    res.json({
+      success: true,
+      data: result.data,
+      matchedFieldsCount: result.matchedFieldsCount,
+      engine: result.engine,
+    });
   } catch (err: any) {
     console.error('API Extract Error:', err);
-    res.status(500).json({ error: err.message || 'Failed to extract data' });
+    res.status(500).json({ error: err.message || 'Failed to extract data', needClientOcr: true });
   }
 });
 

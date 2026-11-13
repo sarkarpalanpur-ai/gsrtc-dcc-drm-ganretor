@@ -1,61 +1,194 @@
 import { GoogleGenAI } from '@google/genai';
+import { createWorker, PSM } from 'tesseract.js';
 import { DCCRecord } from '../src/types';
-import { createSuratCityRecord, createBlankRecord, getYesterdayDateString, getTodayDateString } from '../src/utils/defaultData';
+import { parseGSRTCDccOcrText, ParsedOCRResult } from '../src/utils/ocrParser';
+
+function getImageDimensionsFromBuffer(buf: Buffer): { width: number; height: number } | null {
+  try {
+    // PNG: signature 89 50 4E 47, IHDR width@16 height@20 (big-endian uint32)
+    if (buf.length >= 24 && buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) {
+      return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) };
+    }
+    // JPEG: scan for SOF0..SOF3 / SOF5..SOF15 markers (skip DHT 0xC4, DAC 0xCC, JPG 0xC8)
+    if (buf.length >= 4 && buf[0] === 0xff && buf[1] === 0xd8) {
+      let offset = 2;
+      while (offset + 9 < buf.length) {
+        if (buf[offset] !== 0xff) {
+          offset++;
+          continue;
+        }
+        const marker = buf[offset + 1];
+        if (marker === 0xd8 || marker === 0x01 || (marker >= 0xd0 && marker <= 0xd9)) {
+          offset += 2;
+          continue;
+        }
+        const segLen = buf.readUInt16BE(offset + 2);
+        const isSof =
+          (marker >= 0xc0 && marker <= 0xc3) ||
+          (marker >= 0xc5 && marker <= 0xc7) ||
+          (marker >= 0xc9 && marker <= 0xcb) ||
+          (marker >= 0xcd && marker <= 0xcf);
+        if (isSof && offset + 9 < buf.length) {
+          const height = buf.readUInt16BE(offset + 5);
+          const width = buf.readUInt16BE(offset + 7);
+          return { width, height };
+        }
+        if (segLen < 2) break;
+        offset += 2 + segLen;
+      }
+    }
+  } catch {
+    // Fallback to client dimensions or full-frame scan
+  }
+  return null;
+}
+
+function scoreOcrCandidate(res: ParsedOCRResult): number {
+  const revSum = res.record.revenueItems.reduce((s, r) => s + r.amount, 0);
+  const dedSum = res.record.deductionItems.reduce((s, d) => s + d.amount, 0);
+  let score = res.matchedFieldsCount;
+  if (res.printedTotalRevenue !== undefined && Math.abs(res.printedTotalRevenue - revSum) < 1) {
+    score += 50;
+  }
+  if (res.printedTotalDeduction !== undefined && Math.abs(res.printedTotalDeduction - dedSum) < 1) {
+    score += 50;
+  }
+  return score;
+}
+
+async function extractWithServerTesseract(
+  base64Data: string,
+  widthHint?: number,
+  heightHint?: number
+): Promise<{ record: Partial<DCCRecord>; matchedFieldsCount: number } | null> {
+  const imageBuffer = Buffer.from(base64Data, 'base64');
+  const dims =
+    widthHint && heightHint
+      ? { width: Math.round(widthHint), height: Math.round(heightHint) }
+      : getImageDimensionsFromBuffer(imageBuffer);
+
+  const worker = await createWorker('eng');
+  try {
+    const candidates: ParsedOCRResult[] = [];
+
+    if (dims && dims.width >= dims.height * 1.1) {
+      await worker.setParameters({ tessedit_pageseg_mode: PSM.SINGLE_COLUMN });
+
+      // Pass A: Official Omnificent 56/44 column layout (left 0..56.4%, right 55.8%..100%)
+      const leftA = await worker.recognize(imageBuffer, {
+        rectangle: {
+          left: 0,
+          top: 0,
+          width: Math.round(dims.width * 0.564),
+          height: dims.height,
+        },
+      });
+      const rightStartA = Math.round(dims.width * 0.558);
+      const rightA = await worker.recognize(imageBuffer, {
+        rectangle: {
+          left: rightStartA,
+          top: 0,
+          width: dims.width - rightStartA,
+          height: dims.height,
+        },
+      });
+      const passA = parseGSRTCDccOcrText(`${leftA.data.text}\n${rightA.data.text}`);
+      candidates.push(passA);
+
+      // Pass B: If Pass A did not already verify both totals against printed totals, try symmetric 50/50 split
+      if (scoreOcrCandidate(passA) < 100) {
+        const leftB = await worker.recognize(imageBuffer, {
+          rectangle: {
+            left: 0,
+            top: 0,
+            width: Math.round(dims.width * 0.505),
+            height: dims.height,
+          },
+        });
+        const rightStartB = Math.round(dims.width * 0.495);
+        const rightB = await worker.recognize(imageBuffer, {
+          rectangle: {
+            left: rightStartB,
+            top: 0,
+            width: dims.width - rightStartB,
+            height: dims.height,
+          },
+        });
+        candidates.push(parseGSRTCDccOcrText(`${leftB.data.text}\n${rightB.data.text}`));
+      }
+    }
+
+    const currentTopScore = candidates.reduce((max, c) => Math.max(max, scoreOcrCandidate(c)), -1);
+    if (candidates.length === 0 || currentTopScore < 4) {
+      await worker.setParameters({ tessedit_pageseg_mode: PSM.SINGLE_BLOCK });
+      const fullRes = await worker.recognize(imageBuffer);
+      candidates.push(parseGSRTCDccOcrText(fullRes.data.text));
+    }
+
+    let bestResult: ParsedOCRResult | null = null;
+    let bestScore = -1;
+    for (const cand of candidates) {
+      const s = scoreOcrCandidate(cand);
+      if (s > bestScore) {
+        bestScore = s;
+        bestResult = cand;
+      }
+    }
+
+    if (!bestResult || bestResult.matchedFieldsCount < 3) {
+      return null;
+    }
+
+    return {
+      record: bestResult.record,
+      matchedFieldsCount: bestResult.matchedFieldsCount,
+    };
+  } finally {
+    await worker.terminate();
+  }
+}
 
 export async function extractDCCFromImage(
   imageBase64: string,
-  mimeType: string = 'image/jpeg'
-): Promise<Partial<DCCRecord>> {
-  const apiKey = process.env.GEMINI_API_KEY;
-
-  if (!apiKey) {
-    console.warn('GEMINI_API_KEY is not set. Returning Surat City record with collection date.');
-    const yesterdayColl = getYesterdayDateString();
-    return createSuratCityRecord(yesterdayColl);
+  mimeType: string = 'image/jpeg',
+  width?: number,
+  height?: number
+): Promise<{ data: Partial<DCCRecord>; matchedFieldsCount?: number; engine: 'gemini' | 'server-ocr' } | null> {
+  let cleanData = imageBase64;
+  if (cleanData.includes('base64,')) {
+    cleanData = cleanData.split('base64,')[1];
   }
 
-  const ai = new GoogleGenAI({
-    apiKey: apiKey,
-    httpOptions: {
-      headers: {
-        'User-Agent': 'aistudio-build',
-      },
-    },
-  });
+  const apiKey = process.env.GEMINI_API_KEY;
 
-  const prompt = `
+  if (apiKey) {
+    const ai = new GoogleGenAI({
+      apiKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        },
+      },
+    });
+
+    const prompt = `
 You are an expert OCR, accounting, and auditing assistant for GSRTC (Gujarat State Road Transport Corporation / ગુજરાત રાજ્ય માર્ગ વાહન વ્યવહાર નિગમ, સુરત વિભાગ).
 Analyze this photo of the official GSRTC "DAILY CASH COLLECTION SUMMARY" (કમ્પ્યુટર પ્રિન્ટ ડી.સી.સી. સમરી) or cashier sheet.
 
-FROM THIS SINGLE PHOTO OF THE DCC SUMMARY, YOU MUST EXTRACT AND COMPUTE ALL DETAILS NEEDED TO AUTO-FILL:
-1. The English DCC Summary (14 Revenue heads, 13 Deduction heads, State-wise summary, GST, POS Cash)
-2. The Traditional Gujarati DCC Summary (Account heads 101 A, 102 C, 105, 110 D, 140 K, 102 H, 620, etc.)
-3. The DRM (Daily Revenue Memo - SBI Bank Remittance Memo with Net Cash and Words)
-
-Look carefully at the photo for:
-- Date (DD/MM/YYYY)
-- Division: SURAT DIVISION
-- Depot: SURAT CITY DEPOT / SURAT CITY-2
-- Depot Code: CODE O 72123 (FROM NO A508)
-- Revenue items (Passanger Amount Intra, Sleeper, Inter State, Luggage, Toll Gujarat, Toll Other, Insurance, HR Surcharge, Excess, Dhabha Collection, Misc, GST, Penalties)
-- Deduction items (Police Motor Warrant, Journalist, Award Winner Teacher, Employee Coupon, Other Uncollected Concession / Divyang, Toll Gate, Bus Stand Fee, Refund, Misc Expenses, Short Amount, Uncollected GST, Digital transaction Amount, Uncollected Sleeper)
-- Total Revenue, Total Deduction, Total Cash To Be Deposited (P.O.S)
+FROM THIS SINGLE PHOTO OF THE DCC SUMMARY, EXTRACT EXACTLY WHAT IS PRINTED IN THIS IMAGE ONLY (use 0 if empty or absent):
+- Collection For the Date (DD/MM/YYYY)
+- Report Generated Time
+- All 14 Revenue items
+- All 13 Deduction items
 - Advance Booking Amount
 - State wise breakdown (Gujarat, Delhi, Maharashtra, Union Territory, Madhya Pradesh, Rajasthan)
-- GST details (Collected Cash, Uncollected Cash, Collected Digital, Uncollected Digital)
-- Special Adjustments (either printed or handwritten at bottom / notes):
-  * CC REFUND / સી.સી. રીફંડ (e.g. 20,592)
-  * CC AMOUNT / સી.સી. ડિપોઝીટ / CC DIPODIT (e.g. 0)
-  * DIWALI EXTRA / દીવાલી એક્સ્ટ્રા / DIWALI EXT (e.g. 35,100)
-  * DIWALI REFUND / દીવાલી રીફંડ (e.g. 0)
-  * DRM / G12 amounts (if any)
-- Net SBI Remittance Formula:
-  DRM matches Total Cash To Be Deposited (P.O.S):
-  Total Revenue - Total Deductions = Total Cash To Be Deposited = DRM (e.g. 184693)
+- GST details
+- Special Adjustments if present (CC Refund, CC Amount, Diwali Extra, Diwali Refund, G12 Amount, G12 Number)
 
-Return ONLY valid JSON matching this structure. Extract numbers strictly from the image provided (use 0 if absent):
+Return ONLY valid JSON matching this structure:
 {
   "date": "DD/MM/YYYY",
+  "reportGeneratedTime": "",
   "division": "SURAT DIVISION",
   "depot": "SURAT CITY DEPOT",
   "depotCityNum": "SURAT CITY-2",
@@ -126,40 +259,45 @@ Return ONLY valid JSON matching this structure. Extract numbers strictly from th
 }
 `;
 
-  // Clean base64 string
-  let cleanData = imageBase64;
-  if (cleanData.includes('base64,')) {
-    cleanData = cleanData.split('base64,')[1];
-  }
-
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
-      contents: [
-        {
-          inlineData: {
-            mimeType: mimeType || 'image/jpeg',
-            data: cleanData,
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-3.8-flash',
+        contents: [
+          {
+            inlineData: {
+              mimeType: mimeType || 'image/jpeg',
+              data: cleanData,
+            },
           },
+          { text: prompt },
+        ],
+        config: {
+          responseMimeType: 'application/json',
         },
-        {
-          text: prompt,
-        },
-      ],
-      config: {
-        responseMimeType: 'application/json',
-      },
-    });
+      });
 
-    const text = response.text;
-    if (!text) {
-      throw new Error('Empty response from Gemini');
+      const text = response.text;
+      if (text) {
+        return { data: JSON.parse(text), engine: 'gemini' };
+      }
+    } catch (err) {
+      console.error('Gemini extraction error, falling back to server OCR:', err);
     }
-
-    const parsed = JSON.parse(text);
-    return parsed;
-  } catch (err) {
-    console.error('Error extracting with Gemini:', err);
-    throw err;
   }
+
+  // Server-side local Tesseract OCR (works without external CDN or GEMINI_API_KEY)
+  try {
+    const ocrRes = await extractWithServerTesseract(cleanData, width, height);
+    if (ocrRes) {
+      return {
+        data: ocrRes.record,
+        matchedFieldsCount: ocrRes.matchedFieldsCount,
+        engine: 'server-ocr',
+      };
+    }
+  } catch (ocrErr) {
+    console.error('Server Tesseract OCR error:', ocrErr);
+  }
+
+  return null;
 }

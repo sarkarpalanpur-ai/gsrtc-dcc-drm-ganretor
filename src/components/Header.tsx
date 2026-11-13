@@ -108,29 +108,18 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={onNewTodayReport}
             className="flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 px-3 py-1.5 rounded-lg text-xs font-bold shadow-md transition transform active:scale-95 cursor-pointer font-gujarati"
-            title="Create fresh report for today (આજનો નવો રિપોર્ટ)"
+            title="નવો રિપોર્ટ ફોટો અથવા આંકડા વડે બનાવો"
           >
-            <span>➕ આજનો નવો રિપોર્ટ</span>
+            <span>➕ નવો રિપોર્ટ (ફોટો / આંકડા)</span>
           </button>
-
-          {/* Quick Entry Button */}
-          {onOpenQuickEntry && (
-            <button
-              onClick={onOpenQuickEntry}
-              className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-md transition transform active:scale-95 cursor-pointer font-gujarati"
-              title="નવી તારીખ અને મુખ્ય રકમ ઝડપથી દાખલ કરો"
-            >
-              <span>⚡ ઝડપી એન્ટ્રી</span>
-            </button>
-          )}
 
           {/* AI Scanner Button */}
           <button
             onClick={onOpenScanner}
-            className="flex items-center gap-1.5 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-md transition transform active:scale-95 cursor-pointer"
+            className="flex items-center gap-1.5 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-md transition transform active:scale-95 cursor-pointer font-gujarati"
           >
             <Camera className="w-4 h-4 text-amber-300" />
-            <span>ફોટો સ્કેન (AI)</span>
+            <span>📸 રિપોર્ટ સ્કેનર & કેલ્ક્યુલેટર</span>
           </button>
 
           {/* Export to Excel */}
