@@ -86,31 +86,31 @@ export const DCCSummaryGujarati: React.FC<DCCSummaryGujaratiProps> = ({
 
       {/* Main 2-column table */}
       <div className="border-b-2 border-black flex-1">
-        <div className="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 print-cols-2 divide-y md:divide-y-0 print:divide-y-0 md:divide-x-2 print:divide-x-2 divide-black">
+        <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] print:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] print-cols-2 divide-y md:divide-y-0 print:divide-y-0 md:divide-x-2 print:divide-x-2 divide-black">
           {/* LEFT: આવક (Revenue / Incomes) */}
-          <div>
-            <table className="w-full text-xs print:text-[11.5px] border-collapse">
+          <div className="min-w-0">
+            <table className="w-full table-fixed text-xs print:text-[11px] border-collapse">
               <thead>
                 <tr className="border-b-2 border-black bg-slate-100 font-bold">
-                  <th className="w-8 border-r border-black py-1.5 print:py-1.5 px-1 text-center">ક્રમ</th>
-                  <th className="w-16 border-r border-black py-1.5 print:py-1.5 px-1 text-center">એકા. હેડ નં.</th>
-                  <th className="border-r border-black py-1.5 print:py-1.5 px-2 text-left">વિગત</th>
-                  <th className="w-24 py-1.5 print:py-1.5 px-2 text-right">રકમ રૂ.</th>
+                  <th className="w-7 border-r border-black py-1.5 print:py-1 px-0.5 text-center">ક્રમ</th>
+                  <th className="w-14 border-r border-black py-1.5 print:py-1 px-0.5 text-center">એકા. હેડ નં.</th>
+                  <th className="border-r border-black py-1.5 print:py-1 px-1.5 text-left">વિગત</th>
+                  <th className="w-20 sm:w-24 print:w-20 py-1.5 print:py-1 px-1.5 text-right">રકમ રૂ.</th>
                 </tr>
               </thead>
               <tbody>
                 {record.gujaratiIncomes.map((item, idx) => (
                   <tr key={item.id || idx} className="border-b border-slate-300 hover:bg-amber-50/50">
-                    <td className="border-r border-black py-1.5 print:py-1.5 px-1 text-center font-mono text-[11px] print:text-[11px] text-slate-600">
+                    <td className="border-r border-black py-1.5 print:py-1 px-0.5 text-center font-mono text-[11px] print:text-[11px] text-slate-600">
                       {idx + 1}
                     </td>
-                    <td className="border-r border-black py-1.5 print:py-1.5 px-1 text-center font-mono font-bold text-xs print:text-[11.5px]">
+                    <td className="border-r border-black py-1.5 print:py-1 px-0.5 text-center font-mono font-bold text-xs print:text-[11px]">
                       {item.headNo || '-'}
                     </td>
-                    <td className="border-r border-black py-1.5 print:py-1.5 px-2 text-xs print:text-[11.5px] font-semibold text-slate-900">
+                    <td className="border-r border-black py-1.5 print:py-1 px-1.5 text-xs print:text-[11px] font-semibold text-slate-900 break-words">
                       {item.titleGu}
                     </td>
-                    <td className="py-0 px-1 text-right">
+                    <td className="py-0 px-1.5 text-right">
                       {isPrintMode ? (
                         <span className="font-mono font-bold text-xs print:text-xs tabular-nums">
                           {item.amount > 0 ? formatIndianInteger(item.amount) : ''}
@@ -145,30 +145,30 @@ export const DCCSummaryGujarati: React.FC<DCCSummaryGujaratiProps> = ({
           </div>
 
           {/* RIGHT: કપાત & અન્ય આવક & DRM સ્લિપ */}
-          <div className="flex flex-col justify-between">
+          <div className="min-w-0 flex flex-col justify-between">
             <div>
-              <table className="w-full text-xs print:text-[11.5px] border-collapse">
+              <table className="w-full table-fixed text-xs print:text-[11px] border-collapse">
                 <thead>
                   <tr className="border-b-2 border-black bg-slate-100 font-bold">
-                    <th className="w-8 border-r border-black py-1.5 print:py-1.5 px-1 text-center">ક્રમ</th>
-                    <th className="w-16 border-r border-black py-1.5 print:py-1.5 px-1 text-center">એકા. હેડ નં.</th>
-                    <th className="border-r border-black py-1.5 print:py-1.5 px-2 text-left">વિગત</th>
-                    <th className="w-24 py-1.5 print:py-1.5 px-2 text-right">રકમ રૂ.</th>
+                    <th className="w-7 border-r border-black py-1.5 print:py-1 px-0.5 text-center">ક્રમ</th>
+                    <th className="w-14 border-r border-black py-1.5 print:py-1 px-0.5 text-center">એકા. હેડ નં.</th>
+                    <th className="border-r border-black py-1.5 print:py-1 px-1.5 text-left">વિગત</th>
+                    <th className="w-20 sm:w-24 print:w-20 py-1.5 print:py-1 px-2 pr-2.5 print:pr-3 text-right">રકમ રૂ.</th>
                   </tr>
                 </thead>
                 <tbody>
                   {record.gujaratiDeductions.map((item, idx) => (
                     <tr key={item.id || idx} className="border-b border-slate-300 hover:bg-amber-50/50">
-                      <td className="border-r border-black py-1.5 print:py-1.5 px-1 text-center font-mono text-[11px] print:text-[11px] text-slate-600">
+                      <td className="border-r border-black py-1.5 print:py-1 px-0.5 text-center font-mono text-[11px] print:text-[11px] text-slate-600">
                         {idx + 1}
                       </td>
-                      <td className="border-r border-black py-1.5 print:py-1.5 px-1 text-center font-mono font-bold text-xs print:text-[11.5px]">
+                      <td className="border-r border-black py-1.5 print:py-1 px-0.5 text-center font-mono font-bold text-xs print:text-[11px]">
                         {item.headNo || '-'}
                       </td>
-                      <td className="border-r border-black py-1.5 print:py-1.5 px-2 text-xs print:text-[11.5px] font-semibold text-slate-900">
+                      <td className="border-r border-black py-1.5 print:py-1 px-1.5 text-xs print:text-[11px] font-semibold text-slate-900 break-words">
                         {item.titleGu}
                       </td>
-                      <td className="py-0 px-1 text-right">
+                      <td className="py-0 px-1.5 pr-2.5 print:pr-3 text-right">
                         {isPrintMode ? (
                           <span className="font-mono font-bold text-xs print:text-xs tabular-nums">
                             {item.amount > 0 ? formatIndianInteger(item.amount) : '0'}
@@ -188,7 +188,7 @@ export const DCCSummaryGujarati: React.FC<DCCSummaryGujaratiProps> = ({
               </table>
 
               {/* Total Deductions: બ. કુલ કપાત (બ) */}
-              <div className="flex items-center justify-between px-3 py-1.5 print:py-0.5 print:px-2 bg-slate-100 border-b-2 border-t border-black font-bold text-xs sm:text-sm print:text-xs">
+              <div className="flex items-center justify-between px-3 pr-3.5 py-1.5 print:py-0.5 print:px-2 print:pr-3 bg-slate-100 border-b-2 border-t border-black font-bold text-xs sm:text-sm print:text-xs">
                 <div className="flex items-center gap-2">
                   <span className="w-5 h-5 rounded-full bg-slate-700 text-white flex items-center justify-center text-xs">
                     બ
@@ -205,20 +205,20 @@ export const DCCSummaryGujarati: React.FC<DCCSummaryGujaratiProps> = ({
                 <div className="bg-slate-50 font-bold px-3 py-1 border-b border-black text-xs">
                   અન્ય આવક (Other Income)
                 </div>
-                <table className="w-full text-xs">
+                <table className="w-full table-fixed text-xs">
                   <tbody>
                     {record.gujaratiOtherIncomes.map((item, idx) => (
                       <tr key={item.id || idx} className="border-b border-slate-200">
-                        <td className="w-8 border-r border-black py-1 px-1 text-center font-mono text-[11px]">
+                        <td className="w-7 border-r border-black py-1 px-0.5 text-center font-mono text-[11px]">
                           {idx + 1}
                         </td>
-                        <td className="w-16 border-r border-black py-1 px-1 text-center font-mono text-xs">
+                        <td className="w-14 border-r border-black py-1 px-0.5 text-center font-mono text-xs">
                           {item.headNo || '-'}
                         </td>
-                        <td className="border-r border-black py-1 px-2 text-xs text-slate-800">
+                        <td className="border-r border-black py-1 px-1.5 text-xs text-slate-800 break-words">
                           {item.titleGu}
                         </td>
-                        <td className="w-24 py-0 px-1 text-right">
+                        <td className="w-20 sm:w-24 print:w-20 py-0 px-1.5 pr-2.5 print:pr-3 text-right">
                           {isPrintMode ? (
                             <span className="font-mono text-xs">{item.amount || '0'}</span>
                           ) : (
@@ -234,7 +234,7 @@ export const DCCSummaryGujarati: React.FC<DCCSummaryGujaratiProps> = ({
                     ))}
                   </tbody>
                 </table>
-                <div className="flex items-center justify-between px-3 py-1 bg-slate-100 font-bold text-xs">
+                <div className="flex items-center justify-between px-3 pr-3.5 py-1 print:px-2 print:pr-3 bg-slate-100 font-bold text-xs">
                   <div className="flex items-center gap-2">
                     <span className="w-4 h-4 rounded-full bg-slate-600 text-white flex items-center justify-center text-[10px]">
                       ક
@@ -246,7 +246,7 @@ export const DCCSummaryGujarati: React.FC<DCCSummaryGujaratiProps> = ({
               </div>
 
               {/* Net Bank Remittance: બેંકમાં જમાં કરાવેલ ડી.સી.સી. તથા ડી.આર.એમ. ની આવક (અ - બ + ક) */}
-              <div className="p-3 print:p-1.5 bg-amber-50 border-b-2 border-black">
+              <div className="p-3 pr-3.5 print:p-1.5 print:pr-3 bg-amber-50 border-b-2 border-black">
                 <div className="text-xs print:text-[10.5px] font-bold text-slate-800 mb-0.5">
                   બેંકમાં જમાં કરાવેલ ડી.સી.સી. તથા ડી.આર.એમ. ની આવક (અ - બ + ક)
                 </div>
@@ -259,8 +259,8 @@ export const DCCSummaryGujarati: React.FC<DCCSummaryGujaratiProps> = ({
             </div>
 
             {/* DRM Slip Breakdown Table (Exact match to Photo 1 bottom right sticker) */}
-            <div className="p-3 print:p-1 bg-white">
-              <div className="border-2 border-black rounded-lg p-2 print:p-1 max-w-xs ml-auto bg-slate-50 shadow-xs text-xs print:text-[10px]">
+            <div className="p-3 pr-3.5 print:p-1.5 print:pr-3 bg-white">
+              <div className="border-2 border-black rounded-lg p-2 print:p-1.5 max-w-xs ml-auto bg-slate-50 shadow-xs text-xs print:text-[10px]">
                 <div className="text-center font-bold border-b border-black pb-1 mb-1 text-xs">
                   ડી.આર.એમ. સ્લિપ તાળો (DRM Slip)
                 </div>

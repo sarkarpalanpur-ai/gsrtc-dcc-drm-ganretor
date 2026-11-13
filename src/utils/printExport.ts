@@ -17,7 +17,7 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
   const sharedStyles = `
     @page {
       size: A4 portrait;
-      margin: 4mm 4mm 4mm 4mm;
+      margin: 4mm 8mm 4mm 4mm;
     }
     * {
       box-sizing: border-box;
@@ -35,7 +35,7 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
     }
     .page {
       width: 100%;
-      max-width: 202mm;
+      max-width: 196mm;
       min-height: 288mm;
       margin: 0 auto;
       border: 1.5px solid #000000;
@@ -45,6 +45,7 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      overflow: hidden;
     }
     .page-break {
       page-break-after: always;
@@ -53,10 +54,12 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
     table {
       width: 100%;
       border-collapse: collapse;
+      table-layout: fixed;
     }
     th, td {
       border: 1px solid #000000;
       padding: 4.5px 6px;
+      word-wrap: break-word;
     }
     .text-center { text-align: center; }
     .text-right { text-align: right; }
@@ -86,15 +89,16 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
       body { margin: 0 !important; }
       .page {
         border: 2px solid #000000 !important;
-        margin: 0 auto !important;
-        width: 100% !important;
-        max-width: 100% !important;
+        margin: 0 2mm 0 0 !important;
+        width: calc(100% - 2mm) !important;
+        max-width: calc(100% - 2mm) !important;
         min-height: 288mm !important;
         height: 288mm !important;
         display: flex !important;
         flex-direction: column !important;
         justify-content: space-between !important;
         box-sizing: border-box !important;
+        overflow: hidden !important;
       }
     }
   `;
@@ -122,8 +126,8 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
         <span>Report Generated Time : ${record.reportGeneratedTime || '11/07/2026 01:44:42 am'}</span>
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; border-bottom: 2px solid #000;">
-        <div style="border-right: 2px solid #000;">
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border-bottom: 2px solid #000;">
+        <div style="min-width: 0; border-right: 2px solid #000;">
           <table>
             <thead>
               <tr class="bg-gray-200">
@@ -141,19 +145,19 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
             </tbody>
           </table>
         </div>
-        <div>
+        <div style="min-width: 0;">
           <table>
             <thead>
               <tr class="bg-gray-200">
                 <th class="text-left" style="width: 70%;">DEDUCTIONS</th>
-                <th class="text-right">AMOUNT (₹)</th>
+                <th class="text-right" style="padding-right: 10px;">AMOUNT (₹)</th>
               </tr>
             </thead>
             <tbody>
               ${record.deductionItems.map((item, i) => `
                 <tr>
                   <td>${i + 1}. ${item.titleEn}</td>
-                  <td class="text-right font-mono font-bold">${formatIndianNumber(item.amount)}</td>
+                  <td class="text-right font-mono font-bold" style="padding-right: 10px;">${formatIndianNumber(item.amount)}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -161,8 +165,8 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
         </div>
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; border-bottom: 2px solid #000; font-weight: bold;">
-        <div style="border-right: 2px solid #000;">
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border-bottom: 2px solid #000; font-weight: bold;">
+        <div style="min-width: 0; border-right: 2px solid #000;">
           <div style="display: flex; justify-content: space-between; padding: 4px 8px; border-bottom: 1px solid #000; background: #f3f4f6;">
             <span>Total Revenue</span>
             <span class="font-mono">${formatIndianNumber(engTotals.totalRevenue)}</span>
@@ -176,20 +180,20 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
             <span class="font-mono font-bold" style="color: #991b1b; font-size: 13px;">${formatIndianNumber(engTotals.totalCashDeposited)}</span>
           </div>
         </div>
-        <div>
-          <div style="display: flex; justify-content: space-between; padding: 4px 8px; border-bottom: 1px solid #000; background: #f3f4f6;">
+        <div style="min-width: 0;">
+          <div style="display: flex; justify-content: space-between; padding: 4px 10px 4px 8px; border-bottom: 1px solid #000; background: #f3f4f6;">
             <span>Total Deduction</span>
             <span class="font-mono">${formatIndianNumber(engTotals.totalDeductions)}</span>
           </div>
-          <div style="display: flex; justify-content: space-between; padding: 5px 8px;">
+          <div style="display: flex; justify-content: space-between; padding: 5px 10px 5px 8px;">
             <span>Advance Booking Amount</span>
             <span class="font-mono">${formatIndianNumber(record.advanceBookingAmount || 0)}</span>
           </div>
         </div>
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; border-bottom: 2px solid #000;">
-        <div style="border-right: 2px solid #000;">
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border-bottom: 2px solid #000;">
+        <div style="min-width: 0; border-right: 2px solid #000;">
           <div class="bg-gray-200 font-bold text-center" style="padding: 3px; border-bottom: 1px solid #000;">
             STATE WISE INCOME SUMMARY
           </div>
@@ -202,15 +206,15 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
             `).join('')}
           </table>
         </div>
-        <div>
+        <div style="min-width: 0;">
           <div class="bg-gray-200 font-bold text-center" style="padding: 3px; border-bottom: 1px solid #000;">
             GST DETAILS
           </div>
           <table>
-            <tr><td>1) Collected Cash GST</td><td class="text-right font-mono font-bold">${formatIndianNumber(record.gstDetails.collectedCash)}</td></tr>
-            <tr><td>2) Uncollected Cash GST</td><td class="text-right font-mono font-bold">${formatIndianNumber(record.gstDetails.uncollectedCash)}</td></tr>
-            <tr><td>3) Collected Digital GST</td><td class="text-right font-mono font-bold">${formatIndianNumber(record.gstDetails.collectedDigital)}</td></tr>
-            <tr><td>4) Uncollected Digital GST</td><td class="text-right font-mono font-bold">${formatIndianNumber(record.gstDetails.uncollectedDigital)}</td></tr>
+            <tr><td>1) Collected Cash GST</td><td class="text-right font-mono font-bold" style="padding-right: 10px;">${formatIndianNumber(record.gstDetails.collectedCash)}</td></tr>
+            <tr><td>2) Uncollected Cash GST</td><td class="text-right font-mono font-bold" style="padding-right: 10px;">${formatIndianNumber(record.gstDetails.uncollectedCash)}</td></tr>
+            <tr><td>3) Collected Digital GST</td><td class="text-right font-mono font-bold" style="padding-right: 10px;">${formatIndianNumber(record.gstDetails.collectedDigital)}</td></tr>
+            <tr><td>4) Uncollected Digital GST</td><td class="text-right font-mono font-bold" style="padding-right: 10px;">${formatIndianNumber(record.gstDetails.uncollectedDigital)}</td></tr>
           </table>
         </div>
       </div>
@@ -259,24 +263,24 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
         </div>
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; border-bottom: 2px solid #000; flex: 1;">
-        <div style="border-right: 2px solid #000; display: flex; flex-direction: column;">
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border-bottom: 2px solid #000; flex: 1;">
+        <div style="min-width: 0; border-right: 2px solid #000; display: flex; flex-direction: column;">
           <table style="flex: 1;">
             <thead>
               <tr class="bg-gray-200" style="font-size: 12px;">
-                <th style="width: 28px; padding: 5px 3px;">ક્રમ</th>
-                <th style="width: 62px; padding: 5px 3px;">હેડ નં.</th>
-                <th style="padding: 5px 6px;">વિગત</th>
-                <th style="width: 86px; padding: 5px 6px;" class="text-right">રકમ રૂ.</th>
+                <th style="width: 26px; padding: 5px 2px;">ક્રમ</th>
+                <th style="width: 54px; padding: 5px 2px;">હેડ નં.</th>
+                <th style="padding: 5px 5px;">વિગત</th>
+                <th style="width: 78px; padding: 5px 6px;" class="text-right">રકમ રૂ.</th>
               </tr>
             </thead>
             <tbody>
               ${record.gujaratiIncomes.map((item, i) => `
                 <tr style="height: 25.5px;">
-                  <td class="text-center font-mono" style="font-size: 11px; padding: 4.5px 3px;">${i + 1}</td>
-                  <td class="text-center font-mono font-bold" style="font-size: 11.5px; padding: 4.5px 3px;">${item.headNo || '-'}</td>
-                  <td style="font-size: 11.5px; font-weight: 600; padding: 4.5px 6px;">${item.titleGu}</td>
-                  <td class="text-right font-mono font-bold" style="font-size: 12px; padding: 4.5px 6px;">${item.amount > 0 ? formatIndianInteger(item.amount) : ''}</td>
+                  <td class="text-center font-mono" style="font-size: 11px; padding: 4.5px 2px;">${i + 1}</td>
+                  <td class="text-center font-mono font-bold" style="font-size: 11px; padding: 4.5px 2px;">${item.headNo || '-'}</td>
+                  <td style="font-size: 11px; font-weight: 600; padding: 4.5px 5px;">${item.titleGu}</td>
+                  <td class="text-right font-mono font-bold" style="font-size: 11.5px; padding: 4.5px 6px;">${item.amount > 0 ? formatIndianInteger(item.amount) : ''}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -287,29 +291,29 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
           </div>
         </div>
 
-        <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+        <div style="min-width: 0; display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
           <div>
             <table>
               <thead>
                 <tr class="bg-gray-200" style="font-size: 12px;">
-                  <th style="width: 28px; padding: 5px 3px;">ક્રમ</th>
-                  <th style="width: 62px; padding: 5px 3px;">હેડ નં.</th>
-                  <th style="padding: 5px 6px;">વિગત</th>
-                  <th style="width: 86px; padding: 5px 6px;" class="text-right">રકમ રૂ.</th>
+                  <th style="width: 26px; padding: 5px 2px;">ક્રમ</th>
+                  <th style="width: 54px; padding: 5px 2px;">હેડ નં.</th>
+                  <th style="padding: 5px 5px;">વિગત</th>
+                  <th style="width: 80px; padding: 5px 10px 5px 5px;" class="text-right">રકમ રૂ.</th>
                 </tr>
               </thead>
               <tbody>
                 ${record.gujaratiDeductions.map((item, i) => `
                   <tr style="height: 25.5px;">
-                    <td class="text-center font-mono" style="font-size: 11px; padding: 4.5px 3px;">${i + 1}</td>
-                    <td class="text-center font-mono font-bold" style="font-size: 11.5px; padding: 4.5px 3px;">${item.headNo || '-'}</td>
-                    <td style="font-size: 11.5px; font-weight: 600; padding: 4.5px 6px;">${item.titleGu}</td>
-                    <td class="text-right font-mono font-bold" style="font-size: 12px; padding: 4.5px 6px;">${item.amount > 0 ? formatIndianInteger(item.amount) : '0'}</td>
+                    <td class="text-center font-mono" style="font-size: 11px; padding: 4.5px 2px;">${i + 1}</td>
+                    <td class="text-center font-mono font-bold" style="font-size: 11px; padding: 4.5px 2px;">${item.headNo || '-'}</td>
+                    <td style="font-size: 11px; font-weight: 600; padding: 4.5px 5px;">${item.titleGu}</td>
+                    <td class="text-right font-mono font-bold" style="font-size: 11.5px; padding: 4.5px 10px 4.5px 5px;">${item.amount > 0 ? formatIndianInteger(item.amount) : '0'}</td>
                   </tr>
                 `).join('')}
               </tbody>
             </table>
-            <div style="display: flex; justify-content: space-between; padding: 5px 8px; background: #f3f4f6; border-top: 1px solid #000; border-bottom: 2px solid #000; font-weight: bold; font-size: 12px;">
+            <div style="display: flex; justify-content: space-between; padding: 5px 10px 5px 8px; background: #f3f4f6; border-top: 1px solid #000; border-bottom: 2px solid #000; font-weight: bold; font-size: 12px;">
               <span>બ. કુલ કપાત (બ)</span>
               <span class="font-mono" style="font-size: 13px;">${formatIndianInteger(gujTotals.totalB)}</span>
             </div>
@@ -319,14 +323,14 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
               <table>
                 ${record.gujaratiOtherIncomes.map((item, i) => `
                   <tr style="height: 25.5px;">
-                    <td class="text-center font-mono" style="width: 28px; font-size: 11px; padding: 4.5px 3px;">${i + 1}</td>
-                    <td class="text-center font-mono font-bold" style="width: 62px; font-size: 11.5px; padding: 4.5px 3px;">${item.headNo || '-'}</td>
-                    <td style="font-size: 11.5px; font-weight: 600; padding: 4.5px 6px;">${item.titleGu}</td>
-                    <td class="text-right font-mono font-bold" style="width: 86px; font-size: 12px; padding: 4.5px 6px;">${item.amount || '0'}</td>
+                    <td class="text-center font-mono" style="width: 26px; font-size: 11px; padding: 4.5px 2px;">${i + 1}</td>
+                    <td class="text-center font-mono font-bold" style="width: 54px; font-size: 11px; padding: 4.5px 2px;">${item.headNo || '-'}</td>
+                    <td style="font-size: 11px; font-weight: 600; padding: 4.5px 5px;">${item.titleGu}</td>
+                    <td class="text-right font-mono font-bold" style="width: 80px; font-size: 11.5px; padding: 4.5px 10px 4.5px 5px;">${item.amount || '0'}</td>
                   </tr>
                 `).join('')}
               </table>
-              <div style="display: flex; justify-content: space-between; padding: 4px 8px; background: #f3f4f6; font-weight: bold; font-size: 12px; border-top: 1px solid #000;">
+              <div style="display: flex; justify-content: space-between; padding: 4px 10px 4px 8px; background: #f3f4f6; font-weight: bold; font-size: 12px; border-top: 1px solid #000;">
                 <span>ક. કુલ અન્ય આવક (ક)</span>
                 <span class="font-mono" style="font-size: 13px;">${formatIndianInteger(gujTotals.totalC)}</span>
               </div>
@@ -340,8 +344,8 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
             </div>
           </div>
 
-          <div style="padding: 8px 10px;">
-            <div style="border: 2px solid #000; border-radius: 6px; padding: 8px 12px; max-width: 250px; margin-left: auto; background: #f9fafb; font-size: 11px; line-height: 1.5;">
+          <div style="padding: 8px 12px 8px 10px;">
+            <div style="border: 2px solid #000; border-radius: 6px; padding: 8px 12px; max-width: 245px; margin-left: auto; background: #f9fafb; font-size: 11px; line-height: 1.5;">
               <div style="text-align: center; font-weight: bold; border-bottom: 1.5px solid #000; padding-bottom: 3px; margin-bottom: 4px; font-size: 11.5px;">
                 ડી.આર.એમ. સ્લિપ તાળો (DRM Slip)
               </div>
@@ -404,7 +408,7 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
         </div>
       </div>
 
-      <div style="padding: 14px 18px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+      <div style="padding: 14px 22px 14px 16px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
         <div>
           <div style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 12px; font-size: 12.5px;">
             <span>${record.depotCityNum}</span>
@@ -423,36 +427,36 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
           <table style="border: 2px solid #000; margin-bottom: 14px;">
             <tbody>
               <tr>
-                <td style="width: 70%; padding: 9px 12px; font-weight: bold; text-transform: uppercase; border-right: 2px solid #000;">RURAL INCOME</td>
-                <td style="padding: 9px 12px; text-align: right; font-weight: bold; font-size: 15px;" class="font-mono">${formatIndianInteger(record.ruralIncome)}/-</td>
+                <td style="width: 68%; padding: 9px 12px; font-weight: bold; text-transform: uppercase; border-right: 2px solid #000;">RURAL INCOME</td>
+                <td style="width: 32%; padding: 9px 14px 9px 10px; text-align: right; font-weight: bold; font-size: 15px;" class="font-mono">${formatIndianInteger(record.ruralIncome)}/-</td>
               </tr>
               ${record.drmSlip.drm ? `
                 <tr style="background: #fef3c7;">
                   <td style="padding: 7px 12px; font-weight: bold; border-right: 2px solid #000;">PREVIOUS HOLIDAY DRM / રજાનું બાકી DRM</td>
-                  <td style="padding: 7px 12px; text-align: right; font-weight: bold; font-size: 14px;" class="font-mono">${formatIndianInteger(record.drmSlip.drm)}/-</td>
+                  <td style="padding: 7px 14px 7px 10px; text-align: right; font-weight: bold; font-size: 14px;" class="font-mono">${formatIndianInteger(record.drmSlip.drm)}/-</td>
                 </tr>
               ` : ''}
               ${record.urbanIncome > 0 ? `
                 <tr>
                   <td style="padding: 7px 12px; font-weight: bold; border-right: 2px solid #000;">URBAN / LOCAL INCOME</td>
-                  <td style="padding: 7px 12px; text-align: right; font-weight: bold; font-size: 14px;" class="font-mono">${formatIndianInteger(record.urbanIncome)}/-</td>
+                  <td style="padding: 7px 14px 7px 10px; text-align: right; font-weight: bold; font-size: 14px;" class="font-mono">${formatIndianInteger(record.urbanIncome)}/-</td>
                 </tr>
               ` : ''}
               <tr style="background: #eff6ff;">
-                <td style="width: 70%; padding: 9px 12px; font-weight: bold; text-transform: uppercase; border-right: 2px solid #000;">
+                <td style="width: 68%; padding: 9px 12px; font-weight: bold; text-transform: uppercase; border-right: 2px solid #000;">
                   G-12 REMITTANCE ${record.g12Number ? '(VIDE NO. ' + record.g12Number + ')' : '(VIDE NO. ____________)'}
                 </td>
-                <td style="padding: 9px 12px; text-align: right; font-weight: bold; font-size: 15px;" class="font-mono">
+                <td style="padding: 9px 14px 9px 10px; text-align: right; font-weight: bold; font-size: 15px;" class="font-mono">
                   ${record.g12Amount > 0 ? formatIndianInteger(record.g12Amount) + '/-' : '          /-'}
                 </td>
               </tr>
-              <tr style="height: 34px;"><td style="border: 1px solid #000; border-right: 2px solid #000;"></td><td style="border: 1px solid #000; text-align: right; padding-right: 12px; font-size: 14px;" class="font-mono font-bold">/-</td></tr>
-              <tr style="height: 34px;"><td style="border: 1px solid #000; border-right: 2px solid #000;"></td><td style="border: 1px solid #000; text-align: right; padding-right: 12px; font-size: 14px;" class="font-mono font-bold">/-</td></tr>
-              <tr style="height: 34px;"><td style="border: 1px solid #000; border-right: 2px solid #000;"></td><td style="border: 1px solid #000; text-align: right; padding-right: 12px; font-size: 14px;" class="font-mono font-bold">/-</td></tr>
-              <tr style="height: 34px;"><td style="border: 1px solid #000; border-right: 2px solid #000;"></td><td style="border: 1px solid #000; text-align: right; padding-right: 12px; font-size: 14px;" class="font-mono font-bold">/-</td></tr>
+              <tr style="height: 34px;"><td style="border: 1px solid #000; border-right: 2px solid #000;"></td><td style="border: 1px solid #000; text-align: right; padding-right: 14px; font-size: 14px;" class="font-mono font-bold">/-</td></tr>
+              <tr style="height: 34px;"><td style="border: 1px solid #000; border-right: 2px solid #000;"></td><td style="border: 1px solid #000; text-align: right; padding-right: 14px; font-size: 14px;" class="font-mono font-bold">/-</td></tr>
+              <tr style="height: 34px;"><td style="border: 1px solid #000; border-right: 2px solid #000;"></td><td style="border: 1px solid #000; text-align: right; padding-right: 14px; font-size: 14px;" class="font-mono font-bold">/-</td></tr>
+              <tr style="height: 34px;"><td style="border: 1px solid #000; border-right: 2px solid #000;"></td><td style="border: 1px solid #000; text-align: right; padding-right: 14px; font-size: 14px;" class="font-mono font-bold">/-</td></tr>
               <tr class="bg-gray-100" style="border-top: 2px solid #000; font-weight: 900; font-size: 15px;">
                 <td style="padding: 10px 12px; text-align: center; letter-spacing: 2px; border-right: 2px solid #000;">TOTAL</td>
-                <td style="padding: 10px 12px; text-align: right; color: #991b1b;" class="font-mono font-bold">
+                <td style="padding: 10px 14px 10px 10px; text-align: right; color: #991b1b;" class="font-mono font-bold">
                   ${formatIndianInteger(drmTotalAmount)}/-
                 </td>
               </tr>

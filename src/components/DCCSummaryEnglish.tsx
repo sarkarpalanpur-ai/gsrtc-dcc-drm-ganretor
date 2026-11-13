@@ -108,13 +108,13 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
       {/* Two Column Layout: REVENUE and DEDUCTIONS */}
       {/* Two Column Layout: REVENUE and DEDUCTIONS */}
       <div className="border-b-2 border-black">
-        <table className="w-full border-collapse text-xs">
+        <table className="w-full table-fixed border-collapse text-xs">
           <thead>
             <tr className="border-b-2 border-black bg-slate-200">
               <th className="border-r-2 border-black px-3 py-2 print:py-1.5 text-left font-bold uppercase w-1/2 print:text-[11.5px]">
                 REVENUE
               </th>
-              <th className="px-3 py-2 print:py-1.5 text-left font-bold uppercase w-1/2 print:text-[11.5px]">
+              <th className="px-3 pr-3.5 py-2 print:py-1.5 print:pr-4 text-left font-bold uppercase w-1/2 print:text-[11.5px]">
                 DEDUCTIONS
               </th>
             </tr>
@@ -129,12 +129,12 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
                     {/* Revenue Column */}
                     <td className="border-r-2 border-black p-0 align-middle">
                       {rev ? (
-                        <div className="flex items-center justify-between px-2.5 py-2.5 print:py-2 min-h-[30px] print:min-h-[26px] gap-2">
-                          <span className="font-semibold text-slate-800 print:text-[11.5px]">
+                        <div className="flex items-center justify-between px-2.5 py-2.5 print:py-2 min-h-[30px] print:min-h-[26px] gap-1.5">
+                          <span className="font-semibold text-slate-800 print:text-[11.5px] min-w-0 break-words">
                             {idx + 1}. {rev.titleEn}
                           </span>
                           {isPrintMode ? (
-                            <span className="font-mono font-bold tabular-nums print:text-[11.5px]">
+                            <span className="font-mono font-bold tabular-nums print:text-[11.5px] shrink-0">
                               {formatIndianNumber(rev.amount)}
                             </span>
                           ) : (
@@ -143,7 +143,7 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
                               step="any"
                               value={rev.amount === 0 ? '0' : rev.amount}
                               onChange={(e) => handleRevenueChange(idx, parseFloat(e.target.value))}
-                              className="w-28 text-right font-mono font-bold bg-transparent hover:bg-white focus:bg-amber-100 focus:outline-none px-1 rounded border border-transparent focus:border-amber-400 tabular-nums"
+                              className="w-20 sm:w-28 shrink-0 text-right font-mono font-bold bg-transparent hover:bg-white focus:bg-amber-100 focus:outline-none px-1 rounded border border-transparent focus:border-amber-400 tabular-nums"
                             />
                           )}
                         </div>
@@ -153,12 +153,12 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
                     {/* Deduction Column */}
                     <td className="p-0 align-middle">
                       {ded ? (
-                        <div className="flex items-center justify-between px-2.5 py-2.5 print:py-2 min-h-[30px] print:min-h-[26px] gap-2">
-                          <span className="font-semibold text-slate-800 print:text-[11.5px]">
+                        <div className="flex items-center justify-between px-2.5 pr-3.5 py-2.5 print:py-2 print:pr-4 min-h-[30px] print:min-h-[26px] gap-1.5">
+                          <span className="font-semibold text-slate-800 print:text-[11.5px] min-w-0 break-words">
                             {idx + 1}. {ded.titleEn}
                           </span>
                           {isPrintMode ? (
-                            <span className="font-mono font-bold tabular-nums print:text-[11.5px]">
+                            <span className="font-mono font-bold tabular-nums print:text-[11.5px] shrink-0">
                               {formatIndianNumber(ded.amount)}
                             </span>
                           ) : (
@@ -167,7 +167,7 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
                               step="any"
                               value={ded.amount === 0 ? '0' : ded.amount}
                               onChange={(e) => handleDeductionChange(idx, parseFloat(e.target.value))}
-                              className="w-28 text-right font-mono font-bold bg-transparent hover:bg-white focus:bg-amber-100 focus:outline-none px-1 rounded border border-transparent focus:border-amber-400 tabular-nums"
+                              className="w-20 sm:w-28 shrink-0 text-right font-mono font-bold bg-transparent hover:bg-white focus:bg-amber-100 focus:outline-none px-1 rounded border border-transparent focus:border-amber-400 tabular-nums"
                             />
                           )}
                         </div>
@@ -182,8 +182,8 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
       </div>
 
       {/* Summary Box (Total Revenue, Total Deduction, Total Cash Deposited, Advance Booking) */}
-      <div className="border-b-2 border-black grid grid-cols-2 text-xs">
-        <div className="border-r-2 border-black">
+      <div className="border-b-2 border-black grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] text-xs">
+        <div className="min-w-0 border-r-2 border-black">
           <div className="flex items-center justify-between px-3 py-2 print:py-1.5 border-b border-black font-bold bg-slate-100 print:text-[11.5px]">
             <span>Total Revenue</span>
             <span className="font-mono font-extrabold text-sm tabular-nums">
@@ -204,17 +204,17 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
           </div>
         </div>
 
-        <div>
-          <div className="flex items-center justify-between px-3 py-2 print:py-1.5 border-b border-black font-bold bg-slate-100 print:text-[11.5px]">
+        <div className="min-w-0">
+          <div className="flex items-center justify-between px-3 pr-3.5 py-2 print:py-1.5 print:pr-4 border-b border-black font-bold bg-slate-100 print:text-[11.5px]">
             <span>Total Deduction</span>
             <span className="font-mono font-bold tabular-nums">
               {formatIndianNumber(totals.totalDeductions)}
             </span>
           </div>
-          <div className="flex items-center justify-between px-3 py-2.5 print:py-2 font-bold bg-slate-50 print:text-[11.5px]">
-            <span>Advance Booking Amount</span>
+          <div className="flex items-center justify-between px-3 pr-3.5 py-2.5 print:py-2 print:pr-4 font-bold bg-slate-50 print:text-[11.5px] gap-1.5">
+            <span className="min-w-0 break-words">Advance Booking Amount</span>
             {isPrintMode ? (
-              <span className="font-mono font-bold tabular-nums">
+              <span className="font-mono font-bold tabular-nums shrink-0">
                 {formatIndianNumber(record.advanceBookingAmount)}
               </span>
             ) : (
@@ -223,7 +223,7 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
                 step="any"
                 value={record.advanceBookingAmount}
                 onChange={(e) => handleAdvanceBookingChange(parseFloat(e.target.value))}
-                className="w-28 text-right font-mono font-bold bg-transparent hover:bg-white focus:bg-amber-100 focus:outline-none px-1 rounded border border-transparent focus:border-amber-400 tabular-nums"
+                className="w-20 sm:w-28 shrink-0 text-right font-mono font-bold bg-transparent hover:bg-white focus:bg-amber-100 focus:outline-none px-1 rounded border border-transparent focus:border-amber-400 tabular-nums"
               />
             )}
           </div>
@@ -417,9 +417,9 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
       </div>
 
       {/* State Wise Income Summary and GST Details */}
-      <div className="border-b-2 border-black grid grid-cols-1 sm:grid-cols-2 print-cols-2 text-xs">
+      <div className="border-b-2 border-black grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] print-cols-2 text-xs">
         {/* State Wise Income Table */}
-        <div className="border-r-2 border-black">
+        <div className="min-w-0 border-r-2 border-black">
           <div className="bg-slate-200 font-bold px-3 py-1 border-b border-black text-center uppercase">
             STATE WISE INCOME SUMMARY
           </div>
@@ -453,12 +453,12 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
         </div>
 
         {/* GST Details Table */}
-        <div>
-          <div className="bg-slate-200 font-bold px-3 py-1 border-b border-black text-center uppercase">
+        <div className="min-w-0">
+          <div className="bg-slate-200 font-bold px-3 pr-3.5 py-1 border-b border-black text-center uppercase">
             GST Details
           </div>
           <div className="divide-y divide-slate-300">
-            <div className="flex items-center justify-between px-3 py-2 print:py-1.5">
+            <div className="flex items-center justify-between px-3 pr-3.5 py-2 print:py-1.5 print:pr-4">
               <span className="font-semibold print:text-[11px]">1) Collected Cash GST Amt</span>
               {isPrintMode ? (
                 <span className="font-mono font-bold print:text-[11px]">{formatIndianNumber(record.gstDetails.collectedCash)}</span>
@@ -468,11 +468,11 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
                   step="any"
                   value={record.gstDetails.collectedCash}
                   onChange={(e) => handleGSTChange('collectedCash', parseFloat(e.target.value))}
-                  className="w-24 text-right font-mono font-bold bg-transparent hover:bg-white focus:bg-amber-100 rounded px-1"
+                  className="w-20 sm:w-24 text-right font-mono font-bold bg-transparent hover:bg-white focus:bg-amber-100 rounded px-1"
                 />
               )}
             </div>
-            <div className="flex items-center justify-between px-3 py-2 print:py-1.5">
+            <div className="flex items-center justify-between px-3 pr-3.5 py-2 print:py-1.5 print:pr-4">
               <span className="font-semibold print:text-[11px]">2) Uncollected Cash GST Amt</span>
               {isPrintMode ? (
                 <span className="font-mono font-bold print:text-[11px]">{formatIndianNumber(record.gstDetails.uncollectedCash)}</span>
@@ -482,11 +482,11 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
                   step="any"
                   value={record.gstDetails.uncollectedCash}
                   onChange={(e) => handleGSTChange('uncollectedCash', parseFloat(e.target.value))}
-                  className="w-24 text-right font-mono font-bold bg-transparent hover:bg-white focus:bg-amber-100 rounded px-1"
+                  className="w-20 sm:w-24 text-right font-mono font-bold bg-transparent hover:bg-white focus:bg-amber-100 rounded px-1"
                 />
               )}
             </div>
-            <div className="flex items-center justify-between px-3 py-2 print:py-1.5">
+            <div className="flex items-center justify-between px-3 pr-3.5 py-2 print:py-1.5 print:pr-4">
               <span className="font-semibold print:text-[11px]">3) Collected Digital GST Amt</span>
               {isPrintMode ? (
                 <span className="font-mono font-bold print:text-[11px]">{formatIndianNumber(record.gstDetails.collectedDigital)}</span>
@@ -496,11 +496,11 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
                   step="any"
                   value={record.gstDetails.collectedDigital}
                   onChange={(e) => handleGSTChange('collectedDigital', parseFloat(e.target.value))}
-                  className="w-24 text-right font-mono font-bold bg-transparent hover:bg-white focus:bg-amber-100 rounded px-1"
+                  className="w-20 sm:w-24 text-right font-mono font-bold bg-transparent hover:bg-white focus:bg-amber-100 rounded px-1"
                 />
               )}
             </div>
-            <div className="flex items-center justify-between px-3 py-2 print:py-1.5">
+            <div className="flex items-center justify-between px-3 pr-3.5 py-2 print:py-1.5 print:pr-4">
               <span className="font-semibold print:text-[11px]">4) Uncollected Digital GST Amt</span>
               {isPrintMode ? (
                 <span className="font-mono font-bold print:text-[11px]">{formatIndianNumber(record.gstDetails.uncollectedDigital)}</span>
@@ -510,7 +510,7 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
                   step="any"
                   value={record.gstDetails.uncollectedDigital}
                   onChange={(e) => handleGSTChange('uncollectedDigital', parseFloat(e.target.value))}
-                  className="w-24 text-right font-mono font-bold bg-transparent hover:bg-white focus:bg-amber-100 rounded px-1"
+                  className="w-20 sm:w-24 text-right font-mono font-bold bg-transparent hover:bg-white focus:bg-amber-100 rounded px-1"
                 />
               )}
             </div>
