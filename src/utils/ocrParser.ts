@@ -12,6 +12,23 @@ export interface ParsedOCRResult {
 }
 
 /**
+ * Scores a parsed OCR candidate, awarding +50 bonus each when extracted row sums
+ * match the printed Total Revenue or printed Total Deduction on the report.
+ */
+export function scoreOcrCandidate(res: ParsedOCRResult): number {
+  const revSum = res.record.revenueItems.reduce((s, r) => s + r.amount, 0);
+  const dedSum = res.record.deductionItems.reduce((s, d) => s + d.amount, 0);
+  let score = res.matchedFieldsCount;
+  if (res.printedTotalRevenue !== undefined && Math.abs(res.printedTotalRevenue - revSum) < 1) {
+    score += 50;
+  }
+  if (res.printedTotalDeduction !== undefined && Math.abs(res.printedTotalDeduction - dedSum) < 1) {
+    score += 50;
+  }
+  return score;
+}
+
+/**
  * Extracts the numeric amount immediately following the matched row label,
  * ignoring cross-column bleed or leading/trailing noise.
  */

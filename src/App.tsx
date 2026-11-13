@@ -23,8 +23,15 @@ import { Camera, FileSpreadsheet, Printer, CheckCircle, Info } from 'lucide-reac
 export default function App() {
   const [record, setRecord] = useState<DCCRecord>(() => {
     const defaultCollDate = getYesterdayDateString();
+    const STORAGE_VER = '2026-11-13-v2';
 
     try {
+      if (localStorage.getItem('gsrtc_storage_ver') !== STORAGE_VER) {
+        localStorage.removeItem('gsrtc_current_record');
+        localStorage.setItem('gsrtc_storage_ver', STORAGE_VER);
+        return createBlankRecord(defaultCollDate);
+      }
+
       const saved = localStorage.getItem('gsrtc_current_record');
       if (saved) {
         const parsed = JSON.parse(saved);

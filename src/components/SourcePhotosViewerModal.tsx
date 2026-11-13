@@ -11,28 +11,28 @@ const PHOTOS = [
     id: 'photo-today',
     title: 'Photo: DCC Summary Today 11/11/2026',
     titleGu: 'આજનો નવો હિસાબ (૧૧/૧૧/૨૦૨૬)',
-    src: '/assets/aistudio/Screenshot__8__12406596.png',
+    src: './assets/aistudio/Screenshot__8__12406596.png',
     tag: 'Latest Today 11/11'
   },
   {
     id: 'photo-3',
     title: 'Photo 3: DCC Summary (Computer Print)',
     titleGu: 'ડી.સી.સી. સમરી (કમ્પ્યુટર પ્રિન્ટ)',
-    src: '/assets/aistudio/20261107_201715_4b88928c.jpg',
+    src: './assets/aistudio/20261107_201715_4b88928c.jpg',
     tag: 'DCC English Form'
   },
   {
     id: 'photo-1',
     title: 'Photo 1: DCC Summary (Gujarati Traditional)',
     titleGu: 'ડી.સી.સી. સમરી (ગુજરાતી ફોર્મેટ & સ્લિપ)',
-    src: '/assets/aistudio/17940651291415103403549490171358_47414ff8.jpg',
+    src: './assets/aistudio/17940651291415103403549490171358_47414ff8.jpg',
     tag: 'DCC Gujarati Form'
   },
   {
     id: 'photo-2',
     title: 'Photo 2: Daily Revenue Memo (DRM)',
     titleGu: 'ડેઇલી રેવન્યુ મેમો (SBI બેંક ચલણ)',
-    src: '/assets/aistudio/20261107_201652_6b1f74a3.jpg',
+    src: './assets/aistudio/20261107_201652_6b1f74a3.jpg',
     tag: 'DRM Memo'
   }
 ];

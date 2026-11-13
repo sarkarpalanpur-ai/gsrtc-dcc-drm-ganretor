@@ -1,7 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
 import { createWorker, PSM } from 'tesseract.js';
 import { DCCRecord } from '../src/types';
-import { parseGSRTCDccOcrText, ParsedOCRResult } from '../src/utils/ocrParser';
+import { parseGSRTCDccOcrText, ParsedOCRResult, scoreOcrCandidate } from '../src/utils/ocrParser';
 
 function getImageDimensionsFromBuffer(buf: Buffer): { width: number; height: number } | null {
   try {
@@ -41,19 +41,6 @@ function getImageDimensionsFromBuffer(buf: Buffer): { width: number; height: num
     // Fallback to client dimensions or full-frame scan
   }
   return null;
-}
-
-function scoreOcrCandidate(res: ParsedOCRResult): number {
-  const revSum = res.record.revenueItems.reduce((s, r) => s + r.amount, 0);
-  const dedSum = res.record.deductionItems.reduce((s, d) => s + d.amount, 0);
-  let score = res.matchedFieldsCount;
-  if (res.printedTotalRevenue !== undefined && Math.abs(res.printedTotalRevenue - revSum) < 1) {
-    score += 50;
-  }
-  if (res.printedTotalDeduction !== undefined && Math.abs(res.printedTotalDeduction - dedSum) < 1) {
-    score += 50;
-  }
-  return score;
 }
 
 async function extractWithServerTesseract(

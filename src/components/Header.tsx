@@ -40,7 +40,7 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <img
-            src="/assets/aistudio/images_09942867.jpeg"
+            src="./assets/aistudio/images_09942867.jpeg"
             alt="ગુજરાત રાજ્ય માર્ગ વાહન વ્યવહાર નિગમ લોગો"
             className="w-13 h-13 rounded-full object-contain bg-white shadow-md border-2 border-amber-400 p-0.5 shrink-0"
             onError={(e) => {

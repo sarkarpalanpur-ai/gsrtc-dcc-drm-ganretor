@@ -36,19 +36,19 @@ const SAMPLE_PHOTOS = [
     id: 'photo-today-11',
     title: 'Sample: 11/11/2026 Report',
     titleGu: 'નમૂનો ૧: ૧૧/૧૧/૨૦૨૬ રિપોર્ટ (P.O.S ₹1,22,749)',
-    path: '/assets/aistudio/Screenshot__8__12406596.png',
+    path: './assets/aistudio/Screenshot__8__12406596.png',
   },
   {
     id: 'photo-6',
     title: 'Sample: 10/11/2026 Gujarati',
     titleGu: 'નમૂનો ૨: ૧૦/૧૧/૨૦૨૬ પ્રિન્ટ શીટ',
-    path: '/assets/aistudio/Screenshot__6__7967456f.png',
+    path: './assets/aistudio/Screenshot__6__7967456f.png',
   },
   {
     id: 'photo-3',
     title: 'Sample: 06/11/2026 Computer Photo',
     titleGu: 'નમૂનો ૩: ૦૬/૧૧/૨૦૨૬ કેમેરા ફોટો',
-    path: '/assets/aistudio/20261107_201715_4b88928c.jpg',
+    path: './assets/aistudio/20261107_201715_4b88928c.jpg',
   },
 ];
 
