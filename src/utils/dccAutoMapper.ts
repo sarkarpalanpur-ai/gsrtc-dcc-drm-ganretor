@@ -49,11 +49,11 @@ export function autoMapEnglishToGujaratiAndDRM(record: DCCRecord): DCCRecord {
   // 1. Auto-Map Gujarati Incomes (આવક એકાઉન્ટ હેડ):
   const updatedGujaratiIncomes = record.gujaratiIncomes.map((item) => {
     // 101 A મુસાફર આવક:
-    // USER RULE: "101 a ma 1 ane 2 ane 3 plus thay, 12 ane 5 minus thay"
-    // Also minus uncollected sleeper (Item 13) so that Total A - Total B equals EXACTLY Total Cash To Be Deposited!
+    // (1 Passenger Intra + 2 Sleeper Charge) - 12 Digital - 5 Concession - 13 Uncollected Sleeper
+    // Item 3 (Inter State) is placed separately in row 17 (110 D) so Total A - Total B equals EXACTLY Total Cash To Be Deposited!
     if (item.headNo === '101 A' && item.titleGu === 'મુસાફર આવક') {
-      const grossPassenger123 = passengerIntra + sleeperCharge + interState;
-      const netCashPass = grossPassenger123 - digitalTransaction - concessionDivyang - uncollectedSleeper;
+      const grossPassenger12 = passengerIntra + sleeperCharge;
+      const netCashPass = grossPassenger12 - digitalTransaction - concessionDivyang - uncollectedSleeper;
       return { ...item, amount: netCashPass };
     }
     // 101 A ડીજીટલ ટ્રાન્સફર (Deduction 12)
@@ -77,9 +77,9 @@ export function autoMapEnglishToGujaratiAndDRM(record: DCCRecord): DCCRecord {
     if (item.headNo === '102 G' && item.titleGu === 'દિવ્યાંગ') {
       return { ...item, amount: concessionDivyang + uncollectedSleeper };
     }
-    // 110 D ઇન્ટર સ્ટેટ (સંધપ્રદેશ) - Included inside 101 A as per user rule (1 + 2 + 3)
+    // 110 D ઇન્ટર સ્ટેટ (સંધપ્રદેશ) - Row 17: Revenue Item #3 (Inter State Amount)
     if (item.headNo === '110 D') {
-      return { ...item, amount: 0 };
+      return { ...item, amount: interState };
     }
     // 140 K ધાબા કલેક્શન
     if (item.headNo === '140 K' && item.titleGu === 'ધાબા કલેક્શન') {

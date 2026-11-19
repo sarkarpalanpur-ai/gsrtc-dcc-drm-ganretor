@@ -1,7 +1,31 @@
 import { GoogleGenAI } from '@google/genai';
 import { createWorker, PSM } from 'tesseract.js';
 import { DCCRecord } from '../src/types';
-import { parseGSRTCDccOcrText, ParsedOCRResult, scoreOcrCandidate } from '../src/utils/ocrParser';
+import {
+  parseGSRTCDccOcrText,
+  ParsedOCRResult,
+  scoreOcrCandidate,
+  reconstructLinesFromWordBoxes,
+  WordBox,
+} from '../src/utils/ocrParser';
+
+function extractWordBoxes(data: any): WordBox[] {
+  const blocks = data?.blocks;
+  if (!Array.isArray(blocks)) return [];
+  const words: WordBox[] = [];
+  for (const b of blocks) {
+    for (const p of b?.paragraphs || []) {
+      for (const l of p?.lines || []) {
+        for (const w of l?.words || []) {
+          if (w?.text && w?.bbox) {
+            words.push({ text: w.text, bbox: w.bbox });
+          }
+        }
+      }
+    }
+  }
+  return words;
+}
 
 function getImageDimensionsFromBuffer(buf: Buffer): { width: number; height: number } | null {
   try {
@@ -57,58 +81,61 @@ async function extractWithServerTesseract(
   const worker = await createWorker('eng');
   try {
     const candidates: ParsedOCRResult[] = [];
+    const hasBothTotalsVerified = (cand: ParsedOCRResult): boolean => {
+      const revSum = cand.record.revenueItems.reduce((s, r) => s + r.amount, 0);
+      const dedSum = cand.record.deductionItems.reduce((s, d) => s + d.amount, 0);
+      return (
+        cand.printedTotalRevenue !== undefined &&
+        cand.printedTotalRevenue > 0 &&
+        Math.abs(cand.printedTotalRevenue - revSum) < 1 &&
+        cand.printedTotalDeduction !== undefined &&
+        cand.printedTotalDeduction > 0 &&
+        Math.abs(cand.printedTotalDeduction - dedSum) < 1
+      );
+    };
 
     if (dims && dims.width >= dims.height * 1.1) {
       await worker.setParameters({ tessedit_pageseg_mode: PSM.SINGLE_COLUMN });
 
-      // Pass A: Official Omnificent 56/44 column layout (left 0..56.4%, right 55.8%..100%)
-      const leftA = await worker.recognize(imageBuffer, {
-        rectangle: {
-          left: 0,
-          top: 0,
-          width: Math.round(dims.width * 0.564),
-          height: dims.height,
-        },
-      });
-      const rightStartA = Math.round(dims.width * 0.558);
-      const rightA = await worker.recognize(imageBuffer, {
-        rectangle: {
-          left: rightStartA,
-          top: 0,
-          width: dims.width - rightStartA,
-          height: dims.height,
-        },
-      });
-      const passA = parseGSRTCDccOcrText(`${leftA.data.text}\n${rightA.data.text}`);
-      candidates.push(passA);
-
-      // Pass B: If Pass A did not already verify both totals against printed totals, try symmetric 50/50 split
-      if (scoreOcrCandidate(passA) < 100) {
-        const leftB = await worker.recognize(imageBuffer, {
+      for (const [leftRatio, rightRatio] of [
+        [0.566, 0.556],
+        [0.59, 0.54],
+        [0.515, 0.49],
+      ] as const) {
+        const left = await worker.recognize(imageBuffer, {
           rectangle: {
             left: 0,
             top: 0,
-            width: Math.round(dims.width * 0.505),
+            width: Math.round(dims.width * leftRatio),
             height: dims.height,
           },
         });
-        const rightStartB = Math.round(dims.width * 0.495);
-        const rightB = await worker.recognize(imageBuffer, {
+        const rightStart = Math.round(dims.width * rightRatio);
+        const right = await worker.recognize(imageBuffer, {
           rectangle: {
-            left: rightStartB,
+            left: rightStart,
             top: 0,
-            width: dims.width - rightStartB,
+            width: dims.width - rightStart,
             height: dims.height,
           },
         });
-        candidates.push(parseGSRTCDccOcrText(`${leftB.data.text}\n${rightB.data.text}`));
+        const cand = parseGSRTCDccOcrText(`${left.data.text}\n${right.data.text}`);
+        candidates.push(cand);
+        if (hasBothTotalsVerified(cand)) break;
       }
     }
 
-    const currentTopScore = candidates.reduce((max, c) => Math.max(max, scoreOcrCandidate(c)), -1);
-    if (candidates.length === 0 || currentTopScore < 4) {
+    const bestSoFar = candidates.reduce<ParsedOCRResult | null>(
+      (best, c) => (!best || scoreOcrCandidate(c) > scoreOcrCandidate(best) ? c : best),
+      null
+    );
+    if (!bestSoFar || !hasBothTotalsVerified(bestSoFar)) {
       await worker.setParameters({ tessedit_pageseg_mode: PSM.SINGLE_BLOCK });
-      const fullRes = await worker.recognize(imageBuffer);
+      const fullRes = await worker.recognize(imageBuffer, {}, { text: true, blocks: true });
+      const bboxText = reconstructLinesFromWordBoxes(extractWordBoxes(fullRes.data));
+      if (bboxText) {
+        candidates.push(parseGSRTCDccOcrText(bboxText));
+      }
       candidates.push(parseGSRTCDccOcrText(fullRes.data.text));
     }
 
@@ -122,7 +149,11 @@ async function extractWithServerTesseract(
       }
     }
 
-    if (!bestResult || bestResult.matchedFieldsCount < 3) {
+    // If neither total verified and fewer than 6 digit-verified rows matched, let client OCR run with contrast & rotation
+    if (
+      !bestResult ||
+      (!hasBothTotalsVerified(bestResult) && (bestResult.verifiedDigitFieldsCount ?? bestResult.matchedFieldsCount) < 6)
+    ) {
       return null;
     }
 

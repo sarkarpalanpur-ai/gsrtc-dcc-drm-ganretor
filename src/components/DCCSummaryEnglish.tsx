@@ -106,15 +106,14 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
       </div>
 
       {/* Two Column Layout: REVENUE and DEDUCTIONS */}
-      {/* Two Column Layout: REVENUE and DEDUCTIONS */}
-      <div className="border-b-2 border-black">
-        <table className="w-full table-fixed border-collapse text-xs">
+      <div className="border-b-2 border-black print:flex-1 print:flex print:flex-col">
+        <table className="w-full table-fixed border-collapse text-xs print:flex-1 print:h-full">
           <thead>
-            <tr className="border-b-2 border-black bg-slate-200">
-              <th className="border-r-2 border-black px-3 py-2 print:py-1.5 text-left font-bold uppercase w-1/2 print:text-[11.5px]">
+            <tr className="border-b-2 border-black bg-slate-200 print:h-8">
+              <th className="border-r-2 border-black px-3 py-2 print:py-1.5 text-left font-bold uppercase w-1/2 print:text-[12px]">
                 REVENUE
               </th>
-              <th className="px-3 pr-3.5 py-2 print:py-1.5 print:pr-4 text-left font-bold uppercase w-1/2 print:text-[11.5px]">
+              <th className="px-3 pr-3.5 py-2 print:py-1.5 print:pr-4 text-left font-bold uppercase w-1/2 print:text-[12px]">
                 DEDUCTIONS
               </th>
             </tr>
@@ -129,12 +128,12 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
                     {/* Revenue Column */}
                     <td className="border-r-2 border-black p-0 align-middle">
                       {rev ? (
-                        <div className="flex items-center justify-between px-2.5 py-2.5 print:py-2 min-h-[30px] print:min-h-[26px] gap-1.5">
-                          <span className="font-semibold text-slate-800 print:text-[11.5px] min-w-0 break-words">
+                        <div className="flex items-center justify-between px-2.5 py-2.5 print:py-3 print:min-h-[38px] min-h-[30px] gap-1.5">
+                          <span className="font-semibold text-slate-800 print:text-[13.5px] min-w-0 break-words">
                             {idx + 1}. {rev.titleEn}
                           </span>
                           {isPrintMode ? (
-                            <span className="font-mono font-bold tabular-nums print:text-[11.5px] shrink-0">
+                            <span className="font-mono font-bold tabular-nums print:text-[13.5px] shrink-0">
                               {formatIndianNumber(rev.amount)}
                             </span>
                           ) : (
@@ -153,12 +152,12 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
                     {/* Deduction Column */}
                     <td className="p-0 align-middle">
                       {ded ? (
-                        <div className="flex items-center justify-between px-2.5 pr-3.5 py-2.5 print:py-2 print:pr-4 min-h-[30px] print:min-h-[26px] gap-1.5">
-                          <span className="font-semibold text-slate-800 print:text-[11.5px] min-w-0 break-words">
+                        <div className="flex items-center justify-between px-2.5 pr-3.5 py-2.5 print:py-3 print:pr-4 min-h-[30px] print:min-h-[38px] gap-1.5">
+                          <span className="font-semibold text-slate-800 print:text-[13.5px] min-w-0 break-words">
                             {idx + 1}. {ded.titleEn}
                           </span>
                           {isPrintMode ? (
-                            <span className="font-mono font-bold tabular-nums print:text-[11.5px] shrink-0">
+                            <span className="font-mono font-bold tabular-nums print:text-[13.5px] shrink-0">
                               {formatIndianNumber(ded.amount)}
                             </span>
                           ) : (
@@ -519,9 +518,9 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
       </div>
 
       {/* Official Signatures Bar matching Photo 3 */}
-      <div className="p-4 pt-8 print:p-3 print:pt-6 grid grid-cols-2 print-cols-2 gap-4 text-center text-xs font-bold font-gujarati border-b border-black">
+      <div className="p-4 pt-8 print:p-4 print:pt-8 grid grid-cols-2 print-cols-2 gap-4 text-center text-xs font-bold font-gujarati border-b border-black">
         <div className="space-y-1">
-          <div className="h-10 print:h-8 flex items-end justify-center">
+          <div className="h-10 print:h-10 flex items-end justify-center">
             <span className="text-blue-900 italic font-serif text-sm tracking-widest font-normal">
               ટ્રાફિક સુપરવાઈઝર
             </span>
@@ -533,7 +532,7 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
         </div>
 
         <div className="space-y-1">
-          <div className="h-10 flex items-end justify-center">
+          <div className="h-10 print:h-10 flex items-end justify-center">
             <span className="text-blue-900 italic font-serif text-sm tracking-widest font-normal">
               સિનિ. ડેપો મેનેજર 'એ'
             </span>

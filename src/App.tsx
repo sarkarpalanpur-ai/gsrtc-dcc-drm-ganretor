@@ -49,6 +49,12 @@ export default function App() {
           localStorage.removeItem('gsrtc_current_record');
           return createBlankRecord(defaultCollDate);
         }
+        const interStateVal = Number(parsed?.revenueItems?.[2]?.amount) || 0;
+        const row17 = parsed?.gujaratiIncomes?.find((i: any) => i.headNo === '110 D');
+        const row1 = parsed?.gujaratiIncomes?.find((i: any) => i.headNo === '101 A' && i.titleGu === 'મુસાફર આવક');
+        if (interStateVal > 0 && row17 && (Number(row17.amount) || 0) === 0 && row1) {
+          return autoMapEnglishToGujaratiAndDRM(parsed);
+        }
         return parsed;
       }
     } catch (e) {
@@ -434,7 +440,7 @@ export default function App() {
 
         {/* 3-Page Batch Print Mode (when printing all 3 documents sequentially on A4) */}
         {isPrintingAll ? (
-          <div className="space-y-6">
+          <div className="space-y-6 print:space-y-0">
             <div className="print-page-break">
               <DCCSummaryEnglish record={record} onChange={handleEnglishRecordChange} isPrintMode={true} />
             </div>
@@ -449,7 +455,7 @@ export default function App() {
           <>
             {/* Tab 1: DCC Summary (English Computer Print) */}
             {activeTab === 'dcc-en' && (
-              <div className="space-y-4">
+              <div className="space-y-4 print:space-y-0 print:w-full">
                 <div className="no-print bg-blue-50 border border-blue-200 rounded-lg p-2.5 text-xs text-blue-900 flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2 font-medium">
                     <Info className="w-4 h-4 text-blue-600 shrink-0" />
@@ -496,7 +502,7 @@ export default function App() {
 
             {/* Tab 2: DCC Summary (Gujarati Traditional Sheet) */}
             {activeTab === 'dcc-gu' && (
-              <div className="space-y-4">
+              <div className="space-y-4 print:space-y-0 print:w-full">
                 <div className="no-print bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-xs text-amber-900 flex flex-wrap items-center justify-between gap-2 font-gujarati">
                   <div className="flex items-center gap-2 font-medium">
                     <Info className="w-4 h-4 text-amber-600 shrink-0" />
@@ -529,7 +535,7 @@ export default function App() {
 
             {/* Tab 3: Daily Revenue Memo (DRM) */}
             {activeTab === 'drm' && (
-              <div className="space-y-4">
+              <div className="space-y-4 print:space-y-0 print:w-full">
                 <div className="no-print bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 text-xs text-emerald-900 flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2 font-medium">
                     <Info className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -562,7 +568,7 @@ export default function App() {
 
             {/* Tab 4: Cash Denomination Calculator */}
             {activeTab === 'denomination' && (
-              <div className="space-y-4">
+              <div className="space-y-4 print:space-y-0 print:w-full">
                 <div className="no-print bg-purple-50 border border-purple-200 rounded-lg p-2.5 text-xs text-purple-900 flex flex-wrap items-center justify-between gap-2 font-gujarati">
                   <div className="flex items-center gap-2 font-medium">
                     <Info className="w-4 h-4 text-purple-600 shrink-0" />
@@ -591,7 +597,7 @@ export default function App() {
 
       {/* Floating Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2.5 text-xs sm:text-sm font-medium border border-slate-700 animate-bounce">
+        <div className="no-print fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2.5 text-xs sm:text-sm font-medium border border-slate-700 animate-bounce">
           <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
           <span>{toastMessage}</span>
         </div>

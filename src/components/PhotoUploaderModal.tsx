@@ -99,6 +99,8 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
   const [reportGeneratedTime, setReportGeneratedTime] = useState<string>('');
   const [revenueItems, setRevenueItems] = useState<LineItem[]>(() => getInitialBlank().revenueItems);
   const [deductionItems, setDeductionItems] = useState<LineItem[]>(() => getInitialBlank().deductionItems);
+  const [stateWiseIncomes, setStateWiseIncomes] = useState(() => getInitialBlank().stateWiseIncomes);
+  const [gstDetails, setGstDetails] = useState(() => getInitialBlank().gstDetails);
   const [advanceBooking, setAdvanceBooking] = useState<number>(0);
   const [holidayDrm, setHolidayDrm] = useState<number>(0);
   const [ccRefund, setCcRefund] = useState<number>(0);
@@ -117,10 +119,12 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
 
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const prevIsOpenRef = useRef<boolean>(false);
 
-  // Reset modal cleanly every time it opens so NO stale report numbers appear
+  // Reset modal cleanly ONLY when opening (false -> true) so NO stale report numbers appear,
+  // without wiping the just-uploaded photo when onDataExtracted updates record.date.
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !prevIsOpenRef.current) {
       const fresh = createBlankRecord(currentDate || getYesterdayDateString());
       setActiveTab('upload');
       setSelectedImage(null);
@@ -128,6 +132,8 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
       setReportGeneratedTime('');
       setRevenueItems(fresh.revenueItems);
       setDeductionItems(fresh.deductionItems);
+      setStateWiseIncomes(fresh.stateWiseIncomes);
+      setGstDetails(fresh.gstDetails);
       setAdvanceBooking(0);
       setHolidayDrm(0);
       setCcRefund(0);
@@ -143,6 +149,7 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
       setErrorMessage('');
       setSuccessMessage('');
     }
+    prevIsOpenRef.current = isOpen;
   }, [isOpen, currentDate]);
 
   if (!isOpen) return null;
@@ -160,6 +167,8 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
     setReportGeneratedTime('');
     setRevenueItems(fresh.revenueItems);
     setDeductionItems(fresh.deductionItems);
+    setStateWiseIncomes(fresh.stateWiseIncomes);
+    setGstDetails(fresh.gstDetails);
     setAdvanceBooking(0);
     setHolidayDrm(0);
     setCcRefund(0);
@@ -192,6 +201,32 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
     const g12Amt = Number(extracted.g12Amount ?? extracted.drmSlip?.g12) || 0;
     const drmHol = Number(extracted.drmSlip?.drm) || 0;
 
+    const hasExtractedStates =
+      Array.isArray(extracted.stateWiseIncomes) &&
+      extracted.stateWiseIncomes.some((s) => (Number(s.amount) || 0) > 0);
+    const interStateAmt = Number(rev[2]?.amount) || 0;
+    const tollOtherAmt = Number(rev[5]?.amount) || 0;
+    const resolvedStates = fresh.stateWiseIncomes.map((s) => {
+      if (hasExtractedStates) {
+        const match = extracted.stateWiseIncomes?.find(
+          (ex) => ex.state.toUpperCase() === s.state.toUpperCase()
+        );
+        return { ...s, amount: Number(match?.amount) || 0 };
+      }
+      return s.state === 'GUJARAT'
+        ? { ...s, amount: Math.max(0, revTot - interStateAmt - tollOtherAmt) }
+        : s;
+    });
+
+    const resolvedGst = extracted.gstDetails
+      ? {
+          collectedCash: Number(extracted.gstDetails.collectedCash) || 0,
+          uncollectedCash: Number(extracted.gstDetails.uncollectedCash) || 0,
+          collectedDigital: Number(extracted.gstDetails.collectedDigital) || 0,
+          uncollectedDigital: Number(extracted.gstDetails.uncollectedDigital) || 0,
+        }
+      : fresh.gstDetails;
+
     return autoMapEnglishToGujaratiAndDRM({
       ...fresh,
       id: `dcc-${Date.now()}`,
@@ -200,9 +235,8 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
       revenueItems: rev,
       deductionItems: ded,
       advanceBookingAmount: Number(extracted.advanceBookingAmount) || 0,
-      stateWiseIncomes: fresh.stateWiseIncomes.map((s) =>
-        s.state === 'GUJARAT' ? { ...s, amount: revTot } : s
-      ),
+      stateWiseIncomes: resolvedStates,
+      gstDetails: resolvedGst,
       ccRefund: ccRef,
       ccAmount: ccAmt,
       diwaliExtra: diwExt,
@@ -228,6 +262,8 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
     setReportGeneratedTime(mapped.reportGeneratedTime);
     setRevenueItems(mapped.revenueItems);
     setDeductionItems(mapped.deductionItems);
+    setStateWiseIncomes(mapped.stateWiseIncomes);
+    setGstDetails(mapped.gstDetails);
     setAdvanceBooking(mapped.advanceBookingAmount);
     setHolidayDrm(mapped.drmSlip.drm);
     setCcRefund(mapped.ccRefund);
@@ -352,9 +388,20 @@ export const PhotoUploaderModal: React.FC<PhotoUploaderModalProps> = ({
       revenueItems,
       deductionItems,
       advanceBookingAmount: advanceBooking,
-      stateWiseIncomes: blank.stateWiseIncomes.map((s) =>
-        s.state === 'GUJARAT' ? { ...s, amount: totalRevenue } : s
-      ),
+      stateWiseIncomes: stateWiseIncomes.some((s) => s.amount > 0)
+        ? stateWiseIncomes
+        : blank.stateWiseIncomes.map((s) =>
+            s.state === 'GUJARAT'
+              ? {
+                  ...s,
+                  amount: Math.max(
+                    0,
+                    totalRevenue - (Number(revenueItems[2]?.amount) || 0) - (Number(revenueItems[5]?.amount) || 0)
+                  ),
+                }
+              : s
+          ),
+      gstDetails,
       ccRefund,
       ccAmount,
       diwaliExtra,

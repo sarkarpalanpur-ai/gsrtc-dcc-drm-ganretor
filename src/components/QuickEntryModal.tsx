@@ -93,8 +93,8 @@ export const QuickEntryModal: React.FC<QuickEntryModalProps> = ({
   const grossTotalDed = digitalTransfer + divyangConcession + uncollectedSleeper + policeWarrant + awardTeacher;
   const netPosCash = grossTotalRev - grossTotalDed;
 
-  // Head 101 A: (1 + 2 + 3) - 12 - 5 - 13
-  const head101A = (passangerIntra + sleeperCharge + interState) - digitalTransfer - divyangConcession - uncollectedSleeper;
+  // Head 101 A: (1 + 2) - 12 - 5 - 13 (Inter State #3 goes into Row 17 - Head 110 D)
+  const head101A = (passangerIntra + sleeperCharge) - digitalTransfer - divyangConcession - uncollectedSleeper;
   // Head 102 G & 620 G: 5 + 13
   const head102G = divyangConcession + uncollectedSleeper;
   // Total Bank DRM Deposit

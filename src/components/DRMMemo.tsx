@@ -61,7 +61,8 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
   return (
     <div className="bg-white rounded-xl shadow-lg border border-slate-300 print-card overflow-hidden max-w-4xl mx-auto my-4 text-black font-sans">
       {/* Container with official memo styling */}
-      <div className="p-5 pr-6 sm:p-10 sm:pr-12 print:p-4 print:pr-6 space-y-5 print:space-y-3">
+      <div className="p-5 pr-6 sm:p-10 sm:pr-12 print:p-5 print:pr-7 space-y-5 print:space-y-0 print:flex-1 print:flex print:flex-col print:justify-between">
+        <div className="space-y-5 print:space-y-4">
         {/* Header with dual emblems matching Photo 2 */}
         <div className="relative text-center pb-4 border-b border-black">
           <div className="flex items-center justify-between mb-2">
@@ -257,19 +258,19 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
               </tr>
 
               {/* Empty placeholder rows matching Photo 2 ledger format */}
-              <tr className="border-b border-black h-10 print:h-8">
+              <tr className="border-b border-black h-10 print:h-11">
                 <td className="border-r-2 border-black"></td>
                 <td className="text-right font-mono text-slate-400 pr-3.5 sm:pr-4 print:pr-4">/-</td>
               </tr>
-              <tr className="border-b border-black h-10 print:h-8">
+              <tr className="border-b border-black h-10 print:h-11">
                 <td className="border-r-2 border-black"></td>
                 <td className="text-right font-mono text-slate-400 pr-3.5 sm:pr-4 print:pr-4">/-</td>
               </tr>
-              <tr className="border-b border-black h-10 print:h-8">
+              <tr className="border-b border-black h-10 print:h-11">
                 <td className="border-r-2 border-black"></td>
                 <td className="text-right font-mono text-slate-400 pr-3.5 sm:pr-4 print:pr-4">/-</td>
               </tr>
-              <tr className="border-b border-black h-10 print:h-8">
+              <tr className="border-b border-black h-10 print:h-11">
                 <td className="border-r-2 border-black"></td>
                 <td className="text-right font-mono text-slate-400 pr-3.5 sm:pr-4 print:pr-4">/-</td>
               </tr>
@@ -288,12 +289,14 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
         </div>
 
         {/* Amount in Words */}
-        <div className="p-3 print:p-2.5 bg-slate-50 border border-black rounded-lg">
+        <div className="p-3 print:p-3 bg-slate-50 border border-black rounded-lg">
           <p className="text-xs sm:text-sm print:text-xs font-extrabold tracking-wide uppercase leading-normal">
             {words}
           </p>
         </div>
+        </div>
 
+        <div className="space-y-5 print:space-y-6">
         {/* Additional verification grid matching Photo 2 */}
         <div className="border border-black">
           <div className="grid grid-cols-3 divide-x divide-black border-b border-black text-center font-bold text-[11px] py-1 bg-slate-100">
@@ -301,7 +304,7 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
             <div>TRAFFIC CONTROLLER</div>
             <div>DEPOT MANAGER</div>
           </div>
-          <div className="grid grid-cols-3 divide-x divide-black h-16 print:h-12">
+          <div className="grid grid-cols-3 divide-x divide-black h-16 print:h-14">
             <div className="flex items-end justify-center pb-2 print:pb-1.5 text-xs font-serif italic text-blue-900">
               {record.cashierName}
             </div>
@@ -315,16 +318,17 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
         </div>
 
         {/* Signatures & Stamps */}
-        <div className="pt-8 print:pt-5 flex items-center justify-between text-xs font-bold font-gujarati">
+        <div className="pt-8 print:pt-4 flex items-center justify-between text-xs font-bold font-gujarati">
           <div className="text-center">
             <p className="text-blue-900 italic font-serif text-sm print:text-xs">એસ.ટી. કેશીયર</p>
-            <p className="border-t border-black pt-1 print:pt-0.5 mt-6 print:mt-3">એસ.ટી. સુરત સીટી-ડેપો-૨</p>
+            <p className="border-t border-black pt-1 print:pt-0.5 mt-6 print:mt-4">એસ.ટી. સુરત સીટી-ડેપો-૨</p>
           </div>
 
           <div className="text-center">
             <p className="text-blue-900 italic font-serif text-sm print:text-xs">સિનિ. ડેપો મેનેજર 'એ'</p>
-            <p className="border-t border-black pt-1 print:pt-0.5 mt-6 print:mt-3">એસ.ટી. સુરત સીટી ડેપો-૨</p>
+            <p className="border-t border-black pt-1 print:pt-0.5 mt-6 print:mt-4">એસ.ટી. સુરત સીટી ડેપો-૨</p>
           </div>
+        </div>
         </div>
       </div>
     </div>

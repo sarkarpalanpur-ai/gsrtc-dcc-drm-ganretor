@@ -1,8 +1,32 @@
 import { createWorker, PSM, OEM } from 'tesseract.js';
-import { parseGSRTCDccOcrText, ParsedOCRResult, scoreOcrCandidate } from './ocrParser';
+import {
+  parseGSRTCDccOcrText,
+  ParsedOCRResult,
+  scoreOcrCandidate,
+  reconstructLinesFromWordBoxes,
+  WordBox,
+} from './ocrParser';
 
 export type ClientOCRResult = ParsedOCRResult;
 export { parseGSRTCDccOcrText };
+
+function extractWordBoxes(data: any): WordBox[] {
+  const blocks = data?.blocks;
+  if (!Array.isArray(blocks)) return [];
+  const words: WordBox[] = [];
+  for (const b of blocks) {
+    for (const p of b?.paragraphs || []) {
+      for (const l of p?.lines || []) {
+        for (const w of l?.words || []) {
+          if (w?.text && w?.bbox) {
+            words.push({ text: w.text, bbox: w.bbox });
+          }
+        }
+      }
+    }
+  }
+  return words;
+}
 
 /**
  * Loads an image URL or base64 Data URL into an HTMLImageElement.
@@ -107,8 +131,8 @@ async function createBrowserOcrWorker() {
 
 /**
  * Browser-side OCR extractor powered by Tesseract.js.
- * Uses the exact same crisp rectangle-split + total-verified scoring strategy as the server extractor
- * so static deployments (e.g. GitHub Pages) produce the exact same calculation as AI Studio.
+ * Uses crisp rectangle splits + word-bbox column reconstruction + total-verified scoring
+ * so both desktop screenshots, portrait mobile screenshots, and rotated camera photos extract every row accurately.
  */
 export async function extractDCCWithClientOCR(
   imageSrc: string,
@@ -136,20 +160,33 @@ export async function extractDCCWithClientOCR(
       return { best, bestScore };
     };
 
+    const hasBothTotalsVerified = (cand: ParsedOCRResult): boolean => {
+      const revSum = cand.record.revenueItems.reduce((s, r) => s + r.amount, 0);
+      const dedSum = cand.record.deductionItems.reduce((s, d) => s + d.amount, 0);
+      return (
+        cand.printedTotalRevenue !== undefined &&
+        cand.printedTotalRevenue > 0 &&
+        Math.abs(cand.printedTotalRevenue - revSum) < 1 &&
+        cand.printedTotalDeduction !== undefined &&
+        cand.printedTotalDeduction > 0 &&
+        Math.abs(cand.printedTotalDeduction - dedSum) < 1
+      );
+    };
+
     if (w >= h * 1.1) {
       await worker.setParameters({ tessedit_pageseg_mode: PSM.SINGLE_COLUMN });
 
-      // Pass A: Exact crisp Omnificent 56/44 column split (identical to server/extractService.ts)
+      // Pass A: Exact crisp Omnificent 56/44 column split
       onProgress?.('ડાબી અને જમણી બાજુનું ટેબલ વંચાઈ રહ્યું છે...');
       const leftA = await worker.recognize(imageSrc, {
         rectangle: {
           left: 0,
           top: 0,
-          width: Math.round(w * 0.564),
+          width: Math.round(w * 0.566),
           height: h,
         },
       });
-      const rightStartA = Math.round(w * 0.558);
+      const rightStartA = Math.round(w * 0.556);
       const rightA = await worker.recognize(imageSrc, {
         rectangle: {
           left: rightStartA,
@@ -161,44 +198,52 @@ export async function extractDCCWithClientOCR(
       const passA = parseGSRTCDccOcrText(`${leftA.data.text}\n${rightA.data.text}`);
       candidates.push(passA);
 
-      // Pass B: Symmetric 50/50 split on crisp image if both printed totals did not yet verify
-      if (scoreOcrCandidate(passA) < 100) {
+      // Pass B: Try wider/narrower splits if both totals didn't verify yet
+      if (!hasBothTotalsVerified(passA)) {
         onProgress?.('રકમ તાળો મેળવવા ફરી ચકાસણી થઈ રહી છે...');
-        const leftB = await worker.recognize(imageSrc, {
-          rectangle: {
-            left: 0,
-            top: 0,
-            width: Math.round(w * 0.505),
-            height: h,
-          },
-        });
-        const rightStartB = Math.round(w * 0.495);
-        const rightB = await worker.recognize(imageSrc, {
-          rectangle: {
-            left: rightStartB,
-            top: 0,
-            width: w - rightStartB,
-            height: h,
-          },
-        });
-        candidates.push(parseGSRTCDccOcrText(`${leftB.data.text}\n${rightB.data.text}`));
+        for (const [leftRatio, rightRatio] of [
+          [0.59, 0.54],
+          [0.515, 0.49],
+        ] as const) {
+          const leftB = await worker.recognize(imageSrc, {
+            rectangle: {
+              left: 0,
+              top: 0,
+              width: Math.round(w * leftRatio),
+              height: h,
+            },
+          });
+          const rightStartB = Math.round(w * rightRatio);
+          const rightB = await worker.recognize(imageSrc, {
+            rectangle: {
+              left: rightStartB,
+              top: 0,
+              width: w - rightStartB,
+              height: h,
+            },
+          });
+          const candB = parseGSRTCDccOcrText(`${leftB.data.text}\n${rightB.data.text}`);
+          candidates.push(candB);
+          if (hasBothTotalsVerified(candB)) break;
+        }
       }
 
       // Pass C: Upscaled grayscale-contrast columns for low-resolution / blurry phone screenshots
-      if (pickBest().bestScore < 100) {
+      if (!hasBothTotalsVerified(pickBest().best)) {
         const scale = w < 1500 ? 2 : 1.5;
         const leftC = renderPreprocessedRegion(img, {
           sx: 0,
           sy: 0,
-          sw: Math.round(w * 0.564),
+          sw: Math.round(w * 0.575),
           sh: h,
           scale,
           enhanceContrast: true,
         });
+        const rightStartC = Math.round(w * 0.55);
         const rightC = renderPreprocessedRegion(img, {
-          sx: rightStartA,
+          sx: rightStartC,
           sy: 0,
-          sw: w - rightStartA,
+          sw: w - rightStartC,
           sh: h,
           scale,
           enhanceContrast: true,
@@ -209,25 +254,36 @@ export async function extractDCCWithClientOCR(
       }
     }
 
-    // Pass D: Full-frame single-block scan if portrait or column passes didn't match enough rows
-    if (pickBest().bestScore < 4) {
+    // Pass D: Full-frame scan with word-bbox column reconstruction (handles portrait screenshots & non-standard crops)
+    if (!hasBothTotalsVerified(pickBest().best)) {
       onProgress?.('સંપૂર્ણ ફોટો સ્કેન થઈ રહ્યો છે...');
       await worker.setParameters({ tessedit_pageseg_mode: PSM.SINGLE_BLOCK });
-      const crispFull = await worker.recognize(imageSrc);
+      const crispFull = await worker.recognize(imageSrc, {}, { text: true, blocks: true });
+      const wordsD = extractWordBoxes(crispFull.data);
+      const bboxTextD = reconstructLinesFromWordBoxes(wordsD);
+      if (bboxTextD) {
+        candidates.push(parseGSRTCDccOcrText(bboxTextD));
+      }
       candidates.push(parseGSRTCDccOcrText(crispFull.data.text));
 
-      if (pickBest().bestScore < 50) {
+      if (!hasBothTotalsVerified(pickBest().best)) {
         const enhancedFull = renderPreprocessedRegion(img, {
           scale: w < 1200 ? 2 : 1.3,
           enhanceContrast: true,
         });
-        const enhRes = await worker.recognize(enhancedFull);
+        const enhRes = await worker.recognize(enhancedFull, {}, { text: true, blocks: true });
+        const wordsEnh = extractWordBoxes(enhRes.data);
+        const bboxTextEnh = reconstructLinesFromWordBoxes(wordsEnh);
+        if (bboxTextEnh) {
+          candidates.push(parseGSRTCDccOcrText(bboxTextEnh));
+        }
         candidates.push(parseGSRTCDccOcrText(enhRes.data.text));
       }
     }
 
     // Pass E: Rotated 90° and 270° orientations (sideways camera photos)
-    if (pickBest().best.matchedFieldsCount < 4) {
+    const curBest = pickBest().best;
+    if (!hasBothTotalsVerified(curBest) && (curBest.verifiedDigitFieldsCount ?? curBest.matchedFieldsCount) < 8) {
       for (const deg of [90, 270] as const) {
         onProgress?.(`ફોટો એંગલ (${deg}°) તપાસાઈ રહ્યો છે...`);
         await worker.setParameters({ tessedit_pageseg_mode: PSM.SINGLE_BLOCK });
@@ -236,9 +292,14 @@ export async function extractDCCWithClientOCR(
           scale: Math.max(w, h) < 1400 ? 1.8 : 1.2,
           enhanceContrast: true,
         });
-        const rotRes = await worker.recognize(rotImg);
+        const rotRes = await worker.recognize(rotImg, {}, { text: true, blocks: true });
+        const wordsRot = extractWordBoxes(rotRes.data);
+        const bboxTextRot = reconstructLinesFromWordBoxes(wordsRot);
+        if (bboxTextRot) {
+          candidates.push(parseGSRTCDccOcrText(bboxTextRot));
+        }
         candidates.push(parseGSRTCDccOcrText(rotRes.data.text));
-        if (pickBest().bestScore >= 100 || pickBest().best.matchedFieldsCount >= 8) break;
+        if (hasBothTotalsVerified(pickBest().best) || (pickBest().best.verifiedDigitFieldsCount ?? 0) >= 10) break;
       }
     }
 

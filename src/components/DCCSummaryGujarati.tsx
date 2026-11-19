@@ -58,61 +58,61 @@ export const DCCSummaryGujarati: React.FC<DCCSummaryGujaratiProps> = ({
   return (
     <div className="bg-white rounded-xl shadow-lg border border-slate-300 print-card overflow-hidden max-w-5xl mx-auto my-4 text-black font-gujarati">
       {/* Official Header matching Photo 1 */}
-      <div className="border-b-2 border-black p-3.5 print:p-2 text-center bg-white">
+      <div className="border-b-2 border-black p-3.5 print:p-2.5 text-center bg-white">
         <div className="flex items-center justify-center gap-3">
           <img
             src={GSRTC_LOGO_BASE64}
             alt="GSRTC Logo"
-            className="w-14 h-14 print:w-12 print:h-12 object-contain rounded-full border border-black p-0.5 bg-white shrink-0"
+            className="w-14 h-14 print:w-14 print:h-14 object-contain rounded-full border border-black p-0.5 bg-white shrink-0"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).src = './gsrtc-logo.jpeg';
             }}
           />
           <div>
-            <h2 className="text-xl sm:text-2xl print:text-lg font-black tracking-wide text-black">
+            <h2 className="text-xl sm:text-2xl print:text-xl font-black tracking-wide text-black">
               ગુજરાત રાજ્ય માર્ગ વાહન વ્યવહાર નિગમ, સુરત વિભાગ
             </h2>
-            <h3 className="text-base print:text-sm font-bold text-slate-800 mt-0.5">
+            <h3 className="text-base print:text-base font-bold text-slate-800 mt-0.5">
               ડી.સી.સી. સમરી સુરત સીટી
             </h3>
           </div>
         </div>
 
-        <div className="flex justify-between items-center text-xs sm:text-sm print:text-xs font-bold mt-1.5 px-2">
+        <div className="flex justify-between items-center text-xs sm:text-sm print:text-[13px] font-bold mt-2 px-2">
           <span>સુરત વિભાગ • સુરત સીટી ડેપો-૨</span>
-          <span>તારીખ: <span className="font-mono">{record.date}</span></span>
+          <span>તારીખ: <span className="font-mono print:text-sm">{record.date}</span></span>
         </div>
       </div>
 
       {/* Main 2-column table */}
-      <div className="border-b-2 border-black flex-1">
-        <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] print:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] print-cols-2 divide-y md:divide-y-0 print:divide-y-0 md:divide-x-2 print:divide-x-2 divide-black">
+      <div className="border-b-2 border-black flex-1 print:flex print:flex-col min-w-0 overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] print:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] print-cols-2 print:flex-1 divide-y md:divide-y-0 print:divide-y-0 md:divide-x-2 print:divide-x-2 divide-black">
           {/* LEFT: આવક (Revenue / Incomes) */}
-          <div className="min-w-0">
-            <table className="w-full table-fixed text-xs print:text-[11px] border-collapse">
+          <div className="min-w-0 flex flex-col justify-between overflow-hidden">
+            <table className="w-full table-fixed text-xs print:text-[13.5px] border-collapse flex-1 print:h-full">
               <thead>
-                <tr className="border-b-2 border-black bg-slate-100 font-bold">
-                  <th className="w-7 border-r border-black py-1.5 print:py-1 px-0.5 text-center">ક્રમ</th>
-                  <th className="w-14 border-r border-black py-1.5 print:py-1 px-0.5 text-center">એકા. હેડ નં.</th>
-                  <th className="border-r border-black py-1.5 print:py-1 px-1.5 text-left">વિગત</th>
-                  <th className="w-20 sm:w-24 print:w-20 py-1.5 print:py-1 px-1.5 text-right">રકમ રૂ.</th>
+                <tr className="border-b-2 border-black bg-slate-100 font-bold print:h-9">
+                  <th className="w-7 print:w-8 border-r border-black py-1.5 print:py-1.5 px-0.5 text-center">ક્રમ</th>
+                  <th className="w-14 print:w-16 border-r border-black py-1.5 print:py-1.5 px-0.5 text-center">એકા. હેડ નં.</th>
+                  <th className="border-r border-black py-1.5 print:py-1.5 px-1.5 text-left">વિગત</th>
+                  <th className="w-20 sm:w-24 print:w-24 py-1.5 print:py-1.5 px-1.5 text-right">રકમ રૂ.</th>
                 </tr>
               </thead>
               <tbody>
                 {record.gujaratiIncomes.map((item, idx) => (
                   <tr key={item.id || idx} className="border-b border-slate-300 hover:bg-amber-50/50">
-                    <td className="border-r border-black py-1.5 print:py-1 px-0.5 text-center font-mono text-[11px] print:text-[11px] text-slate-600">
+                    <td className="border-r border-black py-2 print:py-[7px] px-0.5 text-center font-mono text-[11px] print:text-[12.5px] text-slate-600">
                       {idx + 1}
                     </td>
-                    <td className="border-r border-black py-1.5 print:py-1 px-0.5 text-center font-mono font-bold text-xs print:text-[11px]">
+                    <td className="border-r border-black py-2 print:py-[7px] px-0.5 text-center font-mono font-bold text-xs print:text-[13px]">
                       {item.headNo || '-'}
                     </td>
-                    <td className="border-r border-black py-1.5 print:py-1 px-1.5 text-xs print:text-[11px] font-semibold text-slate-900 break-words">
+                    <td className="border-r border-black py-2 print:py-[7px] px-1.5 text-xs print:text-[13.5px] font-semibold text-slate-900 break-words">
                       {item.titleGu}
                     </td>
                     <td className="py-0 px-1.5 text-right">
                       {isPrintMode ? (
-                        <span className="font-mono font-bold text-xs print:text-xs tabular-nums">
+                        <span className="font-mono font-bold text-xs print:text-[14px] tabular-nums">
                           {item.amount > 0 ? formatIndianInteger(item.amount) : ''}
                         </span>
                       ) : (
@@ -121,7 +121,7 @@ export const DCCSummaryGujarati: React.FC<DCCSummaryGujaratiProps> = ({
                           value={item.amount === 0 ? '' : item.amount}
                           onChange={(e) => handleIncomeChange(idx, parseFloat(e.target.value))}
                           placeholder="-"
-                          className="w-full text-right font-mono font-bold text-xs bg-transparent hover:bg-white focus:bg-amber-100 rounded px-1 py-1 focus:outline-none tabular-nums"
+                          className="w-full text-right font-mono font-bold text-xs bg-transparent hover:bg-white focus:bg-amber-100 rounded px-1 py-1.5 focus:outline-none tabular-nums"
                         />
                       )}
                     </td>
@@ -131,102 +131,55 @@ export const DCCSummaryGujarati: React.FC<DCCSummaryGujaratiProps> = ({
             </table>
 
             {/* Total Gross Income: અ. કુલ આવક (અ) */}
-            <div className="flex items-center justify-between px-3 py-2 print:py-1.5 print:px-2 bg-slate-200 border-t-2 border-black font-extrabold text-xs sm:text-sm print:text-xs">
+            <div className="flex items-center justify-between px-3 py-2.5 print:py-2.5 print:px-3 bg-slate-200 border-t-2 border-black font-extrabold text-xs sm:text-sm print:text-[15px]">
               <div className="flex items-center gap-2">
-                <span className="w-5 h-5 rounded-full bg-black text-white flex items-center justify-center text-xs">
+                <span className="w-5 h-5 print:w-6 print:h-6 rounded-full bg-black text-white flex items-center justify-center text-xs print:text-sm">
                   અ
                 </span>
                 <span>કુલ આવક (અ)</span>
               </div>
-              <span className="font-mono text-sm sm:text-base font-extrabold text-blue-950 tabular-nums">
+              <span className="font-mono text-sm sm:text-base print:text-xl font-extrabold text-blue-950 tabular-nums">
                 {formatIndianInteger(totals.totalA)}
               </span>
             </div>
           </div>
 
           {/* RIGHT: કપાત & અન્ય આવક & DRM સ્લિપ */}
-          <div className="min-w-0 flex flex-col justify-between">
-            <div>
-              <table className="w-full table-fixed text-xs print:text-[11px] border-collapse">
-                <thead>
-                  <tr className="border-b-2 border-black bg-slate-100 font-bold">
-                    <th className="w-7 border-r border-black py-1.5 print:py-1 px-0.5 text-center">ક્રમ</th>
-                    <th className="w-14 border-r border-black py-1.5 print:py-1 px-0.5 text-center">એકા. હેડ નં.</th>
-                    <th className="border-r border-black py-1.5 print:py-1 px-1.5 text-left">વિગત</th>
-                    <th className="w-20 sm:w-24 print:w-20 py-1.5 print:py-1 px-2 pr-2.5 print:pr-3 text-right">રકમ રૂ.</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {record.gujaratiDeductions.map((item, idx) => (
-                    <tr key={item.id || idx} className="border-b border-slate-300 hover:bg-amber-50/50">
-                      <td className="border-r border-black py-1.5 print:py-1 px-0.5 text-center font-mono text-[11px] print:text-[11px] text-slate-600">
-                        {idx + 1}
-                      </td>
-                      <td className="border-r border-black py-1.5 print:py-1 px-0.5 text-center font-mono font-bold text-xs print:text-[11px]">
-                        {item.headNo || '-'}
-                      </td>
-                      <td className="border-r border-black py-1.5 print:py-1 px-1.5 text-xs print:text-[11px] font-semibold text-slate-900 break-words">
-                        {item.titleGu}
-                      </td>
-                      <td className="py-0 px-1.5 pr-2.5 print:pr-3 text-right">
-                        {isPrintMode ? (
-                          <span className="font-mono font-bold text-xs print:text-xs tabular-nums">
-                            {item.amount > 0 ? formatIndianInteger(item.amount) : '0'}
-                          </span>
-                        ) : (
-                          <input
-                            type="number"
-                            value={item.amount === 0 ? '0' : item.amount}
-                            onChange={(e) => handleDeductionChange(idx, parseFloat(e.target.value))}
-                            className="w-full text-right font-mono font-bold text-xs bg-transparent hover:bg-white focus:bg-amber-100 rounded px-1 py-1 focus:outline-none tabular-nums"
-                          />
-                        )}
-                      </td>
+          <div className="min-w-0 flex flex-col justify-between overflow-hidden">
+            <div className="flex-1 flex flex-col justify-between">
+              <div className="print:flex-1 print:flex print:flex-col">
+                <table className="w-full table-fixed text-xs print:text-[13.5px] border-collapse print:flex-1 print:h-full">
+                  <thead>
+                    <tr className="border-b-2 border-black bg-slate-100 font-bold print:h-9">
+                      <th className="w-7 print:w-8 border-r border-black py-1.5 print:py-1.5 px-0.5 text-center">ક્રમ</th>
+                      <th className="w-14 print:w-16 border-r border-black py-1.5 print:py-1.5 px-0.5 text-center">એકા. હેડ નં.</th>
+                      <th className="border-r border-black py-1.5 print:py-1.5 px-1.5 text-left">વિગત</th>
+                      <th className="w-20 sm:w-24 print:w-24 py-1.5 print:py-1.5 px-2 pr-2.5 print:pr-3 text-right">રકમ રૂ.</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              {/* Total Deductions: બ. કુલ કપાત (બ) */}
-              <div className="flex items-center justify-between px-3 pr-3.5 py-1.5 print:py-0.5 print:px-2 print:pr-3 bg-slate-100 border-b-2 border-t border-black font-bold text-xs sm:text-sm print:text-xs">
-                <div className="flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-full bg-slate-700 text-white flex items-center justify-center text-xs">
-                    બ
-                  </span>
-                  <span>કુલ કપાત (બ)</span>
-                </div>
-                <span className="font-mono text-sm font-bold text-slate-900 tabular-nums">
-                  {formatIndianInteger(totals.totalB)}
-                </span>
-              </div>
-
-              {/* અન્ય આવક (Other Income Section) */}
-              <div className="border-b-2 border-black">
-                <div className="bg-slate-50 font-bold px-3 py-1 border-b border-black text-xs">
-                  અન્ય આવક (Other Income)
-                </div>
-                <table className="w-full table-fixed text-xs">
+                  </thead>
                   <tbody>
-                    {record.gujaratiOtherIncomes.map((item, idx) => (
-                      <tr key={item.id || idx} className="border-b border-slate-200">
-                        <td className="w-7 border-r border-black py-1 px-0.5 text-center font-mono text-[11px]">
+                    {record.gujaratiDeductions.map((item, idx) => (
+                      <tr key={item.id || idx} className="border-b border-slate-300 hover:bg-amber-50/50">
+                        <td className="border-r border-black py-2.5 print:py-[10px] px-0.5 text-center font-mono text-[11px] print:text-[12.5px] text-slate-600">
                           {idx + 1}
                         </td>
-                        <td className="w-14 border-r border-black py-1 px-0.5 text-center font-mono text-xs">
+                        <td className="border-r border-black py-2.5 print:py-[10px] px-0.5 text-center font-mono font-bold text-xs print:text-[13px]">
                           {item.headNo || '-'}
                         </td>
-                        <td className="border-r border-black py-1 px-1.5 text-xs text-slate-800 break-words">
+                        <td className="border-r border-black py-2.5 print:py-[10px] px-1.5 text-xs print:text-[13.5px] font-semibold text-slate-900 break-words">
                           {item.titleGu}
                         </td>
-                        <td className="w-20 sm:w-24 print:w-20 py-0 px-1.5 pr-2.5 print:pr-3 text-right">
+                        <td className="py-0 px-1.5 pr-2.5 print:pr-3 text-right">
                           {isPrintMode ? (
-                            <span className="font-mono text-xs">{item.amount || '0'}</span>
+                            <span className="font-mono font-bold text-xs print:text-[14px] tabular-nums">
+                              {item.amount > 0 ? formatIndianInteger(item.amount) : '0'}
+                            </span>
                           ) : (
                             <input
                               type="number"
                               value={item.amount === 0 ? '0' : item.amount}
-                              onChange={(e) => handleOtherIncomeChange(idx, parseFloat(e.target.value))}
-                              className="w-full text-right font-mono font-bold text-xs bg-transparent hover:bg-white focus:bg-amber-100 rounded px-1 py-0.5 focus:outline-none"
+                              onChange={(e) => handleDeductionChange(idx, parseFloat(e.target.value))}
+                              className="w-full text-right font-mono font-bold text-xs bg-transparent hover:bg-white focus:bg-amber-100 rounded px-1 py-1.5 focus:outline-none tabular-nums"
                             />
                           )}
                         </td>
@@ -234,24 +187,73 @@ export const DCCSummaryGujarati: React.FC<DCCSummaryGujaratiProps> = ({
                     ))}
                   </tbody>
                 </table>
-                <div className="flex items-center justify-between px-3 pr-3.5 py-1 print:px-2 print:pr-3 bg-slate-100 font-bold text-xs">
+
+                {/* Total Deductions: બ. કુલ કપાત (બ) */}
+                <div className="flex items-center justify-between px-3 pr-3.5 py-2 print:py-2.5 print:px-3 print:pr-3.5 bg-slate-100 border-b-2 border-t border-black font-bold text-xs sm:text-sm print:text-[15px]">
                   <div className="flex items-center gap-2">
-                    <span className="w-4 h-4 rounded-full bg-slate-600 text-white flex items-center justify-center text-[10px]">
+                    <span className="w-5 h-5 print:w-6 print:h-6 rounded-full bg-slate-700 text-white flex items-center justify-center text-xs print:text-sm">
+                      બ
+                    </span>
+                    <span>કુલ કપાત (બ)</span>
+                  </div>
+                  <span className="font-mono text-sm print:text-lg font-bold text-slate-900 tabular-nums">
+                    {formatIndianInteger(totals.totalB)}
+                  </span>
+                </div>
+              </div>
+
+              {/* અન્ય આવક (Other Income Section) */}
+              <div className="border-b-2 border-black print:flex-1 print:flex print:flex-col">
+                <div className="bg-slate-50 font-bold px-3 py-1.5 print:py-2 border-b border-black text-xs print:text-[13.5px]">
+                  અન્ય આવક (Other Income)
+                </div>
+                <table className="w-full table-fixed text-xs print:text-[13.5px] print:flex-1 print:h-full">
+                  <tbody>
+                    {record.gujaratiOtherIncomes.map((item, idx) => (
+                      <tr key={item.id || idx} className="border-b border-slate-200">
+                        <td className="w-7 print:w-8 border-r border-black py-2 print:py-[9px] px-0.5 text-center font-mono text-[11px] print:text-[12.5px]">
+                          {idx + 1}
+                        </td>
+                        <td className="w-14 print:w-16 border-r border-black py-2 print:py-[9px] px-0.5 text-center font-mono font-bold text-xs print:text-[13px]">
+                          {item.headNo || '-'}
+                        </td>
+                        <td className="border-r border-black py-2 print:py-[9px] px-1.5 text-xs print:text-[13.5px] font-semibold text-slate-800 break-words">
+                          {item.titleGu}
+                        </td>
+                        <td className="w-20 sm:w-24 print:w-24 py-0 px-1.5 pr-2.5 print:pr-3 text-right">
+                          {isPrintMode ? (
+                            <span className="font-mono font-bold text-xs print:text-[14px]">{item.amount || '0'}</span>
+                          ) : (
+                            <input
+                              type="number"
+                              value={item.amount === 0 ? '0' : item.amount}
+                              onChange={(e) => handleOtherIncomeChange(idx, parseFloat(e.target.value))}
+                              className="w-full text-right font-mono font-bold text-xs bg-transparent hover:bg-white focus:bg-amber-100 rounded px-1 py-1 focus:outline-none"
+                            />
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div className="flex items-center justify-between px-3 pr-3.5 py-2 print:py-2.5 print:px-3 print:pr-3.5 bg-slate-100 font-bold text-xs print:text-[14.5px]">
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 print:w-5 print:h-5 rounded-full bg-slate-600 text-white flex items-center justify-center text-[10px] print:text-xs">
                       ક
                     </span>
                     <span>કુલ અન્ય આવક (ક)</span>
                   </div>
-                  <span className="font-mono font-bold">{formatIndianInteger(totals.totalC)}</span>
+                  <span className="font-mono font-bold print:text-lg">{formatIndianInteger(totals.totalC)}</span>
                 </div>
               </div>
 
               {/* Net Bank Remittance: બેંકમાં જમાં કરાવેલ ડી.સી.સી. તથા ડી.આર.એમ. ની આવક (અ - બ + ક) */}
-              <div className="p-3 pr-3.5 print:p-1.5 print:pr-3 bg-amber-50 border-b-2 border-black">
-                <div className="text-xs print:text-[10.5px] font-bold text-slate-800 mb-0.5">
+              <div className="p-3 pr-3.5 print:p-3.5 print:pr-4 bg-amber-50 border-b-2 border-black">
+                <div className="text-xs print:text-[13.5px] font-bold text-slate-800 mb-1">
                   બેંકમાં જમાં કરાવેલ ડી.સી.સી. તથા ડી.આર.એમ. ની આવક (અ - બ + ક)
                 </div>
                 <div className="text-right">
-                  <span className="font-mono font-extrabold text-lg sm:text-xl print:text-base text-red-700 tabular-nums">
+                  <span className="font-mono font-extrabold text-lg sm:text-xl print:text-2xl text-red-700 tabular-nums">
                     ₹ {formatIndianInteger(totals.netBankRemittance)}
                   </span>
                 </div>
@@ -259,12 +261,12 @@ export const DCCSummaryGujarati: React.FC<DCCSummaryGujaratiProps> = ({
             </div>
 
             {/* DRM Slip Breakdown Table (Exact match to Photo 1 bottom right sticker) */}
-            <div className="p-3 pr-3.5 print:p-1.5 print:pr-3 bg-white">
-              <div className="border-2 border-black rounded-lg p-2 print:p-1.5 max-w-xs ml-auto bg-slate-50 shadow-xs text-xs print:text-[10px]">
-                <div className="text-center font-bold border-b border-black pb-1 mb-1 text-xs">
+            <div className="p-3 pr-3.5 print:p-3.5 print:pr-4 bg-white">
+              <div className="border-2 border-black rounded-lg p-2.5 print:p-3.5 max-w-xs print:max-w-[320px] w-full ml-auto bg-slate-50 shadow-xs text-xs print:text-[13.5px]">
+                <div className="text-center font-bold border-b border-black pb-1 mb-1.5 text-xs print:text-[14px]">
                   ડી.આર.એમ. સ્લિપ તાળો (DRM Slip)
                 </div>
-                <div className="space-y-1 text-xs font-mono">
+                <div className="space-y-1.5 print:space-y-2 text-xs print:text-[13.5px] font-mono">
                   <div className="flex justify-between items-center">
                     <span className="font-bold text-black font-sans">P.O.S</span>
                     {isPrintMode ? (
@@ -345,7 +347,7 @@ export const DCCSummaryGujarati: React.FC<DCCSummaryGujaratiProps> = ({
                       />
                     )}
                   </div>
-                  <div className="flex justify-between items-center border-t-2 border-black pt-1 text-sm font-extrabold text-red-700">
+                  <div className="flex justify-between items-center border-t-2 border-black pt-1 text-sm print:text-base font-extrabold text-red-700">
                     <span className="font-sans">TOTAL</span>
                     <span>{formatIndianInteger(drmSlipValues.total)}</span>
                   </div>
@@ -357,34 +359,34 @@ export const DCCSummaryGujarati: React.FC<DCCSummaryGujaratiProps> = ({
       </div>
 
       {/* Official Signatures Bar matching Photo 1 */}
-      <div className="p-4 pt-6 print:p-2.5 print:pt-4 grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 print-cols-3 gap-4 print:gap-2 text-center text-xs print:text-[11px] font-bold border-t border-black bg-white">
+      <div className="p-4 pt-6 print:p-3 print:pt-4 grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 print-cols-3 gap-4 print:gap-2 text-center text-xs print:text-[12.5px] font-bold border-t border-black bg-white">
         <div className="space-y-1">
-          <div className="h-10 print:h-7 flex items-end justify-center">
-            <span className="text-blue-950 font-serif italic text-sm print:text-xs">કેશીયર</span>
+          <div className="h-10 print:h-8 flex items-end justify-center">
+            <span className="text-blue-950 font-serif italic text-sm print:text-sm">કેશીયર</span>
           </div>
           <div className="border-t border-dashed border-black pt-1">
             <p>કેશીયર</p>
-            <p className="text-[11px] print:text-[10px] text-slate-700">એસ.ટી. સુરત સીટી-ડેપો-૨</p>
+            <p className="text-[11px] print:text-[11px] text-slate-700">એસ.ટી. સુરત સીટી-ડેપો-૨</p>
           </div>
         </div>
 
         <div className="space-y-1">
-          <div className="h-10 print:h-7 flex items-end justify-center">
-            <span className="text-blue-950 font-serif italic text-sm print:text-xs">ટ્રાફિક સુપરવાઈઝર</span>
+          <div className="h-10 print:h-8 flex items-end justify-center">
+            <span className="text-blue-950 font-serif italic text-sm print:text-sm">ટ્રાફિક સુપરવાઈઝર</span>
           </div>
           <div className="border-t border-dashed border-black pt-1">
             <p>ટ્રાફિક સુપરવાઈઝર</p>
-            <p className="text-[11px] print:text-[10px] text-slate-700">એસ.ટી. સુરત સીટી-ડેપો-૨</p>
+            <p className="text-[11px] print:text-[11px] text-slate-700">એસ.ટી. સુરત સીટી-ડેપો-૨</p>
           </div>
         </div>
 
         <div className="space-y-1">
-          <div className="h-10 print:h-7 flex items-end justify-center">
-            <span className="text-blue-950 font-serif italic text-sm print:text-xs">સિનિ. ડેપો મેનેજર 'એ'</span>
+          <div className="h-10 print:h-8 flex items-end justify-center">
+            <span className="text-blue-950 font-serif italic text-sm print:text-sm">સિનિ. ડેપો મેનેજર 'એ'</span>
           </div>
           <div className="border-t border-dashed border-black pt-1">
             <p>સિનિ. ડેપો મેનેજર 'એ'</p>
-            <p className="text-[11px] print:text-[10px] text-slate-700">એસ.ટી. સુરત સીટી ડેપો-૨</p>
+            <p className="text-[11px] print:text-[11px] text-slate-700">એસ.ટી. સુરત સીટી ડેપો-૨</p>
           </div>
         </div>
       </div>
