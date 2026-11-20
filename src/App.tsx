@@ -50,9 +50,15 @@ export default function App() {
           return createBlankRecord(defaultCollDate);
         }
         const interStateVal = Number(parsed?.revenueItems?.[2]?.amount) || 0;
+        const dhabhaVal = Number(parsed?.revenueItems?.[9]?.amount) || 0;
+        const miscRevVal = Number(parsed?.revenueItems?.[10]?.amount) || 0;
         const row17 = parsed?.gujaratiIncomes?.find((i: any) => i.headNo === '110 D');
         const row1 = parsed?.gujaratiIncomes?.find((i: any) => i.headNo === '101 A' && i.titleGu === 'મુસાફર આવક');
-        if (interStateVal > 0 && row17 && (Number(row17.amount) || 0) === 0 && row1) {
+        const row21 = parsed?.gujaratiIncomes?.find((i: any) => i.headNo === '140 K');
+        if (
+          (interStateVal > 0 && row17 && (Number(row17.amount) || 0) === 0 && row1) ||
+          (miscRevVal > 0 && row21 && (Number(row21.amount) || 0) === dhabhaVal)
+        ) {
           return autoMapEnglishToGujaratiAndDRM(parsed);
         }
         return parsed;

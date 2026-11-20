@@ -361,9 +361,7 @@ export const DCCSummaryGujarati: React.FC<DCCSummaryGujaratiProps> = ({
       {/* Official Signatures Bar matching Photo 1 */}
       <div className="p-4 pt-6 print:p-3 print:pt-4 grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 print-cols-3 gap-4 print:gap-2 text-center text-xs print:text-[12.5px] font-bold border-t border-black bg-white">
         <div className="space-y-1">
-          <div className="h-10 print:h-8 flex items-end justify-center">
-            <span className="text-blue-950 font-serif italic text-sm print:text-sm">કેશીયર</span>
-          </div>
+          <div className="h-10 print:h-8"></div>
           <div className="border-t border-dashed border-black pt-1">
             <p>કેશીયર</p>
             <p className="text-[11px] print:text-[11px] text-slate-700">એસ.ટી. સુરત સીટી-ડેપો-૨</p>
@@ -371,9 +369,7 @@ export const DCCSummaryGujarati: React.FC<DCCSummaryGujaratiProps> = ({
         </div>
 
         <div className="space-y-1">
-          <div className="h-10 print:h-8 flex items-end justify-center">
-            <span className="text-blue-950 font-serif italic text-sm print:text-sm">ટ્રાફિક સુપરવાઈઝર</span>
-          </div>
+          <div className="h-10 print:h-8"></div>
           <div className="border-t border-dashed border-black pt-1">
             <p>ટ્રાફિક સુપરવાઈઝર</p>
             <p className="text-[11px] print:text-[11px] text-slate-700">એસ.ટી. સુરત સીટી-ડેપો-૨</p>
@@ -381,9 +377,7 @@ export const DCCSummaryGujarati: React.FC<DCCSummaryGujaratiProps> = ({
         </div>
 
         <div className="space-y-1">
-          <div className="h-10 print:h-8 flex items-end justify-center">
-            <span className="text-blue-950 font-serif italic text-sm print:text-sm">સિનિ. ડેપો મેનેજર 'એ'</span>
-          </div>
+          <div className="h-10 print:h-8"></div>
           <div className="border-t border-dashed border-black pt-1">
             <p>સિનિ. ડેપો મેનેજર 'એ'</p>
             <p className="text-[11px] print:text-[11px] text-slate-700">એસ.ટી. સુરત સીટી ડેપો-૨</p>

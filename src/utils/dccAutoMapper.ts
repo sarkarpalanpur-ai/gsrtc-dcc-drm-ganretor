@@ -81,9 +81,9 @@ export function autoMapEnglishToGujaratiAndDRM(record: DCCRecord): DCCRecord {
     if (item.headNo === '110 D') {
       return { ...item, amount: interState };
     }
-    // 140 K ધાબા કલેક્શન
+    // 140 K ધાબા કલેક્શન (10. Dhabha Collection + 11. Misc Revenue Amount)
     if (item.headNo === '140 K' && item.titleGu === 'ધાબા કલેક્શન') {
-      return { ...item, amount: dhabhaCollection };
+      return { ...item, amount: dhabhaCollection + miscRevenue };
     }
     // 102 H ટોલટેક્ષ ની આવક
     if (item.headNo === '102 H' && item.titleGu === 'ટોલટેક્ષ ની આવક') {
