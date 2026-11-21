@@ -86,6 +86,10 @@
     overflow: hidden !important;
   }
 
+  .print-card.drm-sheet-clean {
+    border: none !important;
+  }
+
   table {
     border-collapse: collapse !important;
     width: 100% !important;

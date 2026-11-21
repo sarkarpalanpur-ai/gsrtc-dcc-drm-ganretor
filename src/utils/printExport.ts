@@ -108,6 +108,9 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
         box-sizing: border-box !important;
         overflow: hidden !important;
       }
+      .page.drm-page-clean {
+        border: none !important;
+      }
     }
   `;
 
@@ -399,114 +402,150 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
     </div>
   `;
 
-  // 3. DRM Memo SBI Sheet
+  // 3. DRM Memo SBI Sheet (Word Form A508 Layout)
+  const drmWordsText = words.startsWith('RS:-') ? words : `RS:- ${words}`;
+  const drmExtraRows: Array<{ label: string; amountText: string; isNeg?: boolean }> = [];
+  if (holidayDrmAmount > 0) drmExtraRows.push({ label: 'PREVIOUS HOLIDAY DRM', amountText: `${formatIndianInteger(holidayDrmAmount)}/-` });
+  if ((record.urbanIncome || 0) > 0) drmExtraRows.push({ label: 'URBAN / LOCAL INCOME', amountText: `${formatIndianInteger(record.urbanIncome)}/-` });
+  if (ccDepAmt > 0) drmExtraRows.push({ label: 'CC DEPOSIT (+)', amountText: `${formatIndianInteger(ccDepAmt)}/-` });
+  if (diwaliExtAmt > 0) drmExtraRows.push({ label: 'DIWALI EXTRA (+)', amountText: `${formatIndianInteger(diwaliExtAmt)}/-` });
+  if (ccRefAmt > 0) drmExtraRows.push({ label: 'LESS: CC / DIWALI REFUND (-)', amountText: `- ${formatIndianInteger(ccRefAmt)}/-`, isNeg: true });
+  if (g12Amt > 0 || (record.g12Number && record.g12Number.trim())) {
+    drmExtraRows.push({
+      label: `G-12 ${record.g12Number ? '(' + record.g12Number + ')' : ''}`.trim(),
+      amountText: g12Amt > 0 ? `${formatIndianInteger(g12Amt)}/-` : '',
+    });
+  }
+  const drmBlankThreeCol = Math.max(0, 4 - (1 + drmExtraRows.length));
+
   const drmHtml = `
-    <div class="page">
-      <div style="padding: 14px 18px; border-bottom: 2px solid #000; text-align: center;">
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-          <img src="${GSRTC_LOGO_BASE64}" style="width: 62px; height: 62px; border-radius: 50%; object-fit: contain; border: 2px solid #000; padding: 2px; background: #fff;" alt="GSRTC Logo" />
-          <div style="flex: 1; text-align: center;">
-            <h2 style="margin: 0; font-size: 24px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;">
-              DAILY REVENUE MEMO
-            </h2>
-            <div style="display: flex; justify-content: space-around; font-weight: 800; font-size: 13.5px; margin-top: 8px; text-transform: uppercase;">
-              <div>STATE TRANSPORT GUJARAT • ${record.division}</div>
-              <div>${record.depotCode}</div>
-            </div>
-          </div>
-          <img src="${GSRTC_LOGO_BASE64}" style="width: 62px; height: 62px; border-radius: 50%; object-fit: contain; border: 2px solid #000; padding: 2px; background: #fff;" alt="GSRTC Logo" />
-        </div>
-      </div>
-
-      <div style="padding: 16px 22px 16px 16px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+    <div class="page drm-page-clean" style="border: none; padding: 14px 20px 12px 18px;">
+      <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
         <div>
-          <div style="display: flex; justify-content: space-between; align-items: center; font-weight: 800; margin-bottom: 14px; font-size: 14px;">
-            <span>${record.depotCityNum}</span>
-            <span>DATE- <span class="font-mono" style="text-decoration: underline; font-size: 16.5px; font-weight: 900;">${record.date}</span></span>
+          <!-- Top Logo - DAILY REVENUE MEMO - Logo Header -->
+          <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 8px; margin-bottom: 10px; border-bottom: 2px solid #000;">
+            <img src="${GSRTC_LOGO_BASE64}" style="width: 54px; height: 54px; border-radius: 50%; object-fit: contain; border: 2px solid #000; padding: 2px; background: #fff;" alt="GSRTC Logo" />
+            <div style="flex: 1; text-align: center;">
+              <h2 style="margin: 0; font-size: 22px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase;">
+                DAILY REVENUE MEMO
+              </h2>
+            </div>
+            <img src="${GSRTC_LOGO_BASE64}" style="width: 54px; height: 54px; border-radius: 50%; object-fit: contain; border: 2px solid #000; padding: 2px; background: #fff;" alt="GSRTC Logo" />
           </div>
 
-          <div style="font-weight: bold; font-size: 13px; line-height: 1.45; margin-bottom: 14px; text-transform: uppercase;">
-            <div style="text-align: right; margin-bottom: 6px;">${record.auditorTitle}</div>
-            <div>
-              THE UNDERNOTED ARE PARTICULARS OF THE REVENUE REMITTED TO ${record.bankName} ON
-              <span class="font-mono" style="text-decoration: underline; font-size: 15.5px; font-weight: 900;">${getNextDayDateString(record.date)}</span> NET CASH RECEIPTS ON
-              PASSENGER BUS SERVICE, VIDE COL.
+          <!-- Top Official Header -->
+          <div style="font-weight: 900; font-size: 13.5px; text-transform: uppercase; letter-spacing: 0.3px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div>
+                <div>STATE TRANSPORT GUJARAT</div>
+                <div style="padding-left: 34px; margin-top: 2px;">${record.division}</div>
+              </div>
+              <div style="text-align: right;">${record.depotCode}</div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
+              <div style="display: flex; align-items: center; gap: 18px; padding-left: 12px;">
+                <span>${record.depotCityNum}</span>
+                <div style="width: 175px; height: 28px; border: 1.5px solid #000; background: #fff;"></div>
+              </div>
+              <div style="padding-right: 22px;">
+                <span>DATE- </span>
+                <span class="font-mono" style="font-size: 15.5px; font-weight: 900;">${record.date}</span>
+              </div>
             </div>
           </div>
 
-          <table style="border: 2px solid #000; margin-bottom: 14px;">
+          <!-- Addressed To & Remittance Text -->
+          <div style="margin-top: 14px; font-weight: 900; font-size: 12.5px; text-transform: uppercase; line-height: 1.45;">
+            <div style="text-align: right; padding-right: 28px; margin-bottom: 5px;">${record.auditorTitle}</div>
+            <div style="padding-left: 56px;">
+              THE UNDERNOTED ARE PARTICULARS OF THE REVENUE REMITTED TO ${record.bankName} ON
+              <span class="font-mono" style="text-decoration: underline; font-size: 14.5px; font-weight: 900;">${getNextDayDateString(record.date)}</span>
+              <span style="text-decoration: underline;"> NET CASH RECEIPTS ON PASSENGER BUS SERVICE.</span> VIDE COL.
+            </div>
+          </div>
+
+          <!-- Table 1: Upper Income & Total Table -->
+          <table style="width: 86%; margin-top: 14px; border: 1.5px solid #000; border-collapse: collapse;">
+            <colgroup>
+              <col style="width: 24%;" />
+              <col style="width: 40%;" />
+              <col style="width: 36%;" />
+            </colgroup>
             <tbody>
-              <tr>
-                <td style="width: 68%; padding: 11px 14px; font-weight: 900; font-size: 14px; text-transform: uppercase; border-right: 2px solid #000;">RURAL INCOME</td>
-                <td style="width: 32%; padding: 11px 14px 11px 10px; text-align: right; font-weight: 900; font-size: 15px;" class="font-mono">${formatIndianInteger(record.ruralIncome)}/-</td>
+              <tr style="height: 32px;">
+                <td style="border: 1px solid #000;"></td>
+                <td style="border: 1px solid #000; font-weight: 900; font-size: 14px; padding: 6px 10px; text-transform: uppercase;">RURAL INCOME</td>
+                <td style="border: 1px solid #000; text-align: center; font-weight: 900; font-size: 15px; padding: 6px 10px;" class="font-mono">${formatIndianInteger(record.ruralIncome)}/-</td>
               </tr>
-              ${record.drmSlip.drm ? `
-                <tr style="background: #fef3c7;">
-                  <td style="padding: 9px 14px; font-weight: 800; font-size: 13.5px; border-right: 2px solid #000;">PREVIOUS HOLIDAY DRM / રજાનું બાકી DRM</td>
-                  <td style="padding: 9px 14px 9px 10px; text-align: right; font-weight: 900; font-size: 15px;" class="font-mono">${formatIndianInteger(record.drmSlip.drm)}/-</td>
+              ${drmExtraRows.map(r => `
+                <tr style="height: 32px;">
+                  <td style="border: 1px solid #000;"></td>
+                  <td style="border: 1px solid #000; font-weight: 900; font-size: 13px; padding: 5px 10px; text-transform: uppercase; ${r.isNeg ? 'color: #9f1239;' : ''}">${r.label}</td>
+                  <td style="border: 1px solid #000; text-align: center; font-weight: 900; font-size: 15px; padding: 5px 10px; ${r.isNeg ? 'color: #9f1239;' : ''}" class="font-mono">${r.amountText}</td>
                 </tr>
-              ` : ''}
-              ${record.urbanIncome > 0 ? `
-                <tr>
-                  <td style="padding: 9px 14px; font-weight: 800; font-size: 13.5px; border-right: 2px solid #000;">URBAN / LOCAL INCOME</td>
-                  <td style="padding: 9px 14px 9px 10px; text-align: right; font-weight: 900; font-size: 15px;" class="font-mono">${formatIndianInteger(record.urbanIncome)}/-</td>
+              `).join('')}
+              ${Array.from({ length: drmBlankThreeCol }).map(() => `
+                <tr style="height: 30px;">
+                  <td style="border: 1px solid #000;"></td>
+                  <td style="border: 1px solid #000;"></td>
+                  <td style="border: 1px solid #000;"></td>
                 </tr>
-              ` : ''}
-              ${ccDepAmt > 0 ? `
-                <tr>
-                  <td style="padding: 10px 14px; font-weight: 900; font-size: 14px; border-right: 2px solid #000;">CC DEPOSIT (+)</td>
-                  <td style="padding: 10px 14px 10px 10px; text-align: right; font-weight: 900; font-size: 15px;" class="font-mono">${formatIndianInteger(ccDepAmt)}/-</td>
-                </tr>
-              ` : ''}
-              ${diwaliExtAmt > 0 ? `
-                <tr>
-                  <td style="padding: 9px 14px; font-weight: 800; font-size: 13.5px; border-right: 2px solid #000;">DIWALI EXTRA (+)</td>
-                  <td style="padding: 9px 14px 9px 10px; text-align: right; font-weight: 900; font-size: 15px;" class="font-mono">${formatIndianInteger(diwaliExtAmt)}/-</td>
-                </tr>
-              ` : ''}
-              ${ccRefAmt > 0 ? `
-                <tr>
-                  <td style="padding: 10px 14px; font-weight: 900; font-size: 14px; color: #9f1239; border-right: 2px solid #000;">LESS: CC / DIWALI REFUND (-)</td>
-                  <td style="padding: 10px 14px 10px 10px; text-align: right; font-weight: 900; font-size: 15px; color: #9f1239;" class="font-mono">- ${formatIndianInteger(ccRefAmt)}/-</td>
-                </tr>
-              ` : ''}
-              <tr style="background: #eff6ff;">
-                <td style="width: 68%; padding: 11px 14px; font-weight: 800; font-size: 14px; text-transform: uppercase; border-right: 2px solid #000;">
-                  G-12 REMITTANCE ${record.g12Number ? '(VIDE NO. ' + record.g12Number + ')' : '(VIDE NO. ____________)'}
-                </td>
-                <td style="padding: 11px 14px 11px 10px; text-align: right; font-weight: 900; font-size: 15px;" class="font-mono">
-                  ${record.g12Amount > 0 ? formatIndianInteger(record.g12Amount) + '/-' : '          /-'}
-                </td>
-              </tr>
-              <tr style="height: 38px;"><td style="border: 1.5px solid #000; border-right: 2px solid #000;"></td><td style="border: 1.5px solid #000; text-align: right; padding-right: 14px; font-size: 14px;" class="font-mono font-bold">/-</td></tr>
-              <tr style="height: 38px;"><td style="border: 1.5px solid #000; border-right: 2px solid #000;"></td><td style="border: 1.5px solid #000; text-align: right; padding-right: 14px; font-size: 14px;" class="font-mono font-bold">/-</td></tr>
-              <tr style="height: 38px;"><td style="border: 1.5px solid #000; border-right: 2px solid #000;"></td><td style="border: 1.5px solid #000; text-align: right; padding-right: 14px; font-size: 14px;" class="font-mono font-bold">/-</td></tr>
-              <tr style="height: 38px;"><td style="border: 1.5px solid #000; border-right: 2px solid #000;"></td><td style="border: 1.5px solid #000; text-align: right; padding-right: 14px; font-size: 14px;" class="font-mono font-bold">/-</td></tr>
-              <tr class="bg-gray-100" style="border-top: 2px solid #000; font-weight: 900; font-size: 15px;">
-                <td style="padding: 11px 14px; text-align: center; letter-spacing: 2px; border-right: 2px solid #000;">TOTAL</td>
-                <td style="padding: 11px 14px 11px 10px; text-align: right; color: #991b1b; font-size: 16px;" class="font-mono font-black">
-                  ${formatIndianInteger(drmTotalAmount)}/-
-                </td>
+              `).join('')}
+              <tr style="height: 32px;"><td colspan="2" style="border: 1px solid #000;"></td><td style="border: 1px solid #000;"></td></tr>
+              <tr style="height: 30px;"><td colspan="2" style="border: 1px solid #000;"></td><td style="border: 1px solid #000;"></td></tr>
+              <tr style="height: 30px;"><td colspan="2" style="border: 1px solid #000;"></td><td style="border: 1px solid #000;"></td></tr>
+              <tr style="height: 36px;">
+                <td colspan="2" style="border: 1.5px solid #000; text-align: center; font-weight: 900; font-size: 16px; letter-spacing: 2px;">TOTAL</td>
+                <td style="border: 1.5px solid #000; text-align: center; font-weight: 900; font-size: 16px;" class="font-mono">${formatIndianInteger(drmTotalAmount)}/-</td>
               </tr>
             </tbody>
           </table>
 
-          <div style="border: 2px solid #000; background: #f9fafb; padding: 11px 14px; border-radius: 4px; font-weight: 800; font-size: 13px; margin-bottom: 18px; text-transform: uppercase; line-height: 1.4;">
-            ${words}
+          <!-- RS:- Amount in Words Box -->
+          <div style="border: 1.5px solid #000; margin-top: -1.5px; padding: 6px 10px; font-weight: 900; font-size: 12px; text-transform: uppercase; letter-spacing: 0.3px;">
+            ${drmWordsText}
           </div>
+
+          <!-- Middle 2-cell stub + 6x3 endorsement grid -->
+          <table style="width: 100%; border-collapse: collapse;">
+            <colgroup>
+              <col style="width: 24%;" />
+              <col style="width: 34%;" />
+              <col style="width: 18%;" />
+              <col style="width: 24%;" />
+            </colgroup>
+            <tbody>
+              <tr style="height: 32px;">
+                <td colspan="2" style="border-top: none; border-left: 1.5px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000;"></td>
+                <td style="border-top: none; border-right: 1px solid #000; border-bottom: 1px solid #000;"></td>
+                <td style="border-top: none; border-right: none; border-bottom: 1px solid #000;"></td>
+              </tr>
+              ${[0, 1, 2, 3, 4, 5].map(() => `
+                <tr style="height: 29px;">
+                  <td style="border-left: 1.5px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000;"></td>
+                  <td colspan="2" style="border-right: 1px solid #000; border-bottom: 1px solid #000;"></td>
+                  <td style="border-right: 1.5px solid #000; border-bottom: 1px solid #000;"></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
         </div>
 
-        <div>
-          <div style="border: 2px solid #000; margin-bottom: 10px;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; border-bottom: 1.5px solid #000; background: #f3f4f6; text-align: center; font-weight: 800; font-size: 12px; padding: 7px;">
-              <div style="border-right: 1.5px solid #000;">CASHIER</div>
-              <div style="border-right: 1.5px solid #000;">TRAFFIC CONTROLLER</div>
-              <div>DEPOT MANAGER</div>
+        <!-- Bottom Large Signature Box (Signatures at the very bottom) -->
+        <div style="border: 1.5px solid #000; border-top: none; flex: 1; min-height: 115px; display: flex; flex-direction: column; justify-content: flex-end; padding: 40px 28px 12px 28px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; text-align: center; font-weight: 800; font-size: 13.5px;">
+            <div>
+              <div>${record.cashierName || 'કેશીયર'}</div>
+              <div style="font-size: 11px; margin-top: 2px;">એસ.ટી. સુરત સીટી-૨</div>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; height: 56px; text-align: center;">
-              <div style="border-right: 1.5px solid #000; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; font-style: italic; color: #1e3a8a; font-weight: bold; font-size: 13px;">${record.cashierName}</div>
-              <div style="border-right: 1.5px solid #000; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; font-style: italic; color: #1e3a8a; font-weight: bold; font-size: 13px;">${record.trafficSupervisorName}</div>
-              <div style="display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; font-style: italic; color: #1e3a8a; font-weight: bold; font-size: 13px;">${record.seniorDepotManagerName}</div>
+            <div>
+              <div>${record.trafficSupervisorName || 'ટ્રાફિક સુપરવાઈઝર'}</div>
+              <div style="font-size: 11px; margin-top: 2px;">એસ.ટી. સુરત સીટી-૨</div>
+            </div>
+            <div>
+              <div>${record.seniorDepotManagerName || "સિનિ. ડેપો મેનેજર 'એ'"}</div>
+              <div style="font-size: 11px; margin-top: 2px;">એસ.ટી. સુરત સીટી-૨</div>
             </div>
           </div>
         </div>
