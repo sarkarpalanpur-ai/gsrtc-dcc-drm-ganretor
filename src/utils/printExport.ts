@@ -437,54 +437,54 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
           <table style="border: 2px solid #000; margin-bottom: 14px;">
             <tbody>
               <tr>
-                <td style="width: 68%; padding: 12px 14px; font-weight: 900; font-size: 15px; text-transform: uppercase; border-right: 2px solid #000;">RURAL INCOME</td>
-                <td style="width: 32%; padding: 12px 14px 12px 10px; text-align: right; font-weight: 900; font-size: 22px;" class="font-mono">${formatIndianInteger(record.ruralIncome)}/-</td>
+                <td style="width: 68%; padding: 11px 14px; font-weight: 900; font-size: 14px; text-transform: uppercase; border-right: 2px solid #000;">RURAL INCOME</td>
+                <td style="width: 32%; padding: 11px 14px 11px 10px; text-align: right; font-weight: 900; font-size: 15px;" class="font-mono">${formatIndianInteger(record.ruralIncome)}/-</td>
               </tr>
               ${record.drmSlip.drm ? `
                 <tr style="background: #fef3c7;">
-                  <td style="padding: 9px 14px; font-weight: 800; font-size: 14px; border-right: 2px solid #000;">PREVIOUS HOLIDAY DRM / રજાનું બાકી DRM</td>
-                  <td style="padding: 9px 14px 9px 10px; text-align: right; font-weight: 900; font-size: 19px;" class="font-mono">${formatIndianInteger(record.drmSlip.drm)}/-</td>
+                  <td style="padding: 9px 14px; font-weight: 800; font-size: 13.5px; border-right: 2px solid #000;">PREVIOUS HOLIDAY DRM / રજાનું બાકી DRM</td>
+                  <td style="padding: 9px 14px 9px 10px; text-align: right; font-weight: 900; font-size: 15px;" class="font-mono">${formatIndianInteger(record.drmSlip.drm)}/-</td>
                 </tr>
               ` : ''}
               ${record.urbanIncome > 0 ? `
                 <tr>
-                  <td style="padding: 9px 14px; font-weight: 800; font-size: 14px; border-right: 2px solid #000;">URBAN / LOCAL INCOME</td>
-                  <td style="padding: 9px 14px 9px 10px; text-align: right; font-weight: 900; font-size: 19px;" class="font-mono">${formatIndianInteger(record.urbanIncome)}/-</td>
+                  <td style="padding: 9px 14px; font-weight: 800; font-size: 13.5px; border-right: 2px solid #000;">URBAN / LOCAL INCOME</td>
+                  <td style="padding: 9px 14px 9px 10px; text-align: right; font-weight: 900; font-size: 15px;" class="font-mono">${formatIndianInteger(record.urbanIncome)}/-</td>
                 </tr>
               ` : ''}
               ${ccDepAmt > 0 ? `
                 <tr>
-                  <td style="padding: 11px 14px; font-weight: 900; font-size: 15px; border-right: 2px solid #000;">CC DEPOSIT (+)</td>
-                  <td style="padding: 11px 14px 11px 10px; text-align: right; font-weight: 900; font-size: 22px;" class="font-mono">${formatIndianInteger(ccDepAmt)}/-</td>
+                  <td style="padding: 10px 14px; font-weight: 900; font-size: 14px; border-right: 2px solid #000;">CC DEPOSIT (+)</td>
+                  <td style="padding: 10px 14px 10px 10px; text-align: right; font-weight: 900; font-size: 15px;" class="font-mono">${formatIndianInteger(ccDepAmt)}/-</td>
                 </tr>
               ` : ''}
               ${diwaliExtAmt > 0 ? `
                 <tr>
-                  <td style="padding: 9px 14px; font-weight: 800; font-size: 14px; border-right: 2px solid #000;">DIWALI EXTRA (+)</td>
-                  <td style="padding: 9px 14px 9px 10px; text-align: right; font-weight: 900; font-size: 19px;" class="font-mono">${formatIndianInteger(diwaliExtAmt)}/-</td>
+                  <td style="padding: 9px 14px; font-weight: 800; font-size: 13.5px; border-right: 2px solid #000;">DIWALI EXTRA (+)</td>
+                  <td style="padding: 9px 14px 9px 10px; text-align: right; font-weight: 900; font-size: 15px;" class="font-mono">${formatIndianInteger(diwaliExtAmt)}/-</td>
                 </tr>
               ` : ''}
               ${ccRefAmt > 0 ? `
                 <tr>
-                  <td style="padding: 10px 14px; font-weight: 900; font-size: 15px; color: #9f1239; border-right: 2px solid #000;">LESS: CC / DIWALI REFUND (-)</td>
-                  <td style="padding: 10px 14px 10px 10px; text-align: right; font-weight: 900; font-size: 21px; color: #9f1239;" class="font-mono">- ${formatIndianInteger(ccRefAmt)}/-</td>
+                  <td style="padding: 10px 14px; font-weight: 900; font-size: 14px; color: #9f1239; border-right: 2px solid #000;">LESS: CC / DIWALI REFUND (-)</td>
+                  <td style="padding: 10px 14px 10px 10px; text-align: right; font-weight: 900; font-size: 15px; color: #9f1239;" class="font-mono">- ${formatIndianInteger(ccRefAmt)}/-</td>
                 </tr>
               ` : ''}
               <tr style="background: #eff6ff;">
-                <td style="width: 68%; padding: 11px 14px; font-weight: 800; font-size: 14.5px; text-transform: uppercase; border-right: 2px solid #000;">
+                <td style="width: 68%; padding: 11px 14px; font-weight: 800; font-size: 14px; text-transform: uppercase; border-right: 2px solid #000;">
                   G-12 REMITTANCE ${record.g12Number ? '(VIDE NO. ' + record.g12Number + ')' : '(VIDE NO. ____________)'}
                 </td>
-                <td style="padding: 11px 14px 11px 10px; text-align: right; font-weight: 900; font-size: 21px;" class="font-mono">
+                <td style="padding: 11px 14px 11px 10px; text-align: right; font-weight: 900; font-size: 15px;" class="font-mono">
                   ${record.g12Amount > 0 ? formatIndianInteger(record.g12Amount) + '/-' : '          /-'}
                 </td>
               </tr>
-              <tr style="height: 38px;"><td style="border: 1.5px solid #000; border-right: 2px solid #000;"></td><td style="border: 1.5px solid #000; text-align: right; padding-right: 14px; font-size: 15px;" class="font-mono font-bold">/-</td></tr>
-              <tr style="height: 38px;"><td style="border: 1.5px solid #000; border-right: 2px solid #000;"></td><td style="border: 1.5px solid #000; text-align: right; padding-right: 14px; font-size: 15px;" class="font-mono font-bold">/-</td></tr>
-              <tr style="height: 38px;"><td style="border: 1.5px solid #000; border-right: 2px solid #000;"></td><td style="border: 1.5px solid #000; text-align: right; padding-right: 14px; font-size: 15px;" class="font-mono font-bold">/-</td></tr>
-              <tr style="height: 38px;"><td style="border: 1.5px solid #000; border-right: 2px solid #000;"></td><td style="border: 1.5px solid #000; text-align: right; padding-right: 14px; font-size: 15px;" class="font-mono font-bold">/-</td></tr>
-              <tr class="bg-gray-100" style="border-top: 2px solid #000; font-weight: 900; font-size: 18px;">
-                <td style="padding: 12px 14px; text-align: center; letter-spacing: 2px; border-right: 2px solid #000;">TOTAL</td>
-                <td style="padding: 12px 14px 12px 10px; text-align: right; color: #991b1b; font-size: 22px;" class="font-mono font-black">
+              <tr style="height: 38px;"><td style="border: 1.5px solid #000; border-right: 2px solid #000;"></td><td style="border: 1.5px solid #000; text-align: right; padding-right: 14px; font-size: 14px;" class="font-mono font-bold">/-</td></tr>
+              <tr style="height: 38px;"><td style="border: 1.5px solid #000; border-right: 2px solid #000;"></td><td style="border: 1.5px solid #000; text-align: right; padding-right: 14px; font-size: 14px;" class="font-mono font-bold">/-</td></tr>
+              <tr style="height: 38px;"><td style="border: 1.5px solid #000; border-right: 2px solid #000;"></td><td style="border: 1.5px solid #000; text-align: right; padding-right: 14px; font-size: 14px;" class="font-mono font-bold">/-</td></tr>
+              <tr style="height: 38px;"><td style="border: 1.5px solid #000; border-right: 2px solid #000;"></td><td style="border: 1.5px solid #000; text-align: right; padding-right: 14px; font-size: 14px;" class="font-mono font-bold">/-</td></tr>
+              <tr class="bg-gray-100" style="border-top: 2px solid #000; font-weight: 900; font-size: 15px;">
+                <td style="padding: 11px 14px; text-align: center; letter-spacing: 2px; border-right: 2px solid #000;">TOTAL</td>
+                <td style="padding: 11px 14px 11px 10px; text-align: right; color: #991b1b; font-size: 16px;" class="font-mono font-black">
                   ${formatIndianInteger(drmTotalAmount)}/-
                 </td>
               </tr>
@@ -497,27 +497,16 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
         </div>
 
         <div>
-          <div style="border: 2px solid #000; margin-bottom: 24px;">
+          <div style="border: 2px solid #000; margin-bottom: 10px;">
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; border-bottom: 1.5px solid #000; background: #f3f4f6; text-align: center; font-weight: 800; font-size: 12px; padding: 7px;">
               <div style="border-right: 1.5px solid #000;">CASHIER</div>
               <div style="border-right: 1.5px solid #000;">TRAFFIC CONTROLLER</div>
               <div>DEPOT MANAGER</div>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; height: 48px; text-align: center;">
-              <div style="border-right: 1.5px solid #000; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px; font-style: italic; color: #1e3a8a; font-weight: bold; font-size: 13px;">${record.cashierName}</div>
-              <div style="border-right: 1.5px solid #000; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px; font-style: italic; color: #1e3a8a; font-weight: bold; font-size: 13px;">${record.trafficSupervisorName}</div>
-              <div style="display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px; font-style: italic; color: #1e3a8a; font-weight: bold; font-size: 13px;">${record.seniorDepotManagerName}</div>
-            </div>
-          </div>
-
-          <div style="display: flex; justify-content: space-between; text-align: center; font-weight: bold; font-size: 12px; padding-top: 10px;">
-            <div>
-              <div style="color: #1e3a8a; font-style: italic; font-size: 13px;">એસ.ટી. કેશીયર</div>
-              <div style="border-top: 1px solid #000; padding-top: 4px; margin-top: 10px; min-width: 150px;">એસ.ટી. સુરત સીટી-ડેપો-૨</div>
-            </div>
-            <div>
-              <div style="color: #1e3a8a; font-style: italic; font-size: 13px;">સિનિ. ડેપો મેનેજર 'એ'</div>
-              <div style="border-top: 1px solid #000; padding-top: 4px; margin-top: 10px; min-width: 150px;">એસ.ટી. સુરત સીટી ડેપો-૨</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; height: 56px; text-align: center;">
+              <div style="border-right: 1.5px solid #000; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; font-style: italic; color: #1e3a8a; font-weight: bold; font-size: 13px;">${record.cashierName}</div>
+              <div style="border-right: 1.5px solid #000; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; font-style: italic; color: #1e3a8a; font-weight: bold; font-size: 13px;">${record.trafficSupervisorName}</div>
+              <div style="display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; font-style: italic; color: #1e3a8a; font-weight: bold; font-size: 13px;">${record.seniorDepotManagerName}</div>
             </div>
           </div>
         </div>
