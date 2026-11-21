@@ -117,7 +117,7 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
 
   return (
     <div className="bg-white rounded-xl shadow-lg border-2 border-slate-300 print-card drm-sheet-clean overflow-hidden max-w-4xl mx-auto my-4 text-black font-sans">
-      <div className="p-6 sm:p-10 print:p-5 print:pt-4 print:pb-4 flex flex-col justify-between min-h-[1040px] print:min-h-[97vh] print:h-full">
+      <div className="p-6 sm:p-8 print:p-4 print:pt-3 print:pb-3 flex-1 flex flex-col justify-between min-h-[1080px] print:min-h-0 print:h-full">
         <div>
           {/* Top Logo - DAILY REVENUE MEMO - Logo Header */}
           <div className="flex items-center justify-between gap-4 pb-2.5 mb-3 border-b-2 border-black">
@@ -194,8 +194,8 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
             </p>
           </div>
 
-          {/* Table 1: Upper Income & Total Table (matching exact 3-col + 2-col Word structure) */}
-          <div className="mt-4 print:mt-3.5 w-full sm:w-[88%] print:w-[86%]">
+          {/* Table 1: Upper Income & Total Table (full width matching Word Form A508) */}
+          <div className="mt-4 print:mt-3 w-full">
             <table className="w-full table-fixed border-collapse border-[1.5px] border-black text-black">
               <colgroup>
                 <col className="w-[24%]" />
@@ -204,12 +204,12 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
               </colgroup>
               <tbody>
                 {/* Row 1: RURAL INCOME */}
-                <tr className="border-b border-black h-9 print:h-8">
-                  <td className="border-r border-black px-2 py-1.5"></td>
-                  <td className="border-r border-black px-3 py-1.5 font-black uppercase text-sm sm:text-[15px] print:text-[14px]">
+                <tr className="border-b border-black h-11 print:h-[42px]">
+                  <td className="border-r border-black px-2 py-2"></td>
+                  <td className="border-r border-black px-3 py-2 font-black uppercase text-sm sm:text-[15px] print:text-[14.5px]">
                     RURAL INCOME
                   </td>
-                  <td className="px-3 py-1.5 text-center font-mono font-black text-[15px] sm:text-base print:text-[15px] tabular-nums">
+                  <td className="px-3 py-2 text-center font-mono font-black text-[15px] sm:text-base print:text-[15.5px] tabular-nums">
                     {isPrintMode ? (
                       `${formatIndianInteger(record.ruralIncome)}/-`
                     ) : (
@@ -228,17 +228,17 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
 
                 {/* Dynamic non-zero adjustment rows */}
                 {extraUpperRows.map((row) => (
-                  <tr key={row.key} className="border-b border-black h-9 print:h-8">
-                    <td className="border-r border-black px-2 py-1.5"></td>
+                  <tr key={row.key} className="border-b border-black h-11 print:h-[42px]">
+                    <td className="border-r border-black px-2 py-2"></td>
                     <td
-                      className={`border-r border-black px-3 py-1.5 font-black uppercase text-xs sm:text-[13.5px] print:text-[13px] ${
+                      className={`border-r border-black px-3 py-2 font-black uppercase text-xs sm:text-[13.5px] print:text-[13.5px] ${
                         row.isNegative ? 'text-rose-800' : 'text-black'
                       }`}
                     >
                       {row.label}
                     </td>
                     <td
-                      className={`px-3 py-1.5 text-center font-mono font-black text-[15px] sm:text-base print:text-[15px] tabular-nums ${
+                      className={`px-3 py-2 text-center font-mono font-black text-[15px] sm:text-base print:text-[15.5px] tabular-nums ${
                         row.isNegative ? 'text-rose-800' : 'text-black'
                       }`}
                     >
@@ -249,9 +249,9 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
 
                 {/* G-12 REMITTANCE (Interactive on screen; shown in print only when filled) */}
                 {(!isPrintMode || showG12InPrint) && (
-                  <tr className="border-b border-black h-9 print:h-8">
-                    <td className="border-r border-black px-2 py-1.5"></td>
-                    <td className="border-r border-black px-3 py-1.5 font-extrabold uppercase text-xs sm:text-[13px] print:text-[12.5px]">
+                  <tr className="border-b border-black h-11 print:h-[42px]">
+                    <td className="border-r border-black px-2 py-2"></td>
+                    <td className="border-r border-black px-3 py-2 font-extrabold uppercase text-xs sm:text-[13px] print:text-[13px]">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span>G-12</span>
                         {isPrintMode ? (
@@ -271,7 +271,7 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
                         )}
                       </div>
                     </td>
-                    <td className="px-3 py-1.5 text-center font-mono font-black text-[15px] sm:text-base print:text-[15px] tabular-nums text-blue-950">
+                    <td className="px-3 py-2 text-center font-mono font-black text-[15px] sm:text-base print:text-[15.5px] tabular-nums text-blue-950">
                       {isPrintMode ? (
                         record.g12Amount > 0 ? `${formatIndianInteger(record.g12Amount)}/-` : ''
                       ) : (
@@ -292,7 +292,7 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
 
                 {/* Pad 3-column portion to at least 4 rows */}
                 {Array.from({ length: blankThreeColCount }).map((_, idx) => (
-                  <tr key={`blank3-${idx}`} className="border-b border-black h-8 print:h-7">
+                  <tr key={`blank3-${idx}`} className="border-b border-black h-11 print:h-[40px]">
                     <td className="border-r border-black"></td>
                     <td className="border-r border-black"></td>
                     <td></td>
@@ -300,28 +300,28 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
                 ))}
 
                 {/* 3 merged 2-column blank ledger rows matching Word Form */}
-                <tr className="border-b border-black h-9 print:h-8">
+                <tr className="border-b border-black h-11 print:h-[40px]">
                   <td colSpan={2} className="border-r border-black"></td>
                   <td></td>
                 </tr>
-                <tr className="border-b border-black h-8 print:h-7">
+                <tr className="border-b border-black h-11 print:h-[40px]">
                   <td colSpan={2} className="border-r border-black"></td>
                   <td></td>
                 </tr>
-                <tr className="border-b border-black h-8 print:h-7">
+                <tr className="border-b border-black h-11 print:h-[40px]">
                   <td colSpan={2} className="border-r border-black"></td>
                   <td></td>
                 </tr>
 
                 {/* TOTAL ROW */}
-                <tr className="border-t-[1.5px] border-black h-10 print:h-9">
+                <tr className="border-t-[1.5px] border-black h-12 print:h-[44px]">
                   <td
                     colSpan={2}
-                    className="border-r border-black px-3 py-1.5 text-center font-black tracking-widest text-base sm:text-lg print:text-[16px]"
+                    className="border-r border-black px-3 py-2 text-center font-black tracking-widest text-base sm:text-lg print:text-[16px]"
                   >
                     TOTAL
                   </td>
-                  <td className="px-3 py-1.5 text-center font-mono font-black text-base sm:text-lg print:text-[16px] tabular-nums text-black">
+                  <td className="px-3 py-2 text-center font-mono font-black text-base sm:text-lg print:text-[16px] tabular-nums text-black">
                     {formatIndianInteger(totalAmount)}/-
                   </td>
                 </tr>
@@ -330,7 +330,7 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
           </div>
 
           {/* RS:- Amount in Words Box */}
-          <div className="border-[1.5px] border-black -mt-[1.5px] px-3 py-1.5 print:py-1.5 font-black uppercase text-xs sm:text-[13px] print:text-[12px] tracking-wide">
+          <div className="border-[1.5px] border-black -mt-[1.5px] px-3 py-2 print:py-2 font-black uppercase text-xs sm:text-[13.5px] print:text-[12.5px] tracking-wide">
             {words}
           </div>
 
@@ -344,7 +344,7 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
             </colgroup>
             <tbody>
               {/* Upper 2-cell stub row (open on right just like Word form) */}
-              <tr className="h-9 print:h-8">
+              <tr className="h-11 print:h-[40px]">
                 <td colSpan={2} className="border-l-[1.5px] border-r border-b border-black"></td>
                 <td className="border-r border-b border-black"></td>
                 <td className="border-b border-black"></td>
@@ -352,7 +352,7 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
 
               {/* 6 blank rows x 3 columns */}
               {[0, 1, 2, 3, 4, 5].map((rIdx) => (
-                <tr key={`mid-${rIdx}`} className="h-8 print:h-7 border-b border-black">
+                <tr key={`mid-${rIdx}`} className="h-11 print:h-[40px] border-b border-black">
                   <td className="border-l-[1.5px] border-r border-black"></td>
                   <td colSpan={2} className="border-r border-black"></td>
                   <td className="border-r-[1.5px] border-black"></td>
@@ -363,8 +363,8 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
         </div>
 
         {/* Bottom Large Bordered Box with Signatures at the very bottom ("last ma sahi") */}
-        <div className="border-[1.5px] border-t-0 border-black flex-1 min-h-[145px] print:min-h-[115px] flex flex-col justify-end px-6 sm:px-10 print:px-8 pb-3.5 pt-10">
-          <div className="grid grid-cols-3 text-center font-gujarati font-extrabold text-sm sm:text-[15px] print:text-[13.5px] gap-4">
+        <div className="border-[1.5px] border-t-0 border-black flex-1 min-h-[175px] print:min-h-[120px] flex flex-col justify-end px-6 sm:px-10 print:px-8 pb-4 pt-10">
+          <div className="grid grid-cols-3 text-center font-gujarati font-extrabold text-sm sm:text-[15px] print:text-[14px] gap-4">
             <div>
               <p>{record.cashierName || 'કેશીયર'}</p>
               <p className="text-xs font-bold text-slate-800 mt-0.5">એસ.ટી. સુરત સીટી-૨</p>

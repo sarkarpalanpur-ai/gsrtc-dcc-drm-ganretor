@@ -466,36 +466,36 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
           </div>
 
           <!-- Table 1: Upper Income & Total Table -->
-          <table style="width: 86%; margin-top: 14px; border: 1.5px solid #000; border-collapse: collapse;">
+          <table style="width: 100%; margin-top: 12px; border: 1.5px solid #000; border-collapse: collapse;">
             <colgroup>
               <col style="width: 24%;" />
               <col style="width: 40%;" />
               <col style="width: 36%;" />
             </colgroup>
             <tbody>
-              <tr style="height: 32px;">
+              <tr style="height: 42px;">
                 <td style="border: 1px solid #000;"></td>
-                <td style="border: 1px solid #000; font-weight: 900; font-size: 14px; padding: 6px 10px; text-transform: uppercase;">RURAL INCOME</td>
-                <td style="border: 1px solid #000; text-align: center; font-weight: 900; font-size: 15px; padding: 6px 10px;" class="font-mono">${formatIndianInteger(record.ruralIncome)}/-</td>
+                <td style="border: 1px solid #000; font-weight: 900; font-size: 14.5px; padding: 8px 10px; text-transform: uppercase;">RURAL INCOME</td>
+                <td style="border: 1px solid #000; text-align: center; font-weight: 900; font-size: 15.5px; padding: 8px 10px;" class="font-mono">${formatIndianInteger(record.ruralIncome)}/-</td>
               </tr>
               ${drmExtraRows.map(r => `
-                <tr style="height: 32px;">
+                <tr style="height: 42px;">
                   <td style="border: 1px solid #000;"></td>
-                  <td style="border: 1px solid #000; font-weight: 900; font-size: 13px; padding: 5px 10px; text-transform: uppercase; ${r.isNeg ? 'color: #9f1239;' : ''}">${r.label}</td>
-                  <td style="border: 1px solid #000; text-align: center; font-weight: 900; font-size: 15px; padding: 5px 10px; ${r.isNeg ? 'color: #9f1239;' : ''}" class="font-mono">${r.amountText}</td>
+                  <td style="border: 1px solid #000; font-weight: 900; font-size: 13.5px; padding: 7px 10px; text-transform: uppercase; ${r.isNeg ? 'color: #9f1239;' : ''}">${r.label}</td>
+                  <td style="border: 1px solid #000; text-align: center; font-weight: 900; font-size: 15.5px; padding: 7px 10px; ${r.isNeg ? 'color: #9f1239;' : ''}" class="font-mono">${r.amountText}</td>
                 </tr>
               `).join('')}
               ${Array.from({ length: drmBlankThreeCol }).map(() => `
-                <tr style="height: 30px;">
+                <tr style="height: 40px;">
                   <td style="border: 1px solid #000;"></td>
                   <td style="border: 1px solid #000;"></td>
                   <td style="border: 1px solid #000;"></td>
                 </tr>
               `).join('')}
-              <tr style="height: 32px;"><td colspan="2" style="border: 1px solid #000;"></td><td style="border: 1px solid #000;"></td></tr>
-              <tr style="height: 30px;"><td colspan="2" style="border: 1px solid #000;"></td><td style="border: 1px solid #000;"></td></tr>
-              <tr style="height: 30px;"><td colspan="2" style="border: 1px solid #000;"></td><td style="border: 1px solid #000;"></td></tr>
-              <tr style="height: 36px;">
+              <tr style="height: 40px;"><td colspan="2" style="border: 1px solid #000;"></td><td style="border: 1px solid #000;"></td></tr>
+              <tr style="height: 40px;"><td colspan="2" style="border: 1px solid #000;"></td><td style="border: 1px solid #000;"></td></tr>
+              <tr style="height: 40px;"><td colspan="2" style="border: 1px solid #000;"></td><td style="border: 1px solid #000;"></td></tr>
+              <tr style="height: 44px;">
                 <td colspan="2" style="border: 1.5px solid #000; text-align: center; font-weight: 900; font-size: 16px; letter-spacing: 2px;">TOTAL</td>
                 <td style="border: 1.5px solid #000; text-align: center; font-weight: 900; font-size: 16px;" class="font-mono">${formatIndianInteger(drmTotalAmount)}/-</td>
               </tr>
@@ -503,7 +503,7 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
           </table>
 
           <!-- RS:- Amount in Words Box -->
-          <div style="border: 1.5px solid #000; margin-top: -1.5px; padding: 6px 10px; font-weight: 900; font-size: 12px; text-transform: uppercase; letter-spacing: 0.3px;">
+          <div style="border: 1.5px solid #000; margin-top: -1.5px; padding: 8px 10px; font-weight: 900; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.3px;">
             ${drmWordsText}
           </div>
 
@@ -516,13 +516,13 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
               <col style="width: 24%;" />
             </colgroup>
             <tbody>
-              <tr style="height: 32px;">
+              <tr style="height: 40px;">
                 <td colspan="2" style="border-top: none; border-left: 1.5px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000;"></td>
                 <td style="border-top: none; border-right: 1px solid #000; border-bottom: 1px solid #000;"></td>
                 <td style="border-top: none; border-right: none; border-bottom: 1px solid #000;"></td>
               </tr>
               ${[0, 1, 2, 3, 4, 5].map(() => `
-                <tr style="height: 29px;">
+                <tr style="height: 40px;">
                   <td style="border-left: 1.5px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000;"></td>
                   <td colspan="2" style="border-right: 1px solid #000; border-bottom: 1px solid #000;"></td>
                   <td style="border-right: 1.5px solid #000; border-bottom: 1px solid #000;"></td>
@@ -533,19 +533,19 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
         </div>
 
         <!-- Bottom Large Signature Box (Signatures at the very bottom) -->
-        <div style="border: 1.5px solid #000; border-top: none; flex: 1; min-height: 115px; display: flex; flex-direction: column; justify-content: flex-end; padding: 40px 28px 12px 28px;">
-          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; text-align: center; font-weight: 800; font-size: 13.5px;">
+        <div style="border: 1.5px solid #000; border-top: none; flex: 1; min-height: 115px; display: flex; flex-direction: column; justify-content: flex-end; padding: 36px 28px 14px 28px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; text-align: center; font-weight: 800; font-size: 14px;">
             <div>
               <div>${record.cashierName || 'કેશીયર'}</div>
-              <div style="font-size: 11px; margin-top: 2px;">એસ.ટી. સુરત સીટી-૨</div>
+              <div style="font-size: 11.5px; margin-top: 2px;">એસ.ટી. સુરત સીટી-૨</div>
             </div>
             <div>
               <div>${record.trafficSupervisorName || 'ટ્રાફિક સુપરવાઈઝર'}</div>
-              <div style="font-size: 11px; margin-top: 2px;">એસ.ટી. સુરત સીટી-૨</div>
+              <div style="font-size: 11.5px; margin-top: 2px;">એસ.ટી. સુરત સીટી-૨</div>
             </div>
             <div>
               <div>${record.seniorDepotManagerName || "સિનિ. ડેપો મેનેજર 'એ'"}</div>
-              <div style="font-size: 11px; margin-top: 2px;">એસ.ટી. સુરત સીટી-૨</div>
+              <div style="font-size: 11.5px; margin-top: 2px;">એસ.ટી. સુરત સીટી-૨</div>
             </div>
           </div>
         </div>
