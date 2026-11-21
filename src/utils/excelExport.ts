@@ -1,6 +1,6 @@
 import * as XLSX from 'xlsx';
 import { DCCRecord } from '../types';
-import { calculateEnglishTotals, calculateGujaratiTotals } from './defaultData';
+import { calculateEnglishTotals, calculateGujaratiTotals, getNextDayDateString } from './defaultData';
 import { numberToIndianCurrencyWords } from './numberToWords';
 
 export function exportDCCAndDRMToExcel(record: DCCRecord) {
@@ -73,7 +73,7 @@ export function exportDCCAndDRMToExcel(record: DCCRecord) {
     [record.depotCityNum, '', `DATE: ${record.date}`],
     [],
     ['TO: THE DIVISIONAL AUDITOR SURAT DIVISION'],
-    [`THE UNDERNOTED ARE PARTICULARS OF THE REVENUE REMITTED TO ${record.bankName} ON ${record.date} NET CASH RECEIPTS ON PASSENGER BUS SERVICE`],
+    [`THE UNDERNOTED ARE PARTICULARS OF THE REVENUE REMITTED TO ${record.bankName} ON ${getNextDayDateString(record.date)} NET CASH RECEIPTS ON PASSENGER BUS SERVICE`],
     [],
     ['CATEGORY / PARTICULARS', 'AMOUNT (RS.)'],
     ['RURAL INCOME', record.ruralIncome || gujTotals.netBankRemittance],

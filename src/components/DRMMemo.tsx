@@ -1,6 +1,7 @@
 import React from 'react';
 import { DCCRecord } from '../types';
 import { formatIndianInteger, numberToIndianCurrencyWords } from '../utils/numberToWords';
+import { getNextDayDateString } from '../utils/defaultData';
 import { GSRTC_LOGO_BASE64 } from '../utils/logoBase64';
 
 interface DRMMemoProps {
@@ -132,7 +133,7 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
           <p className="text-right tracking-wide">{record.auditorTitle}</p>
           <p className="leading-relaxed">
             THE UNDERNOTED ARE PARTICULARS OF THE REVENUE REMITTED TO {record.bankName} ON{' '}
-            <span className="font-mono text-base print:text-[15px] font-black underline">{record.date}</span> NET CASH RECEIPTS ON
+            <span className="font-mono text-base sm:text-lg print:text-[16px] font-black underline">{getNextDayDateString(record.date)}</span> NET CASH RECEIPTS ON
             PASSENGER BUS SERVICE, VIDE COL.
           </p>
         </div>
@@ -143,10 +144,10 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
             <tbody>
               {/* Rural Income Row */}
               <tr className="border-b-2 border-black">
-                <td className="w-2/3 border-r-2 border-black p-3.5 sm:p-4 print:py-3 print:px-4 font-extrabold uppercase text-black print:text-[14px]">
+                <td className="w-2/3 border-r-2 border-black p-3.5 sm:p-4 print:py-3.5 print:px-4 font-black uppercase text-black text-base sm:text-lg print:text-[15.5px]">
                   RURAL INCOME
                 </td>
-                <td className="w-1/3 p-3.5 sm:p-4 pr-4 print:py-3 print:px-4 text-right font-mono font-black text-lg sm:text-xl print:text-lg tabular-nums">
+                <td className="w-1/3 p-3.5 sm:p-4 pr-4 print:py-3.5 print:px-4 text-right font-mono font-black text-2xl sm:text-3xl print:text-2xl tabular-nums text-black">
                   {isPrintMode ? (
                     `${formatIndianInteger(record.ruralIncome)}/-`
                   ) : (
@@ -155,9 +156,9 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
                         type="number"
                         value={record.ruralIncome}
                         onChange={(e) => handleRuralChange(parseFloat(e.target.value))}
-                        className="w-24 sm:w-36 max-w-full min-w-0 text-right font-mono font-black bg-transparent hover:bg-slate-100 focus:bg-amber-100 rounded px-1"
+                        className="w-28 sm:w-44 max-w-full min-w-0 text-right font-mono font-black text-2xl sm:text-3xl bg-transparent hover:bg-slate-100 focus:bg-amber-100 rounded px-1 text-black"
                       />
-                      <span className="shrink-0">/-</span>
+                      <span className="shrink-0 font-black">/-</span>
                     </div>
                   )}
                 </td>
@@ -166,10 +167,10 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
               {/* Optional Previous Holiday DRM Row (જૂનું DRM / રજાનું બાકી DRM) */}
               {holidayDrmAmount > 0 && (
                 <tr className="border-b-2 border-black bg-amber-50/40">
-                  <td className="border-r-2 border-black p-3 print:py-2 print:px-3 font-bold uppercase text-slate-900 print:text-xs">
+                  <td className="border-r-2 border-black p-3.5 print:py-2.5 print:px-4 font-extrabold uppercase text-black print:text-[14px]">
                     PREVIOUS HOLIDAY DRM / રજાનું બાકી DRM (CARRIED FORWARD)
                   </td>
-                  <td className="p-3 print:py-2 print:px-3 text-right font-mono font-bold text-base sm:text-lg tabular-nums text-slate-900">
+                  <td className="p-3.5 print:py-2.5 print:px-4 text-right font-mono font-black text-xl sm:text-2xl print:text-xl tabular-nums text-black">
                     {formatIndianInteger(holidayDrmAmount)}/-
                   </td>
                 </tr>
@@ -178,10 +179,10 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
               {/* Optional Urban Income Row */}
               {record.urbanIncome > 0 && (
                 <tr className="border-b-2 border-black">
-                  <td className="border-r-2 border-black p-3 print:py-2 print:px-3 font-bold uppercase text-slate-900 print:text-xs">
+                  <td className="border-r-2 border-black p-3.5 print:py-2.5 print:px-4 font-extrabold uppercase text-black print:text-[14px]">
                     URBAN / LOCAL INCOME
                   </td>
-                  <td className="p-3 print:py-2 print:px-3 text-right font-mono font-bold text-base tabular-nums">
+                  <td className="p-3.5 print:py-2.5 print:px-4 text-right font-mono font-black text-xl sm:text-2xl print:text-xl tabular-nums text-black">
                     {formatIndianInteger(record.urbanIncome)}/-
                   </td>
                 </tr>
@@ -190,30 +191,30 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
               {/* Optional Adjustment Rows when non-zero */}
               {ccDepAmt > 0 && (
                 <tr className="border-b-2 border-black">
-                  <td className="border-r-2 border-black p-3 print:py-2 print:px-3 font-bold uppercase text-slate-900 print:text-xs">
+                  <td className="border-r-2 border-black p-3.5 print:py-3 print:px-4 font-black uppercase text-black text-base print:text-[15px]">
                     CC DEPOSIT (+)
                   </td>
-                  <td className="p-3 print:py-2 print:px-3 text-right font-mono font-bold text-base tabular-nums">
+                  <td className="p-3.5 print:py-3 print:px-4 text-right font-mono font-black text-2xl sm:text-3xl print:text-2xl tabular-nums text-black">
                     {formatIndianInteger(ccDepAmt)}/-
                   </td>
                 </tr>
               )}
               {diwaliExtAmt > 0 && (
                 <tr className="border-b-2 border-black">
-                  <td className="border-r-2 border-black p-3 print:py-2 print:px-3 font-bold uppercase text-slate-900 print:text-xs">
+                  <td className="border-r-2 border-black p-3.5 print:py-2.5 print:px-4 font-extrabold uppercase text-black print:text-[14px]">
                     DIWALI EXTRA (+)
                   </td>
-                  <td className="p-3 print:py-2 print:px-3 text-right font-mono font-bold text-base tabular-nums">
+                  <td className="p-3.5 print:py-2.5 print:px-4 text-right font-mono font-black text-xl sm:text-2xl print:text-xl tabular-nums text-black">
                     {formatIndianInteger(diwaliExtAmt)}/-
                   </td>
                 </tr>
               )}
               {ccRefAmt > 0 && (
                 <tr className="border-b-2 border-black">
-                  <td className="border-r-2 border-black p-3 print:py-2 print:px-3 font-bold uppercase text-rose-800 print:text-xs">
+                  <td className="border-r-2 border-black p-3.5 print:py-2.5 print:px-4 font-black uppercase text-rose-800 text-base print:text-[15px]">
                     LESS: CC / DIWALI REFUND (-)
                   </td>
-                  <td className="p-3 print:py-2 print:px-3 text-right font-mono font-bold text-base tabular-nums text-rose-800">
+                  <td className="p-3.5 print:py-2.5 print:px-4 text-right font-mono font-black text-2xl sm:text-3xl print:text-2xl tabular-nums text-rose-800">
                     - {formatIndianInteger(ccRefAmt)}/-
                   </td>
                 </tr>
@@ -221,7 +222,7 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
 
               {/* G-12 REMITTANCE Row matching Photo 2 */}
               <tr className="border-b-2 border-black bg-blue-50/20">
-                <td className="border-r-2 border-black p-3.5 sm:p-4 print:py-3 print:px-4 font-extrabold uppercase text-black print:text-[14px]">
+                <td className="border-r-2 border-black p-3.5 sm:p-4 print:py-3 print:px-4 font-extrabold uppercase text-black print:text-[14.5px]">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span>G-12 REMITTANCE</span>
                     <span>(VIDE NO.</span>
@@ -239,7 +240,7 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
                     <span>)</span>
                   </div>
                 </td>
-                <td className="p-3.5 sm:p-4 pr-4 print:py-3 print:px-4 text-right font-mono font-black text-lg sm:text-xl print:text-lg tabular-nums text-blue-950">
+                <td className="p-3.5 sm:p-4 pr-4 print:py-3 print:px-4 text-right font-mono font-black text-2xl sm:text-3xl print:text-2xl tabular-nums text-blue-950">
                   {isPrintMode ? (
                     record.g12Amount > 0 ? `${formatIndianInteger(record.g12Amount)}/-` : '          /-'
                   ) : (
@@ -249,9 +250,9 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
                         value={record.g12Amount === 0 ? '' : record.g12Amount}
                         placeholder="0"
                         onChange={(e) => handleG12AmountChange(parseFloat(e.target.value))}
-                        className="w-24 sm:w-36 max-w-full min-w-0 text-right font-mono font-black bg-transparent hover:bg-slate-100 focus:bg-amber-100 rounded px-1 text-blue-900"
+                        className="w-28 sm:w-44 max-w-full min-w-0 text-right font-mono font-black text-2xl sm:text-3xl bg-transparent hover:bg-slate-100 focus:bg-amber-100 rounded px-1 text-blue-900"
                       />
-                      <span className="shrink-0">/-</span>
+                      <span className="shrink-0 font-black">/-</span>
                     </div>
                   )}
                 </td>
@@ -277,10 +278,10 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
 
               {/* TOTAL ROW */}
               <tr className="bg-slate-100 font-extrabold text-base sm:text-lg print:text-lg border-t-2 border-black">
-                <td className="border-r-2 border-black p-3.5 sm:p-4 print:py-3 print:px-4 font-black text-center tracking-widest">
+                <td className="border-r-2 border-black p-3.5 sm:p-4 print:py-3.5 print:px-4 font-black text-center tracking-widest">
                   TOTAL
                 </td>
-                <td className="p-3.5 sm:p-4 pr-4 print:py-3 print:px-4 text-right font-mono font-black text-xl sm:text-2xl print:text-xl text-red-700 tabular-nums">
+                <td className="p-3.5 sm:p-4 pr-4 print:py-3.5 print:px-4 text-right font-mono font-black text-2xl sm:text-3xl print:text-2xl text-red-700 tabular-nums">
                   {formatIndianInteger(totalAmount)}/-
                 </td>
               </tr>

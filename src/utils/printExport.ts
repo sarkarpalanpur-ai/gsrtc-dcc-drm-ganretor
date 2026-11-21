@@ -1,5 +1,5 @@
 import { DCCRecord } from '../types';
-import { calculateEnglishTotals, calculateGujaratiTotals } from './defaultData';
+import { calculateEnglishTotals, calculateGujaratiTotals, getNextDayDateString } from './defaultData';
 import { numberToIndianCurrencyWords, formatIndianInteger, formatIndianNumber } from './numberToWords';
 import { GSRTC_LOGO_BASE64 } from './logoBase64';
 
@@ -11,7 +11,10 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
   const holidayDrmAmount = Number(record.drmSlip?.drm) || 0;
   const g12Amt = Number(record.g12Amount) || 0;
   const todayCash = Number(record.ruralIncome) || 0;
-  const drmTotalAmount = todayCash + holidayDrmAmount + (record.urbanIncome || 0) + g12Amt;
+  const ccDepAmt = Number(record.drmSlip?.ccDeposit ?? record.ccAmount) || 0;
+  const diwaliExtAmt = Number(record.drmSlip?.diwaliExt ?? record.diwaliExtra) || 0;
+  const ccRefAmt = Number(record.drmSlip?.ccRefund) || 0;
+  const drmTotalAmount = todayCash + holidayDrmAmount + (record.urbanIncome || 0) + g12Amt + ccDepAmt + diwaliExtAmt - ccRefAmt;
   const words = numberToIndianCurrencyWords(drmTotalAmount || record.drmSlip.total || record.ruralIncome);
 
   const sharedStyles = `
@@ -426,7 +429,7 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
             <div style="text-align: right; margin-bottom: 6px;">${record.auditorTitle}</div>
             <div>
               THE UNDERNOTED ARE PARTICULARS OF THE REVENUE REMITTED TO ${record.bankName} ON
-              <span class="font-mono" style="text-decoration: underline; font-size: 14.5px; font-weight: 900;">${record.date}</span> NET CASH RECEIPTS ON
+              <span class="font-mono" style="text-decoration: underline; font-size: 15.5px; font-weight: 900;">${getNextDayDateString(record.date)}</span> NET CASH RECEIPTS ON
               PASSENGER BUS SERVICE, VIDE COL.
             </div>
           </div>
@@ -434,26 +437,44 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
           <table style="border: 2px solid #000; margin-bottom: 14px;">
             <tbody>
               <tr>
-                <td style="width: 68%; padding: 11px 14px; font-weight: 800; font-size: 14px; text-transform: uppercase; border-right: 2px solid #000;">RURAL INCOME</td>
-                <td style="width: 32%; padding: 11px 14px 11px 10px; text-align: right; font-weight: 900; font-size: 17px;" class="font-mono">${formatIndianInteger(record.ruralIncome)}/-</td>
+                <td style="width: 68%; padding: 12px 14px; font-weight: 900; font-size: 15px; text-transform: uppercase; border-right: 2px solid #000;">RURAL INCOME</td>
+                <td style="width: 32%; padding: 12px 14px 12px 10px; text-align: right; font-weight: 900; font-size: 22px;" class="font-mono">${formatIndianInteger(record.ruralIncome)}/-</td>
               </tr>
               ${record.drmSlip.drm ? `
                 <tr style="background: #fef3c7;">
-                  <td style="padding: 9px 14px; font-weight: 800; font-size: 13.5px; border-right: 2px solid #000;">PREVIOUS HOLIDAY DRM / રજાનું બાકી DRM</td>
-                  <td style="padding: 9px 14px 9px 10px; text-align: right; font-weight: 900; font-size: 16px;" class="font-mono">${formatIndianInteger(record.drmSlip.drm)}/-</td>
+                  <td style="padding: 9px 14px; font-weight: 800; font-size: 14px; border-right: 2px solid #000;">PREVIOUS HOLIDAY DRM / રજાનું બાકી DRM</td>
+                  <td style="padding: 9px 14px 9px 10px; text-align: right; font-weight: 900; font-size: 19px;" class="font-mono">${formatIndianInteger(record.drmSlip.drm)}/-</td>
                 </tr>
               ` : ''}
               ${record.urbanIncome > 0 ? `
                 <tr>
-                  <td style="padding: 9px 14px; font-weight: 800; font-size: 13.5px; border-right: 2px solid #000;">URBAN / LOCAL INCOME</td>
-                  <td style="padding: 9px 14px 9px 10px; text-align: right; font-weight: 900; font-size: 16px;" class="font-mono">${formatIndianInteger(record.urbanIncome)}/-</td>
+                  <td style="padding: 9px 14px; font-weight: 800; font-size: 14px; border-right: 2px solid #000;">URBAN / LOCAL INCOME</td>
+                  <td style="padding: 9px 14px 9px 10px; text-align: right; font-weight: 900; font-size: 19px;" class="font-mono">${formatIndianInteger(record.urbanIncome)}/-</td>
+                </tr>
+              ` : ''}
+              ${ccDepAmt > 0 ? `
+                <tr>
+                  <td style="padding: 11px 14px; font-weight: 900; font-size: 15px; border-right: 2px solid #000;">CC DEPOSIT (+)</td>
+                  <td style="padding: 11px 14px 11px 10px; text-align: right; font-weight: 900; font-size: 22px;" class="font-mono">${formatIndianInteger(ccDepAmt)}/-</td>
+                </tr>
+              ` : ''}
+              ${diwaliExtAmt > 0 ? `
+                <tr>
+                  <td style="padding: 9px 14px; font-weight: 800; font-size: 14px; border-right: 2px solid #000;">DIWALI EXTRA (+)</td>
+                  <td style="padding: 9px 14px 9px 10px; text-align: right; font-weight: 900; font-size: 19px;" class="font-mono">${formatIndianInteger(diwaliExtAmt)}/-</td>
+                </tr>
+              ` : ''}
+              ${ccRefAmt > 0 ? `
+                <tr>
+                  <td style="padding: 10px 14px; font-weight: 900; font-size: 15px; color: #9f1239; border-right: 2px solid #000;">LESS: CC / DIWALI REFUND (-)</td>
+                  <td style="padding: 10px 14px 10px 10px; text-align: right; font-weight: 900; font-size: 21px; color: #9f1239;" class="font-mono">- ${formatIndianInteger(ccRefAmt)}/-</td>
                 </tr>
               ` : ''}
               <tr style="background: #eff6ff;">
-                <td style="width: 68%; padding: 11px 14px; font-weight: 800; font-size: 14px; text-transform: uppercase; border-right: 2px solid #000;">
+                <td style="width: 68%; padding: 11px 14px; font-weight: 800; font-size: 14.5px; text-transform: uppercase; border-right: 2px solid #000;">
                   G-12 REMITTANCE ${record.g12Number ? '(VIDE NO. ' + record.g12Number + ')' : '(VIDE NO. ____________)'}
                 </td>
-                <td style="padding: 11px 14px 11px 10px; text-align: right; font-weight: 900; font-size: 17px;" class="font-mono">
+                <td style="padding: 11px 14px 11px 10px; text-align: right; font-weight: 900; font-size: 21px;" class="font-mono">
                   ${record.g12Amount > 0 ? formatIndianInteger(record.g12Amount) + '/-' : '          /-'}
                 </td>
               </tr>
@@ -461,9 +482,9 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
               <tr style="height: 38px;"><td style="border: 1.5px solid #000; border-right: 2px solid #000;"></td><td style="border: 1.5px solid #000; text-align: right; padding-right: 14px; font-size: 15px;" class="font-mono font-bold">/-</td></tr>
               <tr style="height: 38px;"><td style="border: 1.5px solid #000; border-right: 2px solid #000;"></td><td style="border: 1.5px solid #000; text-align: right; padding-right: 14px; font-size: 15px;" class="font-mono font-bold">/-</td></tr>
               <tr style="height: 38px;"><td style="border: 1.5px solid #000; border-right: 2px solid #000;"></td><td style="border: 1.5px solid #000; text-align: right; padding-right: 14px; font-size: 15px;" class="font-mono font-bold">/-</td></tr>
-              <tr class="bg-gray-100" style="border-top: 2px solid #000; font-weight: 900; font-size: 17px;">
-                <td style="padding: 11px 14px; text-align: center; letter-spacing: 2px; border-right: 2px solid #000;">TOTAL</td>
-                <td style="padding: 11px 14px 11px 10px; text-align: right; color: #991b1b; font-size: 18px;" class="font-mono font-bold">
+              <tr class="bg-gray-100" style="border-top: 2px solid #000; font-weight: 900; font-size: 18px;">
+                <td style="padding: 12px 14px; text-align: center; letter-spacing: 2px; border-right: 2px solid #000;">TOTAL</td>
+                <td style="padding: 12px 14px 12px 10px; text-align: right; color: #991b1b; font-size: 22px;" class="font-mono font-black">
                   ${formatIndianInteger(drmTotalAmount)}/-
                 </td>
               </tr>

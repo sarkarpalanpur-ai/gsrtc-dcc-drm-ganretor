@@ -207,6 +207,24 @@ export function getTodayDateString(refDate?: Date): string {
   return `${d}/${m}/${y}`;
 }
 
+export function getNextDayDateString(dateStr: string): string {
+  if (!dateStr) return '';
+  const match = String(dateStr).trim().match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+  if (!match) return dateStr;
+  const day = parseInt(match[1], 10);
+  const month = parseInt(match[2], 10);
+  let year = parseInt(match[3], 10);
+  if (year < 100) year += 2000;
+  const dt = new Date(year, month - 1, day);
+  if (isNaN(dt.getTime())) return dateStr;
+  dt.setDate(dt.getDate() + 1);
+  const nd = String(dt.getDate()).padStart(2, '0');
+  const nm = String(dt.getMonth() + 1).padStart(2, '0');
+  const ny = dt.getFullYear();
+  const sep = dateStr.includes('-') && !dateStr.includes('/') ? '-' : '/';
+  return `${nd}${sep}${nm}${sep}${ny}`;
+}
+
 export function createBlankRecord(dateStr?: string): DCCRecord {
   const now = new Date();
   // By default in GSRTC, today's DCC report is for yesterday's collection (e.g. 11th -> 10th)
