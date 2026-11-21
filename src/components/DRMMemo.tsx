@@ -59,18 +59,18 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-slate-300 print-card overflow-hidden max-w-4xl mx-auto my-4 text-black font-sans">
+    <div className="bg-white rounded-xl shadow-lg border-2 border-black print-card overflow-hidden max-w-4xl mx-auto my-4 text-black font-sans">
       {/* Container with official memo styling */}
       <div className="p-5 pr-6 sm:p-10 sm:pr-12 print:p-5 print:pr-7 space-y-5 print:space-y-0 print:flex-1 print:flex print:flex-col print:justify-between">
         <div className="space-y-5 print:space-y-4">
         {/* Header with dual emblems matching Photo 2 */}
-        <div className="relative text-center pb-4 border-b border-black">
-          <div className="flex items-center justify-between mb-2">
+        <div className="relative text-center pb-4 border-b-2 border-black">
+          <div className="flex items-center justify-between mb-2.5">
             {/* Left Emblem */}
             <img
               src={GSRTC_LOGO_BASE64}
               alt="GSRTC Logo Left"
-              className="w-16 h-16 print:w-14 print:h-14 rounded-full object-contain border border-black p-0.5 bg-white shrink-0"
+              className="w-20 h-20 print:w-16 print:h-16 rounded-full object-contain border-2 border-black p-0.5 bg-white shrink-0"
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).src = './gsrtc-logo.jpeg';
               }}
@@ -78,7 +78,7 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
 
             {/* Title */}
             <div className="flex-1 px-4">
-              <h2 className="text-xl sm:text-2xl print:text-xl font-black tracking-wider uppercase">
+              <h2 className="text-2xl sm:text-3xl print:text-2xl font-black tracking-wider uppercase text-black">
                 DAILY REVENUE MEMO
               </h2>
             </div>
@@ -87,17 +87,17 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
             <img
               src={GSRTC_LOGO_BASE64}
               alt="GSRTC Logo Right"
-              className="w-16 h-16 print:w-14 print:h-14 rounded-full object-contain border border-black p-0.5 bg-white shrink-0"
+              className="w-20 h-20 print:w-16 print:h-16 rounded-full object-contain border-2 border-black p-0.5 bg-white shrink-0"
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).src = './gsrtc-logo.jpeg';
               }}
             />
           </div>
 
-          <div className="grid grid-cols-2 text-xs font-bold pt-2 uppercase">
+          <div className="grid grid-cols-2 text-sm sm:text-base print:text-sm font-extrabold pt-2 uppercase">
             <div className="text-left space-y-0.5">
               <p>STATE TRANSPORT GUJARAT</p>
-              <p className="font-extrabold">{record.division}</p>
+              <p className="font-black">{record.division}</p>
             </div>
             <div className="text-right space-y-0.5">
               <p>{record.depotCode}</p>
@@ -106,47 +106,47 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
         </div>
 
         {/* Depot & Date Bar */}
-        <div className="flex items-center justify-between text-xs sm:text-sm font-bold">
+        <div className="flex items-center justify-between text-sm sm:text-base print:text-[15px] font-extrabold">
           <div className="flex items-center gap-2">
             <span className="uppercase">{record.depotCityNum}</span>
-            <span className="w-32 border-b border-black inline-block"></span>
+            <span className="w-32 border-b-2 border-black inline-block"></span>
           </div>
 
           <div className="flex items-center gap-2">
             <span>DATE-</span>
             {isPrintMode ? (
-              <span className="font-mono underline">{record.date}</span>
+              <span className="font-mono text-base sm:text-lg print:text-lg font-black underline">{record.date}</span>
             ) : (
               <input
                 type="text"
                 value={record.date}
                 onChange={(e) => handleDateChange(e.target.value)}
-                className="font-mono font-bold border-b border-black w-28 text-center bg-transparent focus:outline-none"
+                className="font-mono text-base sm:text-lg font-black border-b-2 border-black w-32 text-center bg-transparent focus:outline-none"
               />
             )}
           </div>
         </div>
 
         {/* Addressed To Section */}
-        <div className="text-xs sm:text-sm print:text-xs font-bold space-y-1.5 print:space-y-1 uppercase">
+        <div className="text-sm sm:text-base print:text-[13.5px] font-bold space-y-2 print:space-y-1.5 uppercase">
           <p className="text-right tracking-wide">{record.auditorTitle}</p>
           <p className="leading-relaxed">
             THE UNDERNOTED ARE PARTICULARS OF THE REVENUE REMITTED TO {record.bankName} ON{' '}
-            <span className="font-mono underline">{record.date}</span> NET CASH RECEIPTS ON
+            <span className="font-mono text-base print:text-[15px] font-black underline">{record.date}</span> NET CASH RECEIPTS ON
             PASSENGER BUS SERVICE, VIDE COL.
           </p>
         </div>
 
         {/* Income Table matching Photo 2 */}
         <div className="border-2 border-black flex-1">
-          <table className="w-full table-fixed text-xs sm:text-sm border-collapse">
+          <table className="w-full table-fixed text-sm sm:text-base border-collapse">
             <tbody>
               {/* Rural Income Row */}
               <tr className="border-b-2 border-black">
-                <td className="w-2/3 border-r-2 border-black p-3 print:py-2.5 print:px-3 font-bold uppercase text-slate-900 print:text-xs">
+                <td className="w-2/3 border-r-2 border-black p-3.5 sm:p-4 print:py-3 print:px-4 font-extrabold uppercase text-black print:text-[14px]">
                   RURAL INCOME
                 </td>
-                <td className="w-1/3 p-3 pr-3.5 sm:pr-4 print:py-2.5 print:px-3 print:pr-4 text-right font-mono font-bold text-base sm:text-lg print:text-base tabular-nums">
+                <td className="w-1/3 p-3.5 sm:p-4 pr-4 print:py-3 print:px-4 text-right font-mono font-black text-lg sm:text-xl print:text-lg tabular-nums">
                   {isPrintMode ? (
                     `${formatIndianInteger(record.ruralIncome)}/-`
                   ) : (
@@ -155,7 +155,7 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
                         type="number"
                         value={record.ruralIncome}
                         onChange={(e) => handleRuralChange(parseFloat(e.target.value))}
-                        className="w-24 sm:w-36 max-w-full min-w-0 text-right font-mono font-bold bg-transparent hover:bg-slate-100 focus:bg-amber-100 rounded px-1"
+                        className="w-24 sm:w-36 max-w-full min-w-0 text-right font-mono font-black bg-transparent hover:bg-slate-100 focus:bg-amber-100 rounded px-1"
                       />
                       <span className="shrink-0">/-</span>
                     </div>
@@ -221,7 +221,7 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
 
               {/* G-12 REMITTANCE Row matching Photo 2 */}
               <tr className="border-b-2 border-black bg-blue-50/20">
-                <td className="border-r-2 border-black p-3 print:py-2.5 print:px-3 font-bold uppercase text-slate-900 print:text-xs">
+                <td className="border-r-2 border-black p-3.5 sm:p-4 print:py-3 print:px-4 font-extrabold uppercase text-black print:text-[14px]">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span>G-12 REMITTANCE</span>
                     <span>(VIDE NO.</span>
@@ -239,7 +239,7 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
                     <span>)</span>
                   </div>
                 </td>
-                <td className="p-3 pr-3.5 sm:pr-4 print:py-2.5 print:px-3 print:pr-4 text-right font-mono font-bold text-base sm:text-lg print:text-base tabular-nums text-blue-950">
+                <td className="p-3.5 sm:p-4 pr-4 print:py-3 print:px-4 text-right font-mono font-black text-lg sm:text-xl print:text-lg tabular-nums text-blue-950">
                   {isPrintMode ? (
                     record.g12Amount > 0 ? `${formatIndianInteger(record.g12Amount)}/-` : '          /-'
                   ) : (
@@ -249,7 +249,7 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
                         value={record.g12Amount === 0 ? '' : record.g12Amount}
                         placeholder="0"
                         onChange={(e) => handleG12AmountChange(parseFloat(e.target.value))}
-                        className="w-24 sm:w-36 max-w-full min-w-0 text-right font-mono font-bold bg-transparent hover:bg-slate-100 focus:bg-amber-100 rounded px-1 text-blue-900"
+                        className="w-24 sm:w-36 max-w-full min-w-0 text-right font-mono font-black bg-transparent hover:bg-slate-100 focus:bg-amber-100 rounded px-1 text-blue-900"
                       />
                       <span className="shrink-0">/-</span>
                     </div>
@@ -258,29 +258,29 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
               </tr>
 
               {/* Empty placeholder rows matching Photo 2 ledger format */}
-              <tr className="border-b border-black h-10 print:h-11">
+              <tr className="border-b-2 border-black h-11 print:h-12">
                 <td className="border-r-2 border-black"></td>
-                <td className="text-right font-mono text-slate-400 pr-3.5 sm:pr-4 print:pr-4">/-</td>
+                <td className="text-right font-mono font-bold text-slate-600 pr-4">/-</td>
               </tr>
-              <tr className="border-b border-black h-10 print:h-11">
+              <tr className="border-b-2 border-black h-11 print:h-12">
                 <td className="border-r-2 border-black"></td>
-                <td className="text-right font-mono text-slate-400 pr-3.5 sm:pr-4 print:pr-4">/-</td>
+                <td className="text-right font-mono font-bold text-slate-600 pr-4">/-</td>
               </tr>
-              <tr className="border-b border-black h-10 print:h-11">
+              <tr className="border-b-2 border-black h-11 print:h-12">
                 <td className="border-r-2 border-black"></td>
-                <td className="text-right font-mono text-slate-400 pr-3.5 sm:pr-4 print:pr-4">/-</td>
+                <td className="text-right font-mono font-bold text-slate-600 pr-4">/-</td>
               </tr>
-              <tr className="border-b border-black h-10 print:h-11">
+              <tr className="border-b-2 border-black h-11 print:h-12">
                 <td className="border-r-2 border-black"></td>
-                <td className="text-right font-mono text-slate-400 pr-3.5 sm:pr-4 print:pr-4">/-</td>
+                <td className="text-right font-mono font-bold text-slate-600 pr-4">/-</td>
               </tr>
 
               {/* TOTAL ROW */}
-              <tr className="bg-slate-100 font-extrabold text-sm sm:text-base print:text-base border-t-2 border-black">
-                <td className="border-r-2 border-black p-3 print:py-2.5 print:px-3 font-black text-center tracking-widest">
+              <tr className="bg-slate-100 font-extrabold text-base sm:text-lg print:text-lg border-t-2 border-black">
+                <td className="border-r-2 border-black p-3.5 sm:p-4 print:py-3 print:px-4 font-black text-center tracking-widest">
                   TOTAL
                 </td>
-                <td className="p-3 pr-3.5 sm:pr-4 print:py-2.5 print:px-3 print:pr-4 text-right font-mono font-black text-lg sm:text-xl print:text-lg text-red-700 tabular-nums">
+                <td className="p-3.5 sm:p-4 pr-4 print:py-3 print:px-4 text-right font-mono font-black text-xl sm:text-2xl print:text-xl text-red-700 tabular-nums">
                   {formatIndianInteger(totalAmount)}/-
                 </td>
               </tr>
@@ -289,8 +289,8 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
         </div>
 
         {/* Amount in Words */}
-        <div className="p-3 print:p-3 bg-slate-50 border border-black rounded-lg">
-          <p className="text-xs sm:text-sm print:text-xs font-extrabold tracking-wide uppercase leading-normal">
+        <div className="p-3.5 print:p-3.5 bg-slate-50 border-2 border-black rounded-lg">
+          <p className="text-sm sm:text-base print:text-[13.5px] font-extrabold tracking-wide uppercase leading-normal">
             {words}
           </p>
         </div>
@@ -298,20 +298,20 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
 
         <div className="space-y-5 print:space-y-6">
         {/* Additional verification grid matching Photo 2 */}
-        <div className="border border-black">
-          <div className="grid grid-cols-3 divide-x divide-black border-b border-black text-center font-bold text-[11px] py-1 bg-slate-100">
+        <div className="border-2 border-black">
+          <div className="grid grid-cols-3 divide-x-2 divide-black border-b-2 border-black text-center font-extrabold text-xs py-1.5 bg-slate-100">
             <div>CASHIER</div>
             <div>TRAFFIC CONTROLLER</div>
             <div>DEPOT MANAGER</div>
           </div>
-          <div className="grid grid-cols-3 divide-x divide-black h-16 print:h-14">
-            <div className="flex items-end justify-center pb-2 print:pb-1.5 text-xs font-serif italic text-blue-900">
+          <div className="grid grid-cols-3 divide-x-2 divide-black h-16 print:h-16">
+            <div className="flex items-end justify-center pb-2 print:pb-1.5 text-sm font-serif italic text-blue-900">
               {record.cashierName}
             </div>
-            <div className="flex items-end justify-center pb-2 print:pb-1.5 text-xs font-serif italic text-blue-900">
+            <div className="flex items-end justify-center pb-2 print:pb-1.5 text-sm font-serif italic text-blue-900">
               {record.trafficSupervisorName}
             </div>
-            <div className="flex items-end justify-center pb-2 print:pb-1.5 text-xs font-serif italic text-blue-900">
+            <div className="flex items-end justify-center pb-2 print:pb-1.5 text-sm font-serif italic text-blue-900">
               {record.seniorDepotManagerName}
             </div>
           </div>

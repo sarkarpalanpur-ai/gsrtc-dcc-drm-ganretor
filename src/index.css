@@ -97,7 +97,11 @@
     break-inside: avoid !important;
   }
 
-  th, td {
+  th, td, tr {
+    border-color: #000000 !important;
+  }
+
+  .print-card, .print-card * {
     border-color: #000000 !important;
   }
 

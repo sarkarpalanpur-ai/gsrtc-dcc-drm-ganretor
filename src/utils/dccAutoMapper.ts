@@ -37,8 +37,14 @@ export function autoMapEnglishToGujaratiAndDRM(record: DCCRecord): DCCRecord {
   const refund = record.deductionItems[7]?.amount || 0;
   const miscExpenses = record.deductionItems[8]?.amount || 0;
   const shortAmount = record.deductionItems[9]?.amount || 0;
-  const digitalTransaction = record.deductionItems[11]?.amount || 0;
-  const uncollectedSleeper = record.deductionItems[12]?.amount || 0;
+  const digitalTransaction =
+    (record.deductionItems.find((d) => d.id === 'ded-12' || /digital\s*transaction/i.test(d.titleEn))?.amount ??
+      record.deductionItems[11]?.amount) ||
+    0;
+  const uncollectedSleeper =
+    (record.deductionItems.find((d) => d.id === 'ded-13' || /uncollected\s*sleeper/i.test(d.titleEn))?.amount ??
+      record.deductionItems[12]?.amount) ||
+    0;
 
   // The 4 Special Adjustment Fields (user-requested):
   const ccRefund = Number(record.ccRefund) || 0;

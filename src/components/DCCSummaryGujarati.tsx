@@ -56,31 +56,31 @@ export const DCCSummaryGujarati: React.FC<DCCSummaryGujaratiProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-slate-300 print-card overflow-hidden max-w-5xl mx-auto my-4 text-black font-gujarati">
+    <div className="bg-white rounded-xl shadow-lg border-2 border-black print-card overflow-hidden max-w-5xl mx-auto my-4 text-black font-gujarati">
       {/* Official Header matching Photo 1 */}
-      <div className="border-b-2 border-black p-3.5 print:p-2.5 text-center bg-white">
-        <div className="flex items-center justify-center gap-3">
+      <div className="border-b-2 border-black p-4 print:p-3 text-center bg-white">
+        <div className="flex items-center justify-center gap-3.5">
           <img
             src={GSRTC_LOGO_BASE64}
             alt="GSRTC Logo"
-            className="w-14 h-14 print:w-14 print:h-14 object-contain rounded-full border border-black p-0.5 bg-white shrink-0"
+            className="w-16 h-16 print:w-16 print:h-16 object-contain rounded-full border-2 border-black p-0.5 bg-white shrink-0"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).src = './gsrtc-logo.jpeg';
             }}
           />
           <div>
-            <h2 className="text-xl sm:text-2xl print:text-xl font-black tracking-wide text-black">
+            <h2 className="text-2xl sm:text-[26px] print:text-[23px] font-black tracking-wide text-black leading-tight">
               ગુજરાત રાજ્ય માર્ગ વાહન વ્યવહાર નિગમ, સુરત વિભાગ
             </h2>
-            <h3 className="text-base print:text-base font-bold text-slate-800 mt-0.5">
+            <h3 className="text-lg sm:text-xl print:text-[17px] font-extrabold text-black mt-0.5">
               ડી.સી.સી. સમરી સુરત સીટી
             </h3>
           </div>
         </div>
 
-        <div className="flex justify-between items-center text-xs sm:text-sm print:text-[13px] font-bold mt-2 px-2">
+        <div className="flex justify-between items-center text-sm sm:text-base print:text-[15px] font-extrabold mt-2.5 px-2">
           <span>સુરત વિભાગ • સુરત સીટી ડેપો-૨</span>
-          <span>તારીખ: <span className="font-mono print:text-sm">{record.date}</span></span>
+          <span>તારીખ: <span className="font-mono text-base sm:text-lg print:text-[17px] font-black underline">{record.date}</span></span>
         </div>
       </div>
 
@@ -100,14 +100,14 @@ export const DCCSummaryGujarati: React.FC<DCCSummaryGujaratiProps> = ({
               </thead>
               <tbody>
                 {record.gujaratiIncomes.map((item, idx) => (
-                  <tr key={item.id || idx} className="border-b border-slate-300 hover:bg-amber-50/50">
-                    <td className="border-r border-black py-2 print:py-[7px] px-0.5 text-center font-mono text-[11px] print:text-[12.5px] text-slate-600">
+                  <tr key={item.id || idx} className="border-b border-black hover:bg-amber-50/50">
+                    <td className="border-r border-black py-2 print:py-[6px] px-0.5 text-center font-mono text-[11px] print:text-[12.5px] text-black">
                       {idx + 1}
                     </td>
-                    <td className="border-r border-black py-2 print:py-[7px] px-0.5 text-center font-mono font-bold text-xs print:text-[13px]">
+                    <td className="border-r border-black py-2 print:py-[6px] px-0.5 text-center font-mono font-bold text-xs print:text-[13px]">
                       {item.headNo || '-'}
                     </td>
-                    <td className="border-r border-black py-2 print:py-[7px] px-1.5 text-xs print:text-[13.5px] font-semibold text-slate-900 break-words">
+                    <td className="border-r border-black py-2 print:py-[6px] px-1.5 text-xs print:text-[13.5px] font-semibold text-black break-words">
                       {item.titleGu}
                     </td>
                     <td className="py-0 px-1.5 text-right">
@@ -159,14 +159,14 @@ export const DCCSummaryGujarati: React.FC<DCCSummaryGujaratiProps> = ({
                   </thead>
                   <tbody>
                     {record.gujaratiDeductions.map((item, idx) => (
-                      <tr key={item.id || idx} className="border-b border-slate-300 hover:bg-amber-50/50">
-                        <td className="border-r border-black py-2.5 print:py-[10px] px-0.5 text-center font-mono text-[11px] print:text-[12.5px] text-slate-600">
+                      <tr key={item.id || idx} className="border-b border-black hover:bg-amber-50/50">
+                        <td className="border-r border-black py-2.5 print:py-[8.5px] px-0.5 text-center font-mono text-[11px] print:text-[12.5px] text-black">
                           {idx + 1}
                         </td>
-                        <td className="border-r border-black py-2.5 print:py-[10px] px-0.5 text-center font-mono font-bold text-xs print:text-[13px]">
+                        <td className="border-r border-black py-2.5 print:py-[8.5px] px-0.5 text-center font-mono font-bold text-xs print:text-[13px]">
                           {item.headNo || '-'}
                         </td>
-                        <td className="border-r border-black py-2.5 print:py-[10px] px-1.5 text-xs print:text-[13.5px] font-semibold text-slate-900 break-words">
+                        <td className="border-r border-black py-2.5 print:py-[8.5px] px-1.5 text-xs print:text-[13.5px] font-semibold text-black break-words">
                           {item.titleGu}
                         </td>
                         <td className="py-0 px-1.5 pr-2.5 print:pr-3 text-right">
@@ -210,14 +210,14 @@ export const DCCSummaryGujarati: React.FC<DCCSummaryGujaratiProps> = ({
                 <table className="w-full table-fixed text-xs print:text-[13.5px] print:flex-1 print:h-full">
                   <tbody>
                     {record.gujaratiOtherIncomes.map((item, idx) => (
-                      <tr key={item.id || idx} className="border-b border-slate-200">
-                        <td className="w-7 print:w-8 border-r border-black py-2 print:py-[9px] px-0.5 text-center font-mono text-[11px] print:text-[12.5px]">
+                      <tr key={item.id || idx} className="border-b border-black">
+                        <td className="w-7 print:w-8 border-r border-black py-2 print:py-[7.5px] px-0.5 text-center font-mono text-[11px] print:text-[12.5px]">
                           {idx + 1}
                         </td>
-                        <td className="w-14 print:w-16 border-r border-black py-2 print:py-[9px] px-0.5 text-center font-mono font-bold text-xs print:text-[13px]">
+                        <td className="w-14 print:w-16 border-r border-black py-2 print:py-[7.5px] px-0.5 text-center font-mono font-bold text-xs print:text-[13px]">
                           {item.headNo || '-'}
                         </td>
-                        <td className="border-r border-black py-2 print:py-[9px] px-1.5 text-xs print:text-[13.5px] font-semibold text-slate-800 break-words">
+                        <td className="border-r border-black py-2 print:py-[7.5px] px-1.5 text-xs print:text-[13.5px] font-semibold text-black break-words">
                           {item.titleGu}
                         </td>
                         <td className="w-20 sm:w-24 print:w-24 py-0 px-1.5 pr-2.5 print:pr-3 text-right">
@@ -359,7 +359,7 @@ export const DCCSummaryGujarati: React.FC<DCCSummaryGujaratiProps> = ({
       </div>
 
       {/* Official Signatures Bar matching Photo 1 */}
-      <div className="p-4 pt-6 print:p-3 print:pt-4 grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 print-cols-3 gap-4 print:gap-2 text-center text-xs print:text-[12.5px] font-bold border-t border-black bg-white">
+      <div className="p-4 pt-6 print:p-3 print:pt-4 grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 print-cols-3 gap-4 print:gap-2 text-center text-xs print:text-[12.5px] font-bold border-t-2 border-black bg-white">
         <div className="space-y-1">
           <div className="h-10 print:h-8"></div>
           <div className="border-t border-dashed border-black pt-1">

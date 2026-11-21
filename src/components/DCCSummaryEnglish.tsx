@@ -68,23 +68,23 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-slate-300 print-card overflow-hidden max-w-5xl mx-auto my-4 text-black font-sans">
+    <div className="bg-white rounded-xl shadow-lg border-2 border-black print-card overflow-hidden max-w-5xl mx-auto my-4 text-black font-sans">
       {/* Official Corporation Header matching Photo 3 */}
-      <div className="border-b-2 border-black p-3.5 print:p-2 text-center bg-white">
-        <div className="flex items-center justify-center gap-3">
+      <div className="border-b-2 border-black p-4 print:p-3 text-center bg-white">
+        <div className="flex items-center justify-center gap-3.5">
           <img
             src={GSRTC_LOGO_BASE64}
             alt="GSRTC Logo"
-            className="w-14 h-14 print:w-12 print:h-12 object-contain rounded-full border border-black p-0.5 bg-white shrink-0"
+            className="w-16 h-16 print:w-14 print:h-14 object-contain rounded-full border-2 border-black p-0.5 bg-white shrink-0"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).src = './gsrtc-logo.jpeg';
             }}
           />
           <div>
-            <h2 className="text-lg sm:text-xl print:text-base font-black tracking-wide uppercase text-black">
+            <h2 className="text-xl sm:text-2xl print:text-xl font-black tracking-wide uppercase text-black">
               Gujarat State Road Transport Corporation
             </h2>
-            <div className="grid grid-cols-2 text-xs print:text-[11px] font-bold uppercase mt-0.5 border-t border-black pt-0.5">
+            <div className="grid grid-cols-2 text-sm print:text-[13px] font-extrabold uppercase mt-1 border-t-2 border-black pt-1">
               <div className="text-center">{record.division}</div>
               <div className="text-center">{record.depot}</div>
             </div>
@@ -93,15 +93,20 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
       </div>
 
       {/* Document Subheader */}
-      <div className="border-b-2 border-black bg-slate-100 py-1.5 px-3 text-center">
-        <h3 className="text-sm font-extrabold uppercase tracking-wider text-black">
+      <div className="border-b-2 border-black bg-slate-100 py-2 px-3 text-center">
+        <h3 className="text-base print:text-[15px] font-black uppercase tracking-wider text-black">
           DAILY CASH COLLECTION SUMMARY
         </h3>
       </div>
 
       {/* Collection Date & Generation Time Bar */}
-      <div className="border-b-2 border-black grid grid-cols-1 sm:grid-cols-2 text-xs font-bold px-3 py-1 bg-white">
-        <div>Collection For the Date : {record.date}</div>
+      <div className="border-b-2 border-black grid grid-cols-1 sm:grid-cols-2 text-xs sm:text-sm print:text-[13px] font-bold px-3 py-1.5 bg-white items-center">
+        <div>
+          Collection For the Date :{' '}
+          <span className="font-mono text-sm sm:text-base print:text-[15.5px] font-black underline">
+            {record.date}
+          </span>
+        </div>
         <div className="sm:text-right">Report Generated Time : {record.reportGeneratedTime}</div>
       </div>
 
@@ -128,8 +133,8 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
                     {/* Revenue Column */}
                     <td className="border-r-2 border-black p-0 align-middle">
                       {rev ? (
-                        <div className="flex items-center justify-between px-2.5 py-2.5 print:py-3 print:min-h-[38px] min-h-[30px] gap-1.5">
-                          <span className="font-semibold text-slate-800 print:text-[13.5px] min-w-0 break-words">
+                        <div className="flex items-center justify-between px-2.5 py-2.5 print:py-[11px] print:min-h-[36px] min-h-[30px] gap-1.5">
+                          <span className="font-semibold text-black print:text-[13.5px] min-w-0 break-words">
                             {idx + 1}. {rev.titleEn}
                           </span>
                           {isPrintMode ? (
@@ -152,8 +157,8 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
                     {/* Deduction Column */}
                     <td className="p-0 align-middle">
                       {ded ? (
-                        <div className="flex items-center justify-between px-2.5 pr-3.5 py-2.5 print:py-3 print:pr-4 min-h-[30px] print:min-h-[38px] gap-1.5">
-                          <span className="font-semibold text-slate-800 print:text-[13.5px] min-w-0 break-words">
+                        <div className="flex items-center justify-between px-2.5 pr-3.5 py-2.5 print:py-[11px] print:pr-4 min-h-[30px] print:min-h-[36px] gap-1.5">
+                          <span className="font-semibold text-black print:text-[13.5px] min-w-0 break-words">
                             {idx + 1}. {ded.titleEn}
                           </span>
                           {isPrintMode ? (
@@ -430,9 +435,9 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
             {record.stateWiseIncomes.map((stateItem, idx) => (
               <div
                 key={stateItem.state}
-                className="grid grid-cols-2 px-3 py-1.5 print:py-1 border-b border-slate-300 last:border-b-0 items-center hover:bg-slate-50"
+                className="grid grid-cols-2 px-3 py-1.5 print:py-1 border-b border-black last:border-b-0 items-center hover:bg-slate-50"
               >
-                <span className="font-semibold text-slate-800 print:text-[11px]">{stateItem.state}</span>
+                <span className="font-semibold text-black print:text-[11px]">{stateItem.state}</span>
                 {isPrintMode ? (
                   <span className="text-right font-mono font-bold tabular-nums print:text-[11px]">
                     {formatIndianNumber(stateItem.amount)}
@@ -456,7 +461,7 @@ export const DCCSummaryEnglish: React.FC<DCCSummaryEnglishProps> = ({
           <div className="bg-slate-200 font-bold px-3 pr-3.5 py-1 border-b border-black text-center uppercase">
             GST Details
           </div>
-          <div className="divide-y divide-slate-300">
+          <div className="divide-y divide-black">
             <div className="flex items-center justify-between px-3 pr-3.5 py-2 print:py-1.5 print:pr-4">
               <span className="font-semibold print:text-[11px]">1) Collected Cash GST Amt</span>
               {isPrintMode ? (
