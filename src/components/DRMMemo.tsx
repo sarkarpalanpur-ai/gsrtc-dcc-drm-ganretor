@@ -1,5 +1,5 @@
 import React from 'react';
-import { DCCRecord } from '../types';
+import { DCCRecord, DRMG12DetailRow } from '../types';
 import { formatIndianInteger, numberToIndianCurrencyWords } from '../utils/numberToWords';
 import { getNextDayDateString } from '../utils/defaultData';
 import { GSRTC_LOGO_BASE64 } from '../utils/logoBase64';
@@ -62,6 +62,47 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
 
   const handleDateChange = (val: string) => {
     onChange({ ...record, date: val });
+  };
+
+  const defaultRowCount = 6;
+  const savedG12Details: DRMG12DetailRow[] = record.drmG12Details || [];
+  const totalDetailRows = Math.max(defaultRowCount, savedG12Details.length);
+  const g12DetailRows: DRMG12DetailRow[] = Array.from({ length: totalDetailRows }, (_, idx) => ({
+    g12No: savedG12Details[idx]?.g12No || '',
+    detail: savedG12Details[idx]?.detail || '',
+    amount: savedG12Details[idx]?.amount || '',
+  }));
+
+  const handleG12DetailChange = (
+    rowIdx: number,
+    field: keyof DRMG12DetailRow,
+    val: string
+  ) => {
+    const nextRows = g12DetailRows.map((row, idx) =>
+      idx === rowIdx ? { ...row, [field]: val } : row
+    );
+    onChange({
+      ...record,
+      drmG12Details: nextRows,
+    });
+  };
+
+  const handleAddG12DetailRow = () => {
+    onChange({
+      ...record,
+      drmG12Details: [...g12DetailRows, { g12No: '', detail: '', amount: '' }],
+    });
+  };
+
+  const formatDetailAmountForPrint = (raw: string): string => {
+    const trimmed = (raw || '').trim();
+    if (!trimmed) return '';
+    const cleaned = trimmed.replace(/,/g, '').replace(/\/-$/, '');
+    const num = Number(cleaned);
+    if (!isNaN(num) && cleaned !== '') {
+      return `${formatIndianInteger(num)}/-`;
+    }
+    return trimmed.endsWith('/-') ? trimmed : `${trimmed}/-`;
   };
 
   // Extra non-zero rows placed inside the 3-column upper ledger section
@@ -334,7 +375,7 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
             {words}
           </div>
 
-          {/* Middle 2-cell stub + 6-row x 3-column blank grid matching Word Form */}
+          {/* Middle 1 skipped stub line below RS:- + 6-row x 3-column G-12 detail grid */}
           <table className="w-full table-fixed border-collapse text-black">
             <colgroup>
               <col className="w-[24%]" />
@@ -343,23 +384,92 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
               <col className="w-[24%]" />
             </colgroup>
             <tbody>
-              {/* Upper 2-cell stub row (open on right just like Word form) */}
+              {/* Upper 2-cell stub row (1 blank line skipped below amount-in-words) */}
               <tr className="h-11 print:h-[40px]">
                 <td colSpan={2} className="border-l-[1.5px] border-r border-b border-black"></td>
                 <td className="border-r border-b border-black"></td>
                 <td className="border-b border-black"></td>
               </tr>
 
-              {/* 6 blank rows x 3 columns */}
-              {[0, 1, 2, 3, 4, 5].map((rIdx) => (
-                <tr key={`mid-${rIdx}`} className="h-11 print:h-[40px] border-b border-black">
-                  <td className="border-l-[1.5px] border-r border-black"></td>
-                  <td colSpan={2} className="border-r border-black"></td>
-                  <td className="border-r-[1.5px] border-black"></td>
-                </tr>
-              ))}
+              {/* G-12 Detail rows x 3 columns (1st: G-12 No, 2nd: Detail/Reason, 3rd: Amount) */}
+              {g12DetailRows.map((row, rIdx) => {
+                const hasAnyValue = Boolean(row.g12No.trim() || row.detail.trim() || row.amount.trim());
+                return (
+                  <tr key={`mid-${rIdx}`} className="h-11 print:h-[40px] border-b border-black">
+                    {/* 1st box: G-12 No */}
+                    <td className="border-l-[1.5px] border-r border-black px-2 py-1 text-center font-mono font-black text-sm sm:text-[15px] print:text-[14px]">
+                      {isPrintMode ? (
+                        row.g12No
+                      ) : (
+                        <input
+                          type="text"
+                          value={row.g12No}
+                          onChange={(e) => handleG12DetailChange(rIdx, 'g12No', e.target.value)}
+                          placeholder={rIdx === 0 ? 'G-12 નં.' : ''}
+                          className="w-full text-center font-mono font-black text-sm sm:text-[15px] text-black bg-transparent hover:bg-slate-100 focus:bg-amber-100 focus:outline-none rounded px-1 placeholder:text-slate-400 placeholder:font-normal placeholder:text-xs print:placeholder-transparent"
+                        />
+                      )}
+                    </td>
+
+                    {/* 2nd box: Reason / Detail */}
+                    <td
+                      colSpan={2}
+                      className="border-r border-black px-2.5 py-1 text-left font-bold text-sm sm:text-[14.5px] print:text-[13.5px]"
+                    >
+                      {isPrintMode ? (
+                        row.detail
+                      ) : (
+                        <input
+                          type="text"
+                          value={row.detail}
+                          onChange={(e) => handleG12DetailChange(rIdx, 'detail', e.target.value)}
+                          placeholder={rIdx === 0 ? 'વિગત (દા.ત. ગાડી નો કાચ નુકસાની)' : ''}
+                          className="w-full text-left font-bold text-sm sm:text-[14.5px] text-black bg-transparent hover:bg-slate-100 focus:bg-amber-100 focus:outline-none rounded px-1 placeholder:text-slate-400 placeholder:font-normal placeholder:text-xs print:placeholder-transparent"
+                        />
+                      )}
+                    </td>
+
+                    {/* 3rd box: Amount */}
+                    <td className="border-r-[1.5px] border-black px-2 py-1 text-center font-mono font-black text-sm sm:text-[15px] print:text-[14.5px] tabular-nums">
+                      {isPrintMode ? (
+                        hasAnyValue && row.amount.trim() ? formatDetailAmountForPrint(row.amount) : ''
+                      ) : (
+                        <div className="flex items-center justify-center gap-0.5 min-w-0">
+                          <input
+                            type="text"
+                            inputMode="decimal"
+                            value={row.amount}
+                            onChange={(e) => handleG12DetailChange(rIdx, 'amount', e.target.value)}
+                            placeholder={rIdx === 0 ? 'રકમ (2000)' : ''}
+                            className="w-full min-w-0 text-center font-mono font-black text-sm sm:text-[15px] text-black bg-transparent hover:bg-slate-100 focus:bg-amber-100 focus:outline-none rounded px-1 placeholder:text-slate-400 placeholder:font-normal placeholder:text-xs print:placeholder-transparent"
+                          />
+                          {row.amount.trim() && !row.amount.trim().endsWith('/-') && (
+                            <span className="shrink-0 font-black">/-</span>
+                          )}
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
+          {!isPrintMode &&
+            Boolean(
+              g12DetailRows[g12DetailRows.length - 1]?.g12No.trim() ||
+                g12DetailRows[g12DetailRows.length - 1]?.detail.trim() ||
+                g12DetailRows[g12DetailRows.length - 1]?.amount.trim()
+            ) && (
+              <div className="no-print flex justify-end mt-1">
+                <button
+                  type="button"
+                  onClick={handleAddG12DetailRow}
+                  className="text-xs font-bold text-blue-700 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded px-2 py-0.5 cursor-pointer"
+                >
+                  + વધુ G-12 વિગત ઉમેરો
+                </button>
+              </div>
+            )}
         </div>
 
         {/* Bottom Large Bordered Box with Signatures at the very bottom ("last ma sahi") */}

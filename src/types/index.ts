@@ -30,6 +30,12 @@ export interface DRMSlipDetails {
   total: number;
 }
 
+export interface DRMG12DetailRow {
+  g12No: string;
+  detail: string;
+  amount: string;
+}
+
 export interface DCCRecord {
   id: string;
   date: string;               // DD/MM/YYYY e.g., "06/11/2026"
@@ -75,6 +81,7 @@ export interface DCCRecord {
   urbanIncome: number;
   bankName: string;           // "SBI"
   auditorTitle: string;       // "THE DIVISIONAL AUDITOR SURAT DIVISION"
+  drmG12Details?: DRMG12DetailRow[];
 
   // Signatures / Personnel
   cashierName: string;

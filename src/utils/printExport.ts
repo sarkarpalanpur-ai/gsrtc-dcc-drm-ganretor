@@ -417,6 +417,31 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
     });
   }
   const drmBlankThreeCol = Math.max(0, 4 - (1 + drmExtraRows.length));
+  const escapeHtml = (str: string) =>
+    str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  const savedDrmG12 = record.drmG12Details || [];
+  const drmG12RowCount = Math.max(6, savedDrmG12.length);
+  const drmG12Rows = Array.from({ length: drmG12RowCount }, (_, idx) => {
+    const item = savedDrmG12[idx];
+    const g12No = escapeHtml((item?.g12No || '').trim());
+    const detail = escapeHtml((item?.detail || '').trim());
+    const rawAmt = (item?.amount || '').trim();
+    let amount = '';
+    if (rawAmt) {
+      const cleaned = rawAmt.replace(/,/g, '').replace(/\/-$/, '');
+      const num = Number(cleaned);
+      if (!isNaN(num) && cleaned !== '') {
+        amount = `${formatIndianInteger(num)}/-`;
+      } else {
+        amount = escapeHtml(rawAmt.endsWith('/-') ? rawAmt : `${rawAmt}/-`);
+      }
+    }
+    return { g12No, detail, amount };
+  });
 
   const drmHtml = `
     <div class="page drm-page-clean" style="border: none; padding: 14px 20px 12px 18px;">
@@ -507,7 +532,7 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
             ${drmWordsText}
           </div>
 
-          <!-- Middle 2-cell stub + 6x3 endorsement grid -->
+          <!-- Middle 1 skipped stub line below RS:- + 6x3 G-12 detail grid -->
           <table style="width: 100%; border-collapse: collapse;">
             <colgroup>
               <col style="width: 24%;" />
@@ -521,11 +546,11 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
                 <td style="border-top: none; border-right: 1px solid #000; border-bottom: 1px solid #000;"></td>
                 <td style="border-top: none; border-right: none; border-bottom: 1px solid #000;"></td>
               </tr>
-              ${[0, 1, 2, 3, 4, 5].map(() => `
+              ${drmG12Rows.map((row) => `
                 <tr style="height: 40px;">
-                  <td style="border-left: 1.5px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000;"></td>
-                  <td colspan="2" style="border-right: 1px solid #000; border-bottom: 1px solid #000;"></td>
-                  <td style="border-right: 1.5px solid #000; border-bottom: 1px solid #000;"></td>
+                  <td style="border-left: 1.5px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000; text-align: center; font-weight: 900; font-size: 14px; padding: 4px 8px;" class="font-mono">${row.g12No}</td>
+                  <td colspan="2" style="border-right: 1px solid #000; border-bottom: 1px solid #000; text-align: left; font-weight: 700; font-size: 13.5px; padding: 4px 10px;">${row.detail}</td>
+                  <td style="border-right: 1.5px solid #000; border-bottom: 1px solid #000; text-align: center; font-weight: 900; font-size: 14.5px; padding: 4px 8px;" class="font-mono">${row.amount}</td>
                 </tr>
               `).join('')}
             </tbody>
