@@ -31,9 +31,9 @@ export interface DRMSlipDetails {
 }
 
 export interface DRMG12DetailRow {
-  g12No: string;
-  detail: string;
-  amount: string;
+  g12No?: string;
+  detail?: string;
+  amount?: string;
 }
 
 export interface DCCRecord {

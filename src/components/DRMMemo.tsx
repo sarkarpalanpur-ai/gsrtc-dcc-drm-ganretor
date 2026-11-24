@@ -16,7 +16,18 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
   isPrintMode = false,
 }) => {
   const holidayDrmAmount = Number(record.drmSlip?.drm) || 0;
-  const g12Amt = Number(record.g12Amount) || 0;
+  const g12FromOtherItem = record.gujaratiOtherIncomes?.find((o) => o.headNo === '140');
+  const g12Amt =
+    Number(record.g12Amount) ||
+    Number(record.drmSlip?.g12) ||
+    Number(g12FromOtherItem?.amount) ||
+    0;
+  const g12NumFromTitle = (() => {
+    const t = g12FromOtherItem?.titleGu || '';
+    const m = t.match(/G-?12\s*(?:નં\.?|No\.?)?\s*[:\-]?\s*([A-Za-z0-9\-\/]+)/i);
+    return m?.[1]?.trim() || '';
+  })();
+  const resolvedG12Number = (record.g12Number || '').trim() || g12NumFromTitle;
   const todayCash = Number(record.ruralIncome) || 0;
   const ccDepAmt = Number(record.drmSlip?.ccDeposit ?? record.ccAmount) || 0;
   const diwaliExtAmt = Number(record.drmSlip?.diwaliExt ?? record.diwaliExtra) || 0;
@@ -36,9 +47,15 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
 
   const handleG12AmountChange = (val: number) => {
     const clean = isNaN(val) ? 0 : val;
+    const nextDetails = (record.drmG12Details || []).map((row, idx) => {
+      if (idx !== 0) return row;
+      const { amount: _ignored, ...rest } = row || {};
+      return rest;
+    });
     onChange({
       ...record,
       g12Amount: clean,
+      ...(record.drmG12Details ? { drmG12Details: nextDetails } : {}),
       drmSlip: {
         ...record.drmSlip,
         g12: clean,
@@ -54,9 +71,15 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
   };
 
   const handleG12NumberChange = (val: string) => {
+    const nextDetails = (record.drmG12Details || []).map((row, idx) => {
+      if (idx !== 0) return row;
+      const { g12No: _ignored, ...rest } = row || {};
+      return rest;
+    });
     onChange({
       ...record,
       g12Number: val,
+      ...(record.drmG12Details ? { drmG12Details: nextDetails } : {}),
     });
   };
 
@@ -67,20 +90,26 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
   const defaultRowCount = 6;
   const savedG12Details: DRMG12DetailRow[] = record.drmG12Details || [];
   const totalDetailRows = Math.max(defaultRowCount, savedG12Details.length);
-  const g12DetailRows: DRMG12DetailRow[] = Array.from({ length: totalDetailRows }, (_, idx) => ({
-    g12No: savedG12Details[idx]?.g12No || '',
-    detail: savedG12Details[idx]?.detail || '',
-    amount: savedG12Details[idx]?.amount || '',
-  }));
+  const g12DetailRows = Array.from({ length: totalDetailRows }, (_, idx) => {
+    const saved = savedG12Details[idx];
+    const autoNo = idx === 0 ? resolvedG12Number : '';
+    const autoAmt = idx === 0 && g12Amt > 0 ? String(g12Amt) : '';
+    return {
+      g12No: saved?.g12No?.trim() ? saved.g12No : autoNo,
+      detail: saved?.detail || '',
+      amount: saved?.amount?.trim() ? saved.amount : autoAmt,
+    };
+  });
 
   const handleG12DetailChange = (
     rowIdx: number,
     field: keyof DRMG12DetailRow,
     val: string
   ) => {
-    const nextRows = g12DetailRows.map((row, idx) =>
-      idx === rowIdx ? { ...row, [field]: val } : row
-    );
+    const nextRows: DRMG12DetailRow[] = Array.from({ length: totalDetailRows }, (_, idx) => {
+      const existing = savedG12Details[idx] || {};
+      return idx === rowIdx ? { ...existing, [field]: val } : existing;
+    });
     onChange({
       ...record,
       drmG12Details: nextRows,
@@ -88,9 +117,13 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
   };
 
   const handleAddG12DetailRow = () => {
+    const existingRows: DRMG12DetailRow[] = Array.from(
+      { length: totalDetailRows },
+      (_, idx) => savedG12Details[idx] || {}
+    );
     onChange({
       ...record,
-      drmG12Details: [...g12DetailRows, { g12No: '', detail: '', amount: '' }],
+      drmG12Details: [...existingRows, {}],
     });
   };
 
@@ -151,7 +184,7 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
     });
   }
 
-  const showG12InPrint = g12Amt > 0 || Boolean(record.g12Number?.trim());
+  const showG12InPrint = g12Amt > 0 || Boolean(resolvedG12Number);
   const usedRowsCount =
     1 + extraUpperRows.length + (!isPrintMode || showG12InPrint ? 1 : 0);
   const blankThreeColCount = Math.max(0, 4 - usedRowsCount);
@@ -296,15 +329,15 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span>G-12</span>
                         {isPrintMode ? (
-                          record.g12Number ? (
+                          resolvedG12Number ? (
                             <span className="font-mono underline font-bold">
-                              ({record.g12Number})
+                              ({resolvedG12Number})
                             </span>
                           ) : null
                         ) : (
                           <input
                             type="text"
-                            value={record.g12Number || ''}
+                            value={record.g12Number || resolvedG12Number}
                             placeholder="No."
                             onChange={(e) => handleG12NumberChange(e.target.value)}
                             className="w-20 border-b border-blue-600 font-mono font-bold text-blue-900 bg-blue-50/40 px-1 py-0.5 rounded text-xs focus:bg-amber-100 focus:outline-none"
@@ -314,12 +347,12 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
                     </td>
                     <td className="px-3 py-2 text-center font-mono font-black text-[15px] sm:text-base print:text-[15.5px] tabular-nums text-blue-950">
                       {isPrintMode ? (
-                        record.g12Amount > 0 ? `${formatIndianInteger(record.g12Amount)}/-` : ''
+                        g12Amt > 0 ? `${formatIndianInteger(g12Amt)}/-` : ''
                       ) : (
                         <div className="flex items-center justify-center gap-1 min-w-0">
                           <input
                             type="number"
-                            value={record.g12Amount === 0 ? '' : record.g12Amount}
+                            value={g12Amt === 0 ? '' : g12Amt}
                             placeholder="0"
                             onChange={(e) => handleG12AmountChange(parseFloat(e.target.value))}
                             className="w-24 sm:w-28 max-w-full min-w-0 text-right font-mono font-black text-[15px] sm:text-base bg-transparent hover:bg-slate-100 focus:bg-amber-100 rounded px-1 text-blue-900"
@@ -423,7 +456,7 @@ export const DRMMemo: React.FC<DRMMemoProps> = ({
                           type="text"
                           value={row.detail}
                           onChange={(e) => handleG12DetailChange(rIdx, 'detail', e.target.value)}
-                          placeholder={rIdx === 0 ? 'વિગત (દા.ત. ગાડી નો કાચ નુકસાની)' : ''}
+                          placeholder={rIdx === 0 ? 'અહીં વિગત લખો (દા.ત. ગાડી નો કાચ નુકસાની)' : ''}
                           className="w-full text-left font-bold text-sm sm:text-[14.5px] text-black bg-transparent hover:bg-slate-100 focus:bg-amber-100 focus:outline-none rounded px-1 placeholder:text-slate-400 placeholder:font-normal placeholder:text-xs print:placeholder-transparent"
                         />
                       )}

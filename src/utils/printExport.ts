@@ -9,7 +9,18 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
   const engTotals = calculateEnglishTotals(record);
   const gujTotals = calculateGujaratiTotals(record);
   const holidayDrmAmount = Number(record.drmSlip?.drm) || 0;
-  const g12Amt = Number(record.g12Amount) || 0;
+  const g12FromOtherItem = record.gujaratiOtherIncomes?.find((o) => o.headNo === '140');
+  const g12Amt =
+    Number(record.g12Amount) ||
+    Number(record.drmSlip?.g12) ||
+    Number(g12FromOtherItem?.amount) ||
+    0;
+  const g12NumFromTitle = (() => {
+    const t = g12FromOtherItem?.titleGu || '';
+    const m = t.match(/G-?12\s*(?:નં\.?|No\.?)?\s*[:\-]?\s*([A-Za-z0-9\-\/]+)/i);
+    return m?.[1]?.trim() || '';
+  })();
+  const resolvedG12Number = (record.g12Number || '').trim() || g12NumFromTitle;
   const todayCash = Number(record.ruralIncome) || 0;
   const ccDepAmt = Number(record.drmSlip?.ccDeposit ?? record.ccAmount) || 0;
   const diwaliExtAmt = Number(record.drmSlip?.diwaliExt ?? record.diwaliExtra) || 0;
@@ -410,9 +421,9 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
   if (ccDepAmt > 0) drmExtraRows.push({ label: 'CC DEPOSIT (+)', amountText: `${formatIndianInteger(ccDepAmt)}/-` });
   if (diwaliExtAmt > 0) drmExtraRows.push({ label: 'DIWALI EXTRA (+)', amountText: `${formatIndianInteger(diwaliExtAmt)}/-` });
   if (ccRefAmt > 0) drmExtraRows.push({ label: 'LESS: CC / DIWALI REFUND (-)', amountText: `- ${formatIndianInteger(ccRefAmt)}/-`, isNeg: true });
-  if (g12Amt > 0 || (record.g12Number && record.g12Number.trim())) {
+  if (g12Amt > 0 || resolvedG12Number) {
     drmExtraRows.push({
-      label: `G-12 ${record.g12Number ? '(' + record.g12Number + ')' : ''}`.trim(),
+      label: `G-12 ${resolvedG12Number ? '(' + resolvedG12Number + ')' : ''}`.trim(),
       amountText: g12Amt > 0 ? `${formatIndianInteger(g12Amt)}/-` : '',
     });
   }
@@ -427,9 +438,11 @@ export function generatePrintableHtml(record: DCCRecord, mode: PrintMode): strin
   const drmG12RowCount = Math.max(6, savedDrmG12.length);
   const drmG12Rows = Array.from({ length: drmG12RowCount }, (_, idx) => {
     const item = savedDrmG12[idx];
-    const g12No = escapeHtml((item?.g12No || '').trim());
+    const autoNo = idx === 0 ? resolvedG12Number : '';
+    const autoAmt = idx === 0 && g12Amt > 0 ? String(g12Amt) : '';
+    const g12No = escapeHtml((item?.g12No?.trim() ? item.g12No : autoNo).trim());
     const detail = escapeHtml((item?.detail || '').trim());
-    const rawAmt = (item?.amount || '').trim();
+    const rawAmt = (item?.amount?.trim() ? item.amount : autoAmt).trim();
     let amount = '';
     if (rawAmt) {
       const cleaned = rawAmt.replace(/,/g, '').replace(/\/-$/, '');
